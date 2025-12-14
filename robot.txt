@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://votredomaine.com/sitemap.xml
+
+# Délai entre les requêtes (optionnel)
+Crawl-delay: 10

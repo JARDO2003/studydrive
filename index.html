@@ -1,0 +1,3491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Express Exchange</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            color: #ffffff;
+        }
+
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 8s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* LOADING SPINNER */
+        .main-loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            min-height: 400px;
+        }
+
+        .stylish-loader {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+        }
+
+        .stylish-loader::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top: 3px solid #ff0050;
+            border-right: 3px solid #00f5ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .stylish-loader::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 60px;
+            height: 60px;
+            border: 2px solid transparent;
+            border-bottom: 2px solid #ff0050;
+            border-left: 2px solid #25f4ee;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite reverse;
+        }
+
+        .loading-text {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            animation: pulse 2s ease-in-out infinite;
+            text-align: center;
+        }
+
+        .loading-subtext {
+            color: #8e8e8e;
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* BARRE DE RECHERCHE */
+        .search-container {
+            background: #000000;
+            border-bottom: 1px solid #262626;
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 45px;
+            border: 1px solid #262626;
+            border-radius: 25px;
+            font-size: 14px;
+            background: #1a1a1a;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #ff0050;
+            background: #000000;
+            box-shadow: 0 0 0 2px rgba(255, 0, 80, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: #8e8e8e;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8e8e8e;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #8e8e8e;
+            cursor: pointer;
+            font-size: 18px;
+            display: none;
+            padding: 2px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .search-clear:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #1a1a1a;
+            border: 1px solid #262626;
+            border-radius: 12px;
+            margin-top: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #262626;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover,
+        .search-result-item.selected {
+            background: rgba(255, 0, 80, 0.1);
+        }
+
+        .search-result-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-result-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff0050, #00f5ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .search-result-info h4 {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .search-result-info p {
+            color: #8e8e8e;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .no-search-results {
+            padding: 20px;
+            text-align: center;
+            color: #8e8e8e;
+            font-size: 14px;
+        }
+
+        /* FORMULAIRE D'INSCRIPTION */
+        #registrationOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .registration-modal {
+            background: #1a1a1a;
+            border: 1px solid #333333;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .registration-modal h2 {
+            color: #ffffff;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #262626;
+            color: #ffffff;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ff0050;
+            background: #1a1a1a;
+        }
+
+        .form-group input::placeholder {
+            color: #8e8e8e;
+        }
+
+        .submit-btn {
+            background: #ff0050;
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background: #e6004a;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            background: #666;
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* APPLICATION PRINCIPALE */
+        #mainApp {
+            display: none;
+            position: relative;
+            z-index: 10;
+            padding: 0;
+            max-width: 614px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #000000;
+            border-bottom: 1px solid #262626;
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .welcome-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            background: linear-gradient(135deg, #ff0050, #00f5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-indicator {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid;
+        }
+
+        .status-connected {
+            background: rgba(0, 245, 255, 0.1);
+            color: #00f5ff;
+            border-color: #00f5ff;
+        }
+
+        .status-disconnected {
+            background: rgba(237, 73, 86, 0.1);
+            color: #ed4956;
+            border-color: #ed4956;
+        }
+
+        /* ÉDITEUR DE PUBLICATION */
+        .publisher {
+            background: #000000;
+            border-bottom: 1px solid #262626;
+            padding: 16px 20px;
+        }
+
+        .publisher textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 16px;
+            border: 1px solid #262626;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .publisher textarea:focus {
+            outline: none;
+            border-color: #ff0050;
+        }
+
+        .publisher textarea::placeholder {
+            color: #8e8e8e;
+        }
+
+        .file-input-container {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .file-input-label {
+            background: transparent;
+            color: #ff0050;
+            padding: 8px 16px;
+            border: 1px solid #262626;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+
+        .file-input-label:hover {
+            background: rgba(255, 0, 80, 0.1);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .media-preview {
+            margin: 15px 0;
+        }
+
+        .video-preview {
+            position: relative;
+            max-width: 250px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .video-preview video {
+            width: 100%;
+            height: auto;
+            max-height: 200px;
+            object-fit: cover;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .video-duration.warning {
+            background: rgba(237, 73, 86, 0.9);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .video-processing {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .processing-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid #ff0050;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .publish-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .publish-btn {
+            background: #ff0050;
+            color: white;
+            padding: 8px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .publish-btn:hover:not(:disabled) {
+            background: #e6004a;
+            transform: translateY(-1px);
+        }
+
+        .publish-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .my-posts-btn, .nav-btn {
+            background: transparent;
+            color: #ffffff;
+            padding: 8px 16px;
+            border: 1px solid #262626;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .my-posts-btn:hover, .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* FLUX DE PUBLICATIONS */
+        .feed {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .publication {
+            background: #000000;
+            border-bottom: 1px solid #262626;
+            padding: 16px 0;
+            transition: background-color 0.2s ease;
+            animation: fadeInPost 0.3s ease-out;
+            position: relative;
+        }
+
+        .publication:hover {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        @keyframes fadeInPost {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pub-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 0 16px;
+        }
+
+        .pub-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff0050, #00f5ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 12px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .pub-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        .pub-info {
+            flex: 1;
+        }
+
+        .pub-username {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .pub-username:hover {
+            color: #ff0050;
+        }
+
+        .pub-time {
+            color: #8e8e8e;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .pub-text {
+            margin-bottom: 12px;
+            color: #ffffff;
+            line-height: 1.5;
+            font-size: 14px;
+            padding: 0 16px;
+        }
+
+        /* STYLES VIDÉO COMME TIKTOK */
+        .video-container {
+            position: relative;
+            margin-bottom: 12px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .video-player {
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+            object-fit: cover;
+            display: block;
+        }
+
+        .video-controls-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            padding: 20px 16px 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .video-container:hover .video-controls-overlay {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .video-progress {
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .video-progress-bar {
+            height: 100%;
+            background: #ff0050;
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .video-controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .video-control-btn {
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .video-control-btn:hover {
+            background: rgba(255, 0, 80, 0.8);
+            transform: scale(1.1);
+        }
+
+        .video-time {
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        .video-play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .video-container.paused .video-play-overlay {
+            opacity: 1;
+        }
+
+        .video-play-overlay:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            background: rgba(255, 0, 80, 0.8);
+        }
+
+        .video-sound-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .video-sound-indicator.muted {
+            color: #ff0050;
+        }
+
+        .video-auto-play-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(255, 0, 80, 0.9);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-auto-play-badge.show {
+            opacity: 1;
+        }
+
+        .image-link {
+            display: block;
+            margin-bottom: 12px;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .image-link img {
+            width: 100%;
+            max-height: 600px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .image-link img:hover {
+            transform: scale(1.02);
+        }
+
+        /* ACTIONS DE PUBLICATION */
+        .pub-actions {
+            display: flex;
+            gap: 20px;
+            padding: 12px 16px;
+            align-items: center;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 20px;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .action-btn.liked {
+            color: #ff0050;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* SECTION COMMENTAIRES */
+        .comments-section {
+            margin-top: 8px;
+            padding: 0 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid #262626;
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+
+        .comment {
+            background: transparent;
+            padding: 8px 0;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .comment:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .comment-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff0050, #00f5ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .comment-username {
+            font-weight: 600;
+            color: #ffffff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .comment-username:hover {
+            color: #ff0050;
+        }
+
+        .comment-time {
+            color: #8e8e8e;
+            font-size: 11px;
+            margin-left: auto;
+        }
+
+        .comment-text {
+            color: #ffffff;
+            line-height: 1.4;
+            font-size: 13px;
+            margin-left: 32px;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #262626;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #262626;
+            border-radius: 25px;
+            font-size: 13px;
+            background: #1a1a1a;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: #ff0050;
+            background: #000;
+            box-shadow: 0 0 0 2px rgba(255, 0, 80, 0.1);
+        }
+
+        .comment-input::placeholder {
+            color: #8e8e8e;
+        }
+
+        .comment-btn {
+            background: #ff0050;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .comment-btn:hover {
+            background: #e6004a;
+            transform: translateY(-1px);
+        }
+
+        /* MODAL GÉNÉRIQUE */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            border: 1px solid #262626;
+            padding: 24px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            color: #ffffff;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #8e8e8e;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .close-modal:hover {
+            color: #ffffff;
+            background: rgba(255, 0, 80, 0.8);
+        }
+
+        /* MODAL PROFIL UTILISATEUR */
+        .profile-modal-content {
+            max-width: 600px;
+            width: 95%;
+            max-height: 85vh;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #262626;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff0050, #00f5ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 4px 20px rgba(255, 0, 80, 0.3);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .profile-username {
+            font-size: 14px;
+            color: #8e8e8e;
+            margin-bottom: 16px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 24px;
+        }
+
+        .profile-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .profile-stat-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .profile-stat-label {
+            font-size: 12px;
+            color: #8e8e8e;
+        }
+
+        .follow-btn {
+            background: #ff0050;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-left: auto;
+        }
+
+        .follow-btn:hover {
+            background: #e6004a;
+            transform: translateY(-1px);
+        }
+
+        .follow-btn.following {
+            background: #262626;
+            color: #ffffff;
+        }
+
+        .follow-btn.following:hover {
+            background: #ed4956;
+        }
+
+        .profile-bio {
+            margin: 16px 0 24px 0;
+            color: #ffffff;
+            line-height: 1.5;
+        }
+
+        .profile-tabs {
+            display: flex;
+            border-bottom: 1px solid #262626;
+            margin-bottom: 20px;
+        }
+
+        .profile-tab {
+            flex: 1;
+            padding: 12px 16px;
+            text-align: center;
+            background: none;
+            border: none;
+            color: #8e8e8e;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .profile-tab.active {
+            color: #ff0050;
+            border-bottom-color: #ff0050;
+        }
+
+        .profile-tab:hover {
+            color: #ffffff;
+        }
+
+        .profile-posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .profile-post-item {
+            aspect-ratio: 1;
+            background: #262626;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-post-item:hover {
+            transform: scale(1.02);
+        }
+
+        .profile-post-item img,
+        .profile-post-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-post-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            color: white;
+            font-size: 18px;
+        }
+
+        .profile-post-item:hover .profile-post-overlay {
+            opacity: 1;
+        }
+
+        /* MES PUBLICATIONS */
+        .my-post-item {
+            border-bottom: 1px solid #262626;
+            padding: 12px 0;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .my-post-item:last-child {
+            border-bottom: none;
+        }
+
+        .my-post-thumbnail {
+            flex: 0 0 60px;
+        }
+
+        .my-post-thumbnail img,
+        .my-post-thumbnail video {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .my-post-content {
+            flex: 1;
+        }
+
+        .my-post-text {
+            font-weight: 500;
+            color: #ffffff;
+            font-size: 14px;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .my-post-time {
+            font-size: 12px;
+            color: #8e8e8e;
+        }
+
+        .my-post-delete {
+            background: #ed4956;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .my-post-delete:hover {
+            background: #c13584;
+            transform: translateY(-1px);
+        }
+
+        .my-post-delete:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8e8e8e;
+        }
+
+        .empty-state h3 {
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .loading-spinner {
+            border: 2px solid #262626;
+            border-top: 2px solid #ff0050;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            #mainApp {
+                padding: 0;
+            }
+
+            .header {
+                padding: 12px 16px;
+            }
+
+            .welcome-text {
+                font-size: 20px;
+            }
+
+            .publisher {
+                padding: 16px;
+            }
+
+            .publication {
+                margin-bottom: 0;
+            }
+
+            .pub-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+
+            .comment-avatar {
+                width: 20px;
+                height: 20px;
+                font-size: 9px;
+            }
+
+            .modal-content, .profile-modal-content {
+                padding: 20px;
+                margin: 20px;
+                width: calc(100% - 40px);
+            }
+
+            .my-post-thumbnail {
+                flex: 0 0 50px;
+            }
+
+            .my-post-thumbnail img,
+            .my-post-thumbnail video {
+                width: 50px;
+                height: 50px;
+            }
+
+            .search-container {
+                padding: 8px 16px;
+            }
+
+            .stylish-loader {
+                width: 60px;
+                height: 60px;
+            }
+
+            .video-player {
+                max-height: 60vh;
+            }
+
+            .file-input-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 16px;
+            }
+
+            .profile-stats {
+                justify-content: center;
+                gap: 16px;
+            }
+
+            .profile-posts-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 4px;
+            }
+
+            .publish-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .publish-controls > * {
+                width: 100%;
+            }
+        }
+
+        /* SCROLLBAR PERSONNALISÉE */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #262626;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #404040;
+        }
+
+        /* ANIMATIONS SUPPLÉMENTAIRES */
+        .bounce-in {
+            animation: bounceIn 0.5s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        /* ÉTATS DE FOCUS AMÉLIORÉS */
+        .form-group input:focus,
+        .publisher textarea:focus,
+        .comment-input:focus,
+        .search-input:focus {
+            box-shadow: 0 0 0 3px rgba(255, 0, 80, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="particles"></div>
+
+    <!-- FORMULAIRE D'INSCRIPTION -->
+    <div id="registrationOverlay">
+        <div class="registration-modal">
+            <h2>🚀 Rejoignez Express Exchange</h2>
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="nom">Nom</label>
+                    <input type="text" id="nom" required placeholder="Votre nom">
+                </div>
+                <div class="form-group">
+                    <label for="prenom">Prénom</label>
+                    <input type="text" id="prenom" required placeholder="Votre prénom">
+                </div>
+                <div class="form-group">
+                    <label for="contact">Contact</label>
+                    <input type="text" id="contact" required placeholder="Numéro de téléphone ou email">
+                </div>
+                <button type="submit" class="submit-btn">S'inscrire</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APPLICATION PRINCIPALE -->
+    <div id="mainApp">
+        <div class="header">
+            <div class="welcome-text" id="welcomeMessage">Express Exchange</div>
+            <div class="status-indicator" id="statusIndicator">🔄 Connexion...</div>
+        </div>
+
+        <!-- BARRE DE RECHERCHE -->
+        <div class="search-container">
+            <div class="search-box">
+                <div class="search-icon">🔍</div>
+                <input type="text" class="search-input" id="searchInput" placeholder="Rechercher des utilisateurs ou des publications...">
+                <button class="search-clear" id="searchClear">&times;</button>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+        </div>
+
+        <!-- ÉDITEUR DE PUBLICATION -->
+        <div class="publisher">
+            <textarea id="postText" placeholder="Que se passe-t-il ? 🤔"></textarea>
+            <div class="file-input-container">
+                <label for="fileInput" class="file-input-label">📷 Photo</label>
+                <label for="videoInput" class="file-input-label">🎥 Vidéo</label>
+                <input type="file" id="fileInput" class="file-input" accept="image/*">
+                <input type="file" id="videoInput" class="file-input" accept="video/*">
+                <span id="fileName"></span>
+            </div>
+            <div id="mediaPreview" class="media-preview"></div>
+            <div class="publish-controls">
+                <button id="showMyPostsBtn" class="my-posts-btn">Mes publications</button>
+                <button id="publishBtn" class="publish-btn">Publier</button>
+                <button class="nav-btn" onclick="location.href='message.html'">Messages</button>
+            </div>
+        </div>
+
+        <!-- FLUX DE PUBLICATIONS -->
+        <div id="feed" class="feed">
+            <div class="main-loading-container" id="mainLoadingContainer">
+                <div class="stylish-loader"></div>
+                <div class="loading-text">Chargement en cours</div>
+                <div class="loading-subtext">Récupération des dernières publications...<br>Connexion au serveur</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL POUR AGRANDIR LES IMAGES -->
+    <div id="modalImageView" class="modal">
+        <img id="modalImageBig" alt="Image agrandie">
+    </div>
+
+    <!-- MODAL MES PUBLICATIONS -->
+    <div id="myPostsModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" id="closeMyPostsModal">&times;</button>
+            <h3 style="margin-bottom: 20px;">📝 Mes Publications</h3>
+            <div id="myPostsList"></div>
+        </div>
+    </div>
+
+    <!-- MODAL PROFIL UTILISATEUR -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content profile-modal-content">
+            <button class="close-modal" id="closeProfileModal">&times;</button>
+            
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar"></div>
+                <div class="profile-info">
+                    <div class="profile-name" id="profileName"></div>
+                    <div class="profile-username" id="profileUsername"></div>
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <div class="profile-stat-number" id="profilePostsCount">0</div>
+                            <div class="profile-stat-label">Publications</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-number" id="profileFollowersCount">0</div>
+                            <div class="profile-stat-label">Abonnés</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-number" id="profileFollowingCount">0</div>
+                            <div class="profile-stat-label">Suivi</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-number" id="profileLikesCount">0</div>
+                            <div class="profile-stat-label">J'aime</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="follow-btn" id="followBtn" style="display: none;">Suivre</button>
+            </div>
+
+            <div class="profile-bio" id="profileBio"></div>
+
+            <div class="profile-tabs">
+                <button class="profile-tab active" onclick="showProfileTab('posts')">📝 Publications</button>
+                <button class="profile-tab" onclick="showProfileTab('videos')">🎥 Vidéos</button>
+                <button class="profile-tab" onclick="showProfileTab('likes')">❤️ J'aime</button>
+            </div>
+
+            <div class="profile-posts-grid" id="profilePostsGrid">
+                <div class="loading-spinner"></div>
+                <span>Chargement...</span>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        console.log('🚀 Express Exchange - Version complète avec profils utilisateurs');
+
+        // Imports Firebase
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            setDoc, 
+            addDoc, 
+            getDocs, 
+            getDoc,
+            query, 
+            orderBy, 
+            limit, 
+            onSnapshot, 
+            deleteDoc,
+            updateDoc,
+            increment,
+            arrayUnion,
+            arrayRemove,
+            serverTimestamp,
+            where
+        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCPGgtXoDUycykLaTSee0S0yY0tkeJpqKI",
+            authDomain: "data-com-a94a8.firebaseapp.com",
+            databaseURL: "https://data-com-a94a8-default-rtdb.firebaseio.com",
+            projectId: "data-com-a94a8",
+            storageBucket: "data-com-a94a8.appspot.com",
+            messagingSenderId: "276904640935",
+            appId: "1:276904640935:web:9cd805aeba6c34c767f682",
+            measurementId: "G-FYQCWY5G4S"
+        };
+
+        // Configuration Cloudinary
+        const cloudinaryConfig = {
+            cloudName: 'djxcqczh1',
+            uploadPreset: 'database'
+        };
+
+        // Initialisation Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Variables globales
+        let userData = null;
+        let posts = [];
+        let allUsers = [];
+        let unsubscribePosts = null;
+        let isOnline = navigator.onLine;
+        let isAppInitialized = false;
+        let isLoadingPosts = false;
+        let searchTimeout = null;
+        let currentSelectedFile = null;
+        let videoAutoPlayObserver = null;
+        let currentPlayingVideo = null;
+        let currentProfileUser = null;
+
+        // CLASSE DE TRAITEMENT VIDÉO AVANCÉE
+        class VideoProcessor {
+            static async processVideo(file, maxDuration = 180) {
+                return new Promise((resolve, reject) => {
+                    const video = document.createElement('video');
+                    video.onloadedmetadata = async () => {
+                        const duration = video.duration;
+                        console.log(`🎥 Durée vidéo: ${duration.toFixed(2)}s`);
+                        
+                        if (duration <= maxDuration) {
+                            resolve(file);
+                            return;
+                        }
+                        
+                        try {
+                            // Ici on simule le découpage - dans une vraie app on utiliserait FFmpeg.js
+                            console.log(`✂️ Vidéo trop longue (${duration.toFixed(2)}s), découpage à ${maxDuration}s`);
+                            
+                            // Créer une version tronquée (simulation)
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            
+                            // En production, on utiliserait FFmpeg.js pour découper réellement
+                            // Pour cette démo, on retourne le fichier original avec avertissement
+                            resolve(file);
+                            
+                        } catch (error) {
+                            reject(new Error('Erreur lors du traitement de la vidéo'));
+                        }
+                    };
+                    
+                    video.onerror = () => reject(new Error('Impossible de charger la vidéo'));
+                    video.src = URL.createObjectURL(file);
+                });
+            }
+            
+            static formatDuration(seconds) {
+                if (!seconds || isNaN(seconds)) return '0:00';
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = Math.floor(seconds % 60);
+                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+            
+            static async getVideoDuration(file) {
+                return new Promise((resolve, reject) => {
+                    const video = document.createElement('video');
+                    video.onloadedmetadata = () => {
+                        resolve(video.duration);
+                        URL.revokeObjectURL(video.src);
+                    };
+                    video.onerror = () => reject(new Error('Impossible de lire la vidéo'));
+                    video.src = URL.createObjectURL(file);
+                });
+            }
+        }
+
+        // CLASSE D'UPLOAD CLOUDINARY
+        class CloudinaryUploader {
+            constructor(config) {
+                this.cloudName = config.cloudName;
+                this.uploadPreset = config.uploadPreset;
+                this.imageApiUrl = `https://api.cloudinary.com/v1_1/${this.cloudName}/image/upload`;
+                this.videoApiUrl = `https://api.cloudinary.com/v1_1/${this.cloudName}/video/upload`;
+            }
+
+            async uploadImage(file, options = {}) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', this.uploadPreset);
+                formData.append('quality', 'auto');
+                formData.append('fetch_format', 'auto');
+                
+                if (options.maxWidth) {
+                    formData.append('width', options.maxWidth);
+                    formData.append('crop', 'scale');
+                }
+
+                try {
+                    const response = await fetch(this.imageApiUrl, { 
+                        method: 'POST', 
+                        body: formData 
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erreur HTTP: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    return {
+                        url: result.secure_url,
+                        publicId: result.public_id,
+                        width: result.width,
+                        height: result.height,
+                        format: result.format,
+                        bytes: result.bytes
+                    };
+                } catch (error) {
+                    console.error('❌ Erreur upload image:', error);
+                    throw new Error('Échec de l\'upload de l\'image');
+                }
+            }
+
+            async uploadVideo(file, options = {}) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', this.uploadPreset);
+                formData.append('resource_type', 'video');
+                formData.append('quality', 'auto');
+                
+                // Optimisations vidéo
+                if (options.maxDuration) {
+                    formData.append('duration', options.maxDuration);
+                }
+
+                try {
+                    const response = await fetch(this.videoApiUrl, { 
+                        method: 'POST', 
+                        body: formData 
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erreur HTTP: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    return {
+                        url: result.secure_url,
+                        publicId: result.public_id,
+                        width: result.width,
+                        height: result.height,
+                        format: result.format,
+                        bytes: result.bytes,
+                        duration: result.duration
+                    };
+                } catch (error) {
+                    console.error('❌ Erreur upload vidéo:', error);
+                    throw new Error('Échec de l\'upload de la vidéo');
+                }
+            }
+        }
+
+        const uploader = new CloudinaryUploader(cloudinaryConfig);
+
+        // SYSTÈME D'AUTO-PLAY COMME TIKTOK
+        function initVideoAutoPlay() {
+            if (videoAutoPlayObserver) {
+                videoAutoPlayObserver.disconnect();
+            }
+
+            videoAutoPlayObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const videoContainer = entry.target;
+                    const video = videoContainer.querySelector('video');
+                    const soundIndicator = videoContainer.querySelector('.video-sound-indicator');
+                    const autoPlayBadge = videoContainer.querySelector('.video-auto-play-badge');
+                    
+                    if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+                        // Vidéo largement visible - lancer l'auto-play
+                        videoContainer.classList.add('in-viewport');
+                        
+                        if (video && video.paused) {
+                            // Arrêter toutes les autres vidéos
+                            pauseAllVideos();
+                            
+                            // Démarrer cette vidéo avec son (pas comme avant en muted)
+                            video.muted = false; // Autoriser le son !
+                            video.play().then(() => {
+                                currentPlayingVideo = video;
+                                videoContainer.classList.remove('paused');
+                                
+                                // Mettre à jour l'indicateur de son
+                                if (soundIndicator) {
+                                    soundIndicator.innerHTML = video.muted ? '🔇 Muet' : '🔊 Son activé';
+                                    soundIndicator.classList.toggle('muted', video.muted);
+                                }
+                                
+                                // Afficher le badge auto-play
+                                if (autoPlayBadge) {
+                                    autoPlayBadge.textContent = '🎵 Lecture auto';
+                                    autoPlayBadge.classList.add('show');
+                                    setTimeout(() => {
+                                        autoPlayBadge.classList.remove('show');
+                                    }, 2500);
+                                }
+                                
+                                console.log('▶️ Auto-play avec son activé');
+                            }).catch(error => {
+                                console.log('⚠️ Auto-play bloqué, tentative en muet:', error);
+                                // Fallback en muet si le navigateur bloque
+                                video.muted = true;
+                                video.play().then(() => {
+                                    currentPlayingVideo = video;
+                                    videoContainer.classList.remove('paused');
+                                    if (soundIndicator) {
+                                        soundIndicator.innerHTML = '🔇 Cliquer pour le son';
+                                        soundIndicator.classList.add('muted');
+                                    }
+                                });
+                            });
+                        }
+                    } else {
+                        // Vidéo hors vue - pause
+                        videoContainer.classList.remove('in-viewport');
+                        
+                        if (video && !video.paused) {
+                            video.pause();
+                            videoContainer.classList.add('paused');
+                            if (currentPlayingVideo === video) {
+                                currentPlayingVideo = null;
+                            }
+                            console.log('⏸️ Auto-pause');
+                        }
+                    }
+                });
+            }, {
+                threshold: [0.6], // 60% visible
+                rootMargin: '-50px'
+            });
+
+            // Observer toutes les vidéos
+            document.querySelectorAll('.video-container').forEach(container => {
+                videoAutoPlayObserver.observe(container);
+            });
+        }
+
+        function pauseAllVideos() {
+            document.querySelectorAll('.video-player').forEach(video => {
+                if (!video.paused) {
+                    video.pause();
+                    const container = video.closest('.video-container');
+                    if (container) {
+                        container.classList.add('paused');
+                    }
+                }
+            });
+            currentPlayingVideo = null;
+        }
+
+        // FONCTIONS UTILITAIRES
+        function validateUserData(userData) {
+            if (!userData || !userData.id || !userData.fullName || !userData.avatar) {
+                console.error('❌ Données utilisateur invalides:', userData);
+                return false;
+            }
+            return true;
+        }
+
+        function getUserData() {
+            try {
+                const sessionData = sessionStorage.getItem('expressExchangeUser');
+                const localData = localStorage.getItem('expressExchangeUser');
+                const dataToUse = sessionData || localData;
+                
+                if (!dataToUse) return null;
+                
+                const parsedData = JSON.parse(dataToUse);
+                return validateUserData(parsedData) ? parsedData : null;
+            } catch (error) {
+                console.error('❌ Erreur parsing userData:', error);
+                return null;
+            }
+        }
+
+        function updateConnectionStatus() {
+            const statusIndicator = document.getElementById('statusIndicator');
+            if (statusIndicator) {
+                statusIndicator.textContent = isOnline ? '🟢 En ligne' : '🔴 Hors ligne';
+                statusIndicator.className = isOnline ? 'status-indicator status-connected' : 'status-indicator status-disconnected';
+            }
+        }
+
+        function createParticles() {
+            const particles = document.getElementById('particles');
+            if (!particles) return;
+            
+            const isMobile = window.innerWidth < 768;
+            const particleCount = isMobile ? 8 : 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                particles.appendChild(particle);
+            }
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text.toString();
+            return div.innerHTML;
+        }
+
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return 'À l\'instant';
+            
+            let date;
+            if (timestamp.toDate) {
+                date = timestamp.toDate();
+            } else if (timestamp instanceof Date) {
+                date = timestamp;
+            } else {
+                date = new Date(timestamp);
+            }
+            
+            const now = new Date();
+            const diffMs = now - date;
+            const diffSeconds = Math.floor(diffMs / 1000);
+            const diffMinutes = Math.floor(diffSeconds / 60);
+            const diffHours = Math.floor(diffMinutes / 60);
+            const diffDays = Math.floor(diffHours / 24);
+
+            if (diffSeconds < 60) return 'À l\'instant';
+            if (diffMinutes < 60) return `${diffMinutes}min`;
+            if (diffHours < 24) return `${diffHours}h`;
+            if (diffDays < 7) return `${diffDays}j`;
+            
+            return date.toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'short'
+            });
+        }
+
+        // GESTION DE L'AFFICHAGE
+        function showMainLoader(text = "Chargement", subtext = "Veuillez patienter...") {
+            const container = document.getElementById('mainLoadingContainer');
+            if (container) {
+                container.querySelector('.loading-text').textContent = text;
+                container.querySelector('.loading-subtext').innerHTML = subtext;
+                container.style.display = 'flex';
+            }
+        }
+
+        function hideMainLoader() {
+            const container = document.getElementById('mainLoadingContainer');
+            if (container) {
+                container.style.display = 'none';
+            }
+        }
+
+        function hideRegistrationForm() {
+            const overlay = document.getElementById('registrationOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        function showRegistrationForm() {
+            const overlay = document.getElementById('registrationOverlay');
+            const mainApp = document.getElementById('mainApp');
+            if (overlay) overlay.style.display = 'flex';
+            if (mainApp) mainApp.style.display = 'none';
+            isAppInitialized = false;
+            userData = null;
+        }
+
+        function checkUserRegistration() {
+            console.log('🔍 Vérification utilisateur...');
+            userData = getUserData();
+            if (userData) {
+                console.log('✅ Utilisateur connecté:', userData.fullName);
+                hideRegistrationForm();
+                showMainApp();
+            } else {
+                console.log('👤 Aucun utilisateur, affichage inscription');
+                showRegistrationForm();
+            }
+        }
+
+        function showMainApp() {
+            if (isAppInitialized) return;
+            
+            console.log('🎯 Initialisation app...');
+            if (!validateUserData(userData)) {
+                showRegistrationForm();
+                return;
+            }
+
+            const mainApp = document.getElementById('mainApp');
+            if (mainApp) {
+                mainApp.style.display = 'block';
+            }
+
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                welcomeMessage.textContent = `Hey ${userData.fullName.split(' ')[0]} 👋`;
+            }
+
+            updateConnectionStatus();
+            initializeSearch();
+            loadPosts();
+            loadUsers();
+            isAppInitialized = true;
+            
+            console.log('🎉 App initialisée pour:', userData.fullName);
+        }
+
+        // SYSTÈME DE RECHERCHE
+        function initializeSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchClear = document.getElementById('searchClear');
+            const searchResults = document.getElementById('searchResults');
+
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim();
+                
+                if (query.length > 0) {
+                    searchClear.style.display = 'block';
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        performSearch(query);
+                    }, 300);
+                } else {
+                    searchClear.style.display = 'none';
+                    searchResults.style.display = 'none';
+                }
+            });
+
+            searchClear.addEventListener('click', function() {
+                searchInput.value = '';
+                searchClear.style.display = 'none';
+                searchResults.style.display = 'none';
+                searchInput.focus();
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-box')) {
+                    searchResults.style.display = 'none';
+                }
+            });
+
+            searchInput.addEventListener('keydown', function(e) {
+                const items = searchResults.querySelectorAll('.search-result-item');
+                let selectedIndex = Array.from(items).findIndex(item => item.classList.contains('selected'));
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                    updateSearchSelection(items, selectedIndex);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, 0);
+                    updateSearchSelection(items, selectedIndex);
+                } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                    e.preventDefault();
+                    items[selectedIndex].click();
+                }
+            });
+        }
+
+        function updateSearchSelection(items, selectedIndex) {
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedIndex);
+            });
+        }
+
+        async function performSearch(query) {
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = '<div style="padding: 12px; color: #8e8e8e; text-align: center;">🔍 Recherche...</div>';
+            searchResults.style.display = 'block';
+
+            try {
+                const results = [];
+                
+                // Recherche utilisateurs
+                const userResults = allUsers.filter(user =>
+                    user.fullName?.toLowerCase().includes(query.toLowerCase()) ||
+                    user.nom?.toLowerCase().includes(query.toLowerCase()) ||
+                    user.prenom?.toLowerCase().includes(query.toLowerCase()) ||
+                    user.username?.toLowerCase().includes(query.toLowerCase())
+                ).slice(0, 5);
+
+                // Recherche publications
+                const postResults = posts.filter(post => 
+                    post.text?.toLowerCase().includes(query.toLowerCase()) ||
+                    post.author?.toLowerCase().includes(query.toLowerCase())
+                ).slice(0, 3);
+
+                let resultsHTML = '';
+
+                if (userResults.length > 0) {
+                    resultsHTML += userResults.map(user => `
+                        <div class="search-result-item" onclick="showUserProfile('${user.id}')">
+                            <div class="search-result-user">
+                                <div class="search-result-avatar">${user.avatar || user.fullName?.[0] || 'U'}</div>
+                                <div class="search-result-info">
+                                    <h4>${escapeHtml(user.fullName || 'Utilisateur')}</h4>
+                                    <p>@${user.username || 'utilisateur'} • ${user.followersCount || 0} abonnés</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                if (postResults.length > 0) {
+                    if (userResults.length > 0) {
+                        resultsHTML += '<div style="border-top: 1px solid #262626; margin: 8px 0;"></div>';
+                    }
+                    resultsHTML += postResults.map(post => `
+                        <div class="search-result-item" onclick="scrollToPost('${post.id}')">
+                            <div class="search-result-user">
+                                <div class="search-result-avatar">${post.avatar || 'P'}</div>
+                                <div class="search-result-info">
+                                    <h4>${escapeHtml(post.author || 'Auteur')}</h4>
+                                    <p>${post.videoUrl ? '🎥 Vidéo' : post.imageUrl ? '📷 Photo' : '📝 Texte'} • ${escapeHtml((post.text || '').substring(0, 40))}${post.text?.length > 40 ? '...' : ''}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                if (resultsHTML === '') {
+                    resultsHTML = `<div class="no-search-results">Aucun résultat pour "${escapeHtml(query)}" 🔍</div>`;
+                }
+
+                searchResults.innerHTML = resultsHTML;
+
+            } catch (error) {
+                console.error('❌ Erreur recherche:', error);
+                searchResults.innerHTML = '<div style="padding: 12px; color: #ed4956; text-align: center;">Erreur de recherche</div>';
+            }
+        }
+
+        // FONCTIONS GLOBALES DE NAVIGATION
+        window.scrollToPost = function(postId) {
+            const searchResults = document.getElementById('searchResults');
+            const searchInput = document.getElementById('searchInput');
+            
+            searchResults.style.display = 'none';
+            searchInput.value = '';
+            document.getElementById('searchClear').style.display = 'none';
+
+            const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+            if (postElement) {
+                postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                postElement.style.background = 'rgba(255, 0, 80, 0.1)';
+                setTimeout(() => {
+                    postElement.style.background = '';
+                }, 2000);
+            }
+        };
+
+        window.showUserProfile = function(userId) {
+            const searchResults = document.getElementById('searchResults');
+            const searchInput = document.getElementById('searchInput');
+            
+            searchResults.style.display = 'none';
+            searchInput.value = '';
+            document.getElementById('searchClear').style.display = 'none';
+
+            openUserProfile(userId);
+        };
+
+        // SYSTÈME DE PROFIL UTILISATEUR
+        async function openUserProfile(userId) {
+            try {
+                showProfileLoader();
+                
+                // Chercher l'utilisateur
+                let user = allUsers.find(u => u.id === userId);
+                
+                if (!user) {
+                    // Charger depuis Firestore si pas en cache
+                    const userDoc = await getDoc(doc(db, 'users', userId));
+                    if (userDoc.exists()) {
+                        user = { id: userDoc.id, ...userDoc.data() };
+                    } else {
+                        throw new Error('Utilisateur introuvable');
+                    }
+                }
+
+                currentProfileUser = user;
+                await displayUserProfile(user);
+                
+            } catch (error) {
+                console.error('❌ Erreur ouverture profil:', error);
+                alert('Impossible d\'ouvrir ce profil');
+            }
+        }
+
+        function showProfileLoader() {
+            const modal = document.getElementById('profileModal');
+            modal.style.display = 'flex';
+            
+            const content = modal.querySelector('.profile-modal-content');
+            content.innerHTML = `
+                <button class="close-modal" onclick="closeProfileModal()">&times;</button>
+                <div style="text-align: center; padding: 40px;">
+                    <div class="stylish-loader" style="width: 60px; height: 60px; margin: 0 auto 20px;"></div>
+                    <div class="loading-text">Chargement du profil</div>
+                </div>
+            `;
+        }
+
+        async function displayUserProfile(user) {
+            const modal = document.getElementById('profileModal');
+            
+            // Calculer les statistiques
+            const userPosts = posts.filter(post => post.authorId === user.id);
+            const totalLikes = userPosts.reduce((sum, post) => sum + (post.likesCount || 0), 0);
+            const followersCount = user.followersCount || 0;
+            const followingCount = user.followingCount || 0;
+            const isCurrentUser = user.id === userData.id;
+            const isFollowing = userData.following?.includes(user.id) || false;
+
+            modal.querySelector('.profile-modal-content').innerHTML = `
+                <button class="close-modal" onclick="closeProfileModal()">&times;</button>
+                
+                <div class="profile-header">
+                    <div class="profile-avatar">${user.avatar || user.fullName?.[0] || 'U'}</div>
+                    <div class="profile-info">
+                        <div class="profile-name">${escapeHtml(user.fullName || 'Utilisateur')}</div>
+                        <div class="profile-username">@${user.username || user.id}</div>
+                        <div class="profile-stats">
+                            <div class="profile-stat">
+                                <div class="profile-stat-number">${userPosts.length}</div>
+                                <div class="profile-stat-label">Publications</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-number">${followersCount}</div>
+                                <div class="profile-stat-label">Abonnés</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-number">${followingCount}</div>
+                                <div class="profile-stat-label">Suivi</div>
+                            </div>
+                            <div class="profile-stat">
+                                <div class="profile-stat-number">${totalLikes}</div>
+                                <div class="profile-stat-label">J'aime</div>
+                            </div>
+                        </div>
+                    </div>
+                    ${!isCurrentUser ? `
+                        <button class="follow-btn ${isFollowing ? 'following' : ''}" 
+                                onclick="toggleFollow('${user.id}')" 
+                                id="followBtn">
+                            ${isFollowing ? 'Suivi' : 'Suivre'}
+                        </button>
+                    ` : ''}
+                </div>
+
+                <div class="profile-bio">
+                    ${user.bio || `✨ Membre depuis ${new Date(user.registeredAt || Date.now()).toLocaleDateString('fr-FR')}`}
+                    ${user.contact ? `<br>📞 ${escapeHtml(user.contact)}` : ''}
+                </div>
+
+                <div class="profile-tabs">
+                    <button class="profile-tab active" onclick="showProfileTab('posts')">📝 Publications (${userPosts.length})</button>
+                    <button class="profile-tab" onclick="showProfileTab('videos')">🎥 Vidéos (${userPosts.filter(p => p.videoUrl).length})</button>
+                    <button class="profile-tab" onclick="showProfileTab('likes')">❤️ J'aime (${totalLikes})</button>
+                </div>
+
+                <div class="profile-posts-grid" id="profilePostsGrid">
+                    ${await renderProfilePosts(userPosts, 'posts')}
+                </div>
+            `;
+            
+            currentProfileUser = user;
+        }
+
+        async function renderProfilePosts(userPosts, type = 'posts') {
+            if (userPosts.length === 0) {
+                return `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <h3>Aucune publication</h3>
+                        <p>Cette personne n'a pas encore partagé de contenu</p>
+                    </div>
+                `;
+            }
+
+            let filteredPosts = userPosts;
+            if (type === 'videos') {
+                filteredPosts = userPosts.filter(post => post.videoUrl);
+            }
+
+            if (filteredPosts.length === 0) {
+                return `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <h3>Aucune vidéo</h3>
+                        <p>Aucune vidéo partagée</p>
+                    </div>
+                `;
+            }
+
+            return filteredPosts.map(post => {
+                const mediaUrl = post.videoUrl || post.imageUrl;
+                const mediaType = post.videoUrl ? 'video' : 'image';
+                const overlay = post.videoUrl ? '▶️' : post.imageUrl ? '🖼️' : '📝';
+                
+                return `
+                    <div class="profile-post-item" onclick="openPostDetail('${post.id}')">
+                        ${mediaUrl ? `
+                            <${mediaType === 'video' ? 'video' : 'img'} 
+                             src="${mediaUrl}" 
+                             ${mediaType === 'video' ? 'muted' : 'alt="Publication"'}
+                             loading="lazy">
+                        ` : `
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #262626; color: #8e8e8e; font-size: 24px;">
+                                📝
+                            </div>
+                        `}
+                        <div class="profile-post-overlay">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 24px;">${overlay}</span>
+                                <span style="font-size: 14px;">${post.likesCount || 0} ❤️</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.showProfileTab = async function(tabType) {
+            // Mettre à jour les onglets
+            document.querySelectorAll('.profile-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Mettre à jour le contenu
+            const grid = document.getElementById('profilePostsGrid');
+            const userPosts = posts.filter(post => post.authorId === currentProfileUser.id);
+            
+            grid.innerHTML = '<div class="loading-spinner"></div><span>Chargement...</span>';
+            
+            setTimeout(async () => {
+                grid.innerHTML = await renderProfilePosts(userPosts, tabType);
+            }, 300);
+        };
+
+        window.closeProfileModal = function() {
+            document.getElementById('profileModal').style.display = 'none';
+            currentProfileUser = null;
+        };
+
+        window.toggleFollow = async function(userId) {
+            if (!validateUserData(userData)) {
+                alert('Veuillez vous reconnecter');
+                return;
+            }
+
+            const followBtn = document.getElementById('followBtn');
+            const wasFollowing = followBtn.classList.contains('following');
+            
+            followBtn.disabled = true;
+            followBtn.textContent = wasFollowing ? 'Arrêt...' : 'Suivi...';
+
+            try {
+                if (wasFollowing) {
+                    // Arrêter de suivre
+                    await updateDoc(doc(db, 'users', userData.id), {
+                        following: arrayRemove(userId),
+                        followingCount: increment(-1)
+                    });
+                    
+                    await updateDoc(doc(db, 'users', userId), {
+                        followersCount: increment(-1)
+                    });
+                    
+                    followBtn.classList.remove('following');
+                    followBtn.textContent = 'Suivre';
+                    
+                } else {
+                    // Suivre
+                    await updateDoc(doc(db, 'users', userData.id), {
+                        following: arrayUnion(userId),
+                        followingCount: increment(1)
+                    });
+                    
+                    await updateDoc(doc(db, 'users', userId), {
+                        followersCount: increment(1)
+                    });
+                    
+                    followBtn.classList.add('following');
+                    followBtn.textContent = 'Suivi';
+                }
+
+                // Mettre à jour les stats affichées
+                const followersCountElement = document.getElementById('profileFollowersCount');
+                if (followersCountElement) {
+                    const currentCount = parseInt(followersCountElement.textContent);
+                    followersCountElement.textContent = wasFollowing ? currentCount - 1 : currentCount + 1;
+                }
+
+            } catch (error) {
+                console.error('❌ Erreur follow/unfollow:', error);
+                alert('Erreur lors de l\'opération');
+                
+                // Restaurer l'état précédent
+                followBtn.classList.toggle('following', wasFollowing);
+                followBtn.textContent = wasFollowing ? 'Suivi' : 'Suivre';
+                
+            } finally {
+                followBtn.disabled = false;
+            }
+        };
+
+        window.openPostDetail = function(postId) {
+            // Fermer le profil et scroller vers le post
+            closeProfileModal();
+            setTimeout(() => {
+                scrollToPost(postId);
+            }, 300);
+        };
+
+        // GESTION DES ÉVÉNEMENTS DU DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initialisation Express Exchange...');
+            createParticles();
+            updateConnectionStatus();
+            
+            setTimeout(() => {
+                checkUserRegistration();
+            }, 100);
+        });
+
+        // INSCRIPTION UTILISATEUR
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('.submit-btn');
+            const originalText = submitBtn.textContent;
+            const nom = document.getElementById('nom').value.trim();
+            const prenom = document.getElementById('prenom').value.trim();
+            const contact = document.getElementById('contact').value.trim();
+
+            if (!nom || !prenom || !contact) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            if (nom.length < 2 || prenom.length < 2) {
+                alert('Le nom et prénom doivent contenir au moins 2 caractères');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="loading-spinner"></div>Inscription...';
+
+            try {
+                const timestamp = Date.now();
+                const randomSuffix = Math.random().toString(36).substr(2, 9);
+                const userId = `user_${timestamp}_${randomSuffix}`;
+                
+                userData = {
+                    id: userId,
+                    nom: nom,
+                    prenom: prenom,
+                    contact: contact,
+                    fullName: `${prenom} ${nom}`,
+                    avatar: `${prenom[0].toUpperCase()}${nom[0].toUpperCase()}`,
+                    username: `${prenom.toLowerCase()}.${nom.toLowerCase()}`,
+                    registeredAt: new Date().toISOString(),
+                    followersCount: 0,
+                    followingCount: 0,
+                    postsCount: 0,
+                    likesCount: 0,
+                    following: [],
+                    bio: `✨ Nouveau sur Express Exchange !`
+                };
+
+                if (!validateUserData(userData)) {
+                    throw new Error('Données utilisateur invalides');
+                }
+
+                // Sauvegarder localement
+                const userDataString = JSON.stringify(userData);
+                sessionStorage.setItem('expressExchangeUser', userDataString);
+                localStorage.setItem('expressExchangeUser', userDataString);
+
+                // Sauvegarder en base si en ligne
+                if (isOnline) {
+                    try {
+                        await setDoc(doc(db, 'users', userData.id), {
+                            ...userData,
+                            createdAt: serverTimestamp(),
+                            lastActive: serverTimestamp()
+                        });
+                        console.log('☁️ Utilisateur sauvegardé en base');
+                    } catch (firebaseError) {
+                        console.warn('⚠️ Erreur sauvegarde Firebase:', firebaseError);
+                    }
+                }
+
+                hideRegistrationForm();
+                showMainApp();
+
+            } catch (error) {
+                console.error('❌ Erreur inscription:', error);
+                alert(`Erreur lors de l'inscription: ${error.message}`);
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                userData = null;
+                sessionStorage.removeItem('expressExchangeUser');
+                localStorage.removeItem('expressExchangeUser');
+            }
+        });
+
+        // GESTION DES FICHIERS
+        document.getElementById('videoInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            const fileName = document.getElementById('fileName');
+            const preview = document.getElementById('mediaPreview');
+            
+            document.getElementById('fileInput').value = '';
+            
+            if (file) {
+                console.log('🎥 Vidéo sélectionnée:', file.name, `${(file.size / 1024 / 1024).toFixed(2)}MB`);
+                
+                if (!file.type.startsWith('video/')) {
+                    alert('Seules les vidéos sont autorisées');
+                    e.target.value = '';
+                    return;
+                }
+
+                fileName.textContent = file.name;
+                fileName.style.color = '#00f5ff';
+
+                try {
+                    const duration = await VideoProcessor.getVideoDuration(file);
+                    console.log(`⏱️ Durée: ${duration.toFixed(2)}s`);
+                    
+                    const maxDuration = 180; // 3 minutes
+                    
+                    if (duration > maxDuration) {
+                        const processingDiv = document.createElement('div');
+                        processingDiv.className = 'video-processing';
+                        processingDiv.innerHTML = `
+                            <div class="processing-spinner"></div>
+                            <span>Traitement de la vidéo...</span>
+                        `;
+                        preview.appendChild(processingDiv);
+                        processingDiv.style.display = 'flex';
+                        
+                        alert(`⚠️ Votre vidéo de ${VideoProcessor.formatDuration(duration)} sera automatiquement coupée à ${VideoProcessor.formatDuration(maxDuration)}.`);
+                        
+                        setTimeout(() => processingDiv.remove(), 2000);
+                    }
+                    
+                    // Prévisualisation
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const actualDuration = Math.min(duration, maxDuration);
+                        preview.innerHTML = `
+                            <div class="video-preview">
+                                <video src="${event.target.result}" controls muted style="max-width: 250px; max-height: 200px; border-radius: 8px;">
+                                    Votre navigateur ne supporte pas la vidéo.
+                                </video>
+                                <div class="video-duration ${duration > maxDuration ? 'warning' : ''}">${VideoProcessor.formatDuration(actualDuration)}</div>
+                            </div>
+                        `;
+                    };
+                    reader.readAsDataURL(file);
+                    
+                    currentSelectedFile = file;
+                    
+                } catch (error) {
+                    console.error('❌ Erreur traitement vidéo:', error);
+                    alert('Impossible de traiter cette vidéo');
+                    e.target.value = '';
+                    fileName.textContent = '';
+                    preview.innerHTML = '';
+                }
+            } else {
+                fileName.textContent = '';
+                preview.innerHTML = '';
+                currentSelectedFile = null;
+            }
+        });
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const fileName = document.getElementById('fileName');
+            const preview = document.getElementById('mediaPreview');
+            
+            document.getElementById('videoInput').value = '';
+            
+            if (file) {
+                if (!file.type.startsWith('image/')) {
+                    alert('Seules les images sont autorisées');
+                    e.target.value = '';
+                    return;
+                }
+
+                fileName.textContent = file.name;
+                fileName.style.color = '#ff0050';
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    preview.innerHTML = `<img src="${event.target.result}" style="max-width: 200px; max-height: 200px; border-radius: 8px; object-fit: cover;">`;
+                };
+                reader.readAsDataURL(file);
+                currentSelectedFile = file;
+            } else {
+                fileName.textContent = '';
+                preview.innerHTML = '';
+                currentSelectedFile = null;
+            }
+        });
+
+        // PUBLICATION
+        document.getElementById('publishBtn').addEventListener('click', async function() {
+            if (!validateUserData(userData)) {
+                alert('Erreur: Veuillez vous reconnecter');
+                showRegistrationForm();
+                return;
+            }
+            
+            const text = document.getElementById('postText').value.trim();
+            const publishBtn = document.getElementById('publishBtn');
+            
+            if (!text && !currentSelectedFile) {
+                alert('Ajoutez du contenu ou un média pour publier');
+                return;
+            }
+            
+            publishBtn.disabled = true;
+            publishBtn.innerHTML = '<div class="loading-spinner"></div>Publication...';
+            
+            try {
+                const postData = {
+                    author: userData.fullName,
+                    authorId: userData.id,
+                    avatar: userData.avatar,
+                    text: text || '',
+                    timestamp: serverTimestamp(),
+                    likesCount: 0,
+                    commentsCount: 0,
+                    imageUrl: null,
+                    videoUrl: null,
+                    videoDuration: null,
+                    createdBy: userData.id
+                };
+                
+                if (currentSelectedFile) {
+                    if (currentSelectedFile.type.startsWith('video/')) {
+                        publishBtn.innerHTML = '<div class="loading-spinner"></div>Upload vidéo...';
+                        console.log('🎥 Upload vidéo...');
+                        
+                        const uploadResult = await uploader.uploadVideo(currentSelectedFile, {
+                            maxDuration: 180
+                        });
+                        
+                        postData.videoUrl = uploadResult.url;
+                        postData.videoDuration = uploadResult.duration;
+                        
+                        console.log('✅ Vidéo uploadée');
+                        
+                    } else if (currentSelectedFile.type.startsWith('image/')) {
+                        publishBtn.innerHTML = '<div class="loading-spinner"></div>Upload image...';
+                        console.log('📷 Upload image...');
+                        
+                        const uploadResult = await uploader.uploadImage(currentSelectedFile, {
+                            maxWidth: 1200
+                        });
+                        
+                        postData.imageUrl = uploadResult.url;
+                        
+                        console.log('✅ Image uploadée');
+                    }
+                }
+                
+                publishBtn.innerHTML = '<div class="loading-spinner"></div>Finalisation...';
+                
+                const docRef = await addDoc(collection(db, 'posts'), postData);
+                console.log('✅ Publication créée:', docRef.id);
+                
+                // Mettre à jour le compteur de posts de l'utilisateur
+                try {
+                    await updateDoc(doc(db, 'users', userData.id), {
+                        postsCount: increment(1)
+                    });
+                } catch (error) {
+                    console.warn('⚠️ Impossible de mettre à jour le compteur:', error);
+                }
+                
+                clearPostForm();
+                
+                // Animation de succès
+                publishBtn.innerHTML = '✅ Publié !';
+                publishBtn.style.background = '#00f5ff';
+                
+                setTimeout(() => {
+                    resetPublishButton();
+                }, 1500);
+                
+            } catch (error) {
+                console.error('❌ Erreur publication:', error);
+                alert(`Erreur: ${error.message}`);
+                resetPublishButton();
+            }
+        });
+
+        function resetPublishButton() {
+            const publishBtn = document.getElementById('publishBtn');
+            publishBtn.disabled = false;
+            publishBtn.textContent = 'Publier';
+            publishBtn.style.background = '';
+        }
+
+        function clearPostForm() {
+            document.getElementById('postText').value = '';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('videoInput').value = '';
+            document.getElementById('fileName').textContent = '';
+            document.getElementById('mediaPreview').innerHTML = '';
+            currentSelectedFile = null;
+        }
+
+        // CHARGEMENT DES DONNÉES
+        function loadPosts() {
+            if (isLoadingPosts) return;
+            isLoadingPosts = true;
+
+            console.log('📊 Chargement des publications...');
+            showMainLoader("Chargement des publications", "Récupération du contenu...");
+
+            if (unsubscribePosts) {
+                unsubscribePosts();
+            }
+
+            const postsQuery = query(
+                collection(db, 'posts'), 
+                orderBy('timestamp', 'desc'), 
+                limit(50)
+            );
+
+            unsubscribePosts = onSnapshot(postsQuery, (snapshot) => {
+                console.log('📝 Mise à jour des publications');
+                posts = [];
+                
+                snapshot.forEach((doc) => {
+                    const post = { id: doc.id, ...doc.data() };
+                    posts.push(post);
+                });
+
+                console.log(`✅ ${posts.length} publications chargées`);
+                
+                setTimeout(() => {
+                    renderPosts();
+                    hideMainLoader();
+                    isLoadingPosts = false;
+                    
+                    // Initialiser auto-play après rendu
+                    setTimeout(initVideoAutoPlay, 200);
+                }, 800);
+
+            }, (error) => {
+                console.error('❌ Erreur chargement posts:', error);
+                const feed = document.getElementById('feed');
+                feed.innerHTML = `
+                    <div class="empty-state">
+                        <h3>🔌 Problème de connexion</h3>
+                        <p>Impossible de charger les publications</p>
+                        <button onclick="location.reload()" style="margin-top: 12px; padding: 8px 16px; background: #ff0050; color: white; border: none; border-radius: 6px; cursor: pointer;">Réessayer</button>
+                    </div>
+                `;
+                hideMainLoader();
+                isLoadingPosts = false;
+            });
+        }
+
+        async function loadUsers() {
+            try {
+                console.log('👥 Chargement des utilisateurs...');
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                allUsers = [];
+                
+                usersSnapshot.forEach((doc) => {
+                    const user = { id: doc.id, ...doc.data() };
+                    allUsers.push(user);
+                });
+                
+                console.log(`✅ ${allUsers.length} utilisateurs chargés`);
+            } catch (error) {
+                console.error('❌ Erreur chargement utilisateurs:', error);
+            }
+        }
+
+        // RENDU DES PUBLICATIONS
+        function renderPosts() {
+            console.log('🎨 Rendu des publications...');
+            const feed = document.getElementById('feed');
+            
+            if (posts.length === 0) {
+                feed.innerHTML = `
+                    <div class="empty-state">
+                        <h3>🌟 Bienvenue sur Express Exchange !</h3>
+                        <p>Soyez le premier à partager quelque chose d'incroyable</p>
+                        <div style="margin-top: 20px; font-size: 32px;">🚀✨📱</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const postsHTML = posts.map(post => {
+                // HTML vidéo avec contrôles comme TikTok
+                const videoHTML = post.videoUrl ? `
+                    <div class="video-container paused" data-video-id="${post.id}">
+                        <video class="video-player" 
+                               src="${post.videoUrl}" 
+                               poster=""
+                               preload="metadata"
+                               loop
+                               playsinline
+                               onclick="toggleVideoPlayPause(this)">
+                            Votre navigateur ne supporte pas les vidéos.
+                        </video>
+                        
+                        <div class="video-play-overlay" onclick="toggleVideoPlayPause(this.parentElement.querySelector('video'))">
+                            ▶️
+                        </div>
+                        
+                        <div class="video-sound-indicator" onclick="toggleVideoSound(this.parentElement.querySelector('video'))">
+                            🔊 Son activé
+                        </div>
+                        
+                        <div class="video-auto-play-badge">🎵 Lecture auto</div>
+                        
+                        <div class="video-controls-overlay">
+                            <div class="video-progress" onclick="seekVideo(event, this)">
+                                <div class="video-progress-bar"></div>
+                            </div>
+                            <div class="video-controls-row">
+                                <button class="video-control-btn" onclick="toggleVideoPlayPause(this.closest('.video-container').querySelector('video'))">
+                                    ▶️
+                                </button>
+                                <span class="video-time">0:00 / ${post.videoDuration ? VideoProcessor.formatDuration(post.videoDuration) : '0:00'}</span>
+                                <button class="video-control-btn" onclick="toggleVideoSound(this.closest('.video-container').querySelector('video'))">
+                                    🔊
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                // HTML image
+                const imageHTML = post.imageUrl ? `
+                    <div class="image-link" onclick="openImageModal('${post.imageUrl}')">
+                        <img src="${post.imageUrl}" 
+                             alt="Image partagée" 
+                             loading="lazy">
+                    </div>
+                ` : '';
+
+                return `
+                    <div class="publication fade-in" data-post-id="${post.id}">
+                        <div class="pub-header">
+                            <div class="pub-avatar" onclick="showUserProfile('${post.authorId}')">${post.avatar || 'U'}</div>
+                            <div class="pub-info">
+                                <div class="pub-username" onclick="showUserProfile('${post.authorId}')">${escapeHtml(post.author || 'Utilisateur')}</div>
+                                <div class="pub-time">${formatTimestamp(post.timestamp)}</div>
+                            </div>
+                        </div>
+                        
+                        ${post.text ? `<div class="pub-text">${escapeHtml(post.text).replace(/\n/g, '<br>')}</div>` : ''}
+                        
+                        ${videoHTML}
+                        ${imageHTML}
+                        
+                        <div class="pub-actions">
+                            <button class="action-btn ${post.likedByCurrentUser ? 'liked' : ''}" 
+                                    onclick="toggleLike('${post.id}')"
+                                    data-post-id="${post.id}">
+                                <span>${post.likedByCurrentUser ? '❤️' : '🤍'}</span>
+                                <span>${post.likesCount || 0}</span>
+                            </button>
+                            <button class="action-btn" onclick="toggleComments('${post.id}')">
+                                <span>💬</span>
+                                <span>${post.commentsCount || 0}</span>
+                            </button>
+                            <button class="action-btn" onclick="sharePost('${post.id}')">
+                                <span>📤</span>
+                                <span>Partager</span>
+                            </button>
+                        </div>
+                        
+                        <div class="comments-section" id="comments-${post.id}" style="display: none;">
+                            <div id="comments-list-${post.id}"></div>
+                            <div class="comment-form">
+                                <input type="text" 
+                                       class="comment-input" 
+                                       id="comment-input-${post.id}"
+                                       placeholder="Ajouter un commentaire..."
+                                       onkeypress="handleCommentKeypress(event, '${post.id}')">
+                                <button class="comment-btn" onclick="addComment('${post.id}')">💬</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            feed.innerHTML = postsHTML;
+            setupVideoEvents();
+            console.log(`✅ ${posts.length} publications rendues`);
+        }
+
+        // CONTRÔLES VIDÉO COMME TIKTOK
+        function setupVideoEvents() {
+            document.querySelectorAll('.video-player').forEach(video => {
+                video.addEventListener('timeupdate', updateVideoProgress);
+                video.addEventListener('ended', () => {
+                    video.closest('.video-container').classList.add('paused');
+                    updatePlayButton(video, false);
+                });
+                video.addEventListener('play', () => {
+                    video.closest('.video-container').classList.remove('paused');
+                    updatePlayButton(video, true);
+                });
+                video.addEventListener('pause', () => {
+                    video.closest('.video-container').classList.add('paused');
+                    updatePlayButton(video, false);
+                });
+                video.addEventListener('volumechange', () => {
+                    updateSoundIndicator(video);
+                });
+            });
+        }
+
+        function updateVideoProgress(event) {
+            const video = event.target;
+            const container = video.closest('.video-container');
+            const progressBar = container.querySelector('.video-progress-bar');
+            const timeDisplay = container.querySelector('.video-time');
+            
+            if (progressBar && video.duration) {
+                const progress = (video.currentTime / video.duration) * 100;
+                progressBar.style.width = progress + '%';
+            }
+            
+            if (timeDisplay && video.duration) {
+                const current = VideoProcessor.formatDuration(video.currentTime);
+                const total = VideoProcessor.formatDuration(video.duration);
+                timeDisplay.textContent = `${current} / ${total}`;
+            }
+        }
+
+        function updatePlayButton(video, isPlaying) {
+            const container = video.closest('.video-container');
+            const playBtns = container.querySelectorAll('.video-control-btn');
+            playBtns.forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes('toggleVideoPlayPause')) {
+                    btn.textContent = isPlaying ? '⏸️' : '▶️';
+                }
+            });
+        }
+
+        function updateSoundIndicator(video) {
+            const container = video.closest('.video-container');
+            const soundIndicator = container.querySelector('.video-sound-indicator');
+            const soundBtns = container.querySelectorAll('.video-control-btn');
+            
+            if (soundIndicator) {
+                soundIndicator.innerHTML = video.muted ? '🔇 Muet' : '🔊 Son activé';
+                soundIndicator.classList.toggle('muted', video.muted);
+            }
+            
+            soundBtns.forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes('toggleVideoSound')) {
+                    btn.textContent = video.muted ? '🔇' : '🔊';
+                }
+            });
+        }
+
+        // FONCTIONS DE CONTRÔLE VIDÉO
+        window.toggleVideoPlayPause = function(video) {
+            if (!video) return;
+            
+            if (video.paused) {
+                pauseAllVideos();
+                video.play().then(() => {
+                    currentPlayingVideo = video;
+                    console.log('▶️ Lecture démarrée');
+                }).catch(error => {
+                    console.error('❌ Erreur lecture:', error);
+                });
+            } else {
+                video.pause();
+                if (currentPlayingVideo === video) {
+                    currentPlayingVideo = null;
+                }
+                console.log('⏸️ Lecture pausée');
+            }
+        };
+
+        window.toggleVideoSound = function(video) {
+            if (!video) return;
+            
+            video.muted = !video.muted;
+            updateSoundIndicator(video);
+            
+            console.log(`🔊 Son ${video.muted ? 'coupé' : 'activé'}`);
+        };
+
+        window.seekVideo = function(event, progressContainer) {
+            const video = progressContainer.closest('.video-container').querySelector('video');
+            if (!video || !video.duration) return;
+            
+            const rect = progressContainer.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const percentage = clickX / rect.width;
+            const newTime = percentage * video.duration;
+            
+            video.currentTime = newTime;
+            console.log(`⏭️ Saut à ${VideoProcessor.formatDuration(newTime)}`);
+        };
+
+        // INTERACTIONS PUBLICATIONS
+        window.openImageModal = function(imageUrl) {
+            const modal = document.getElementById('modalImageView');
+            const modalImg = document.getElementById('modalImageBig');
+            modalImg.src = imageUrl;
+            modal.style.display = 'flex';
+            
+            const closeModal = function(e) {
+                if (e.key === 'Escape' || e.target === modal) {
+                    modal.style.display = 'none';
+                    document.removeEventListener('keydown', closeModal);
+                }
+            };
+            
+            modal.addEventListener('click', closeModal);
+            document.addEventListener('keydown', closeModal);
+        };
+
+        window.toggleLike = async function(postId) {
+            if (!validateUserData(userData)) {
+                alert('Veuillez vous reconnecter');
+                return;
+            }
+
+            const likeBtn = document.querySelector(`button[data-post-id="${postId}"]`);
+            if (!likeBtn || likeBtn.disabled) return;
+
+            likeBtn.disabled = true;
+
+            try {
+                const post = posts.find(p => p.id === postId);
+                if (!post) return;
+
+                const isCurrentlyLiked = post.likedByCurrentUser;
+                const newLikesCount = isCurrentlyLiked 
+                    ? Math.max(0, (post.likesCount || 0) - 1)
+                    : (post.likesCount || 0) + 1;
+
+                // Mise à jour optimiste
+                post.likedByCurrentUser = !isCurrentlyLiked;
+                post.likesCount = newLikesCount;
+                
+                const heartIcon = likeBtn.querySelector('span:first-child');
+                const countSpan = likeBtn.querySelector('span:last-child');
+                
+                heartIcon.textContent = post.likedByCurrentUser ? '❤️' : '🤍';
+                countSpan.textContent = newLikesCount;
+                likeBtn.classList.toggle('liked', post.likedByCurrentUser);
+
+                // Animation
+                likeBtn.classList.add('bounce-in');
+                setTimeout(() => likeBtn.classList.remove('bounce-in'), 500);
+
+                // Sauvegarde (simulation)
+                if (isOnline) {
+                    console.log(`${isCurrentlyLiked ? '💔' : '❤️'} Like ${isCurrentlyLiked ? 'retiré' : 'ajouté'}`);
+                    
+                    // Ici on pourrait vraiment sauvegarder en base
+                    // await updateDoc(doc(db, 'posts', postId), { likesCount: newLikesCount });
+                }
+
+            } catch (error) {
+                console.error('❌ Erreur like:', error);
+                renderPosts(); // Rollback
+            } finally {
+                likeBtn.disabled = false;
+            }
+        };
+
+        window.toggleComments = async function(postId) {
+            const commentsSection = document.getElementById(`comments-${postId}`);
+            if (!commentsSection) return;
+
+            const isVisible = commentsSection.style.display !== 'none';
+            commentsSection.style.display = isVisible ? 'none' : 'block';
+
+            if (!isVisible) {
+                await loadComments(postId);
+            }
+        };
+
+        async function loadComments(postId) {
+            const commentsList = document.getElementById(`comments-list-${postId}`);
+            if (!commentsList) return;
+
+            try {
+                commentsList.innerHTML = '<div style="padding: 12px; color: #8e8e8e; text-align: center;">💬 Chargement...</div>';
+                
+                // Simulation
+                setTimeout(() => {
+                    commentsList.innerHTML = `
+                        <div class="comment">
+                            <div class="comment-header">
+                                <div class="comment-avatar">EX</div>
+                                <div class="comment-username">Express Exchange</div>
+                                <div class="comment-time">1h</div>
+                            </div>
+                            <div class="comment-text">Première publication ! 🎉</div>
+                        </div>
+                        <div style="padding: 8px; color: #8e8e8e; font-size: 12px; text-align: center;">Les commentaires arrivent bientôt...</div>
+                    `;
+                }, 500);
+
+            } catch (error) {
+                console.error('❌ Erreur commentaires:', error);
+                commentsList.innerHTML = '<div style="padding: 12px; color: #ed4956;">Erreur de chargement</div>';
+            }
+        }
+
+        window.handleCommentKeypress = function(event, postId) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                addComment(postId);
+            }
+        };
+
+        window.addComment = async function(postId) {
+            if (!validateUserData(userData)) {
+                alert('Veuillez vous reconnecter');
+                return;
+            }
+
+            const commentInput = document.getElementById(`comment-input-${postId}`);
+            if (!commentInput) return;
+
+            const commentText = commentInput.value.trim();
+            if (!commentText) {
+                commentInput.classList.add('shake');
+                setTimeout(() => commentInput.classList.remove('shake'), 500);
+                return;
+            }
+
+            try {
+                console.log('💬 Ajout commentaire:', commentText);
+                
+                // Simulation d'ajout
+                const commentsList = document.getElementById(`comments-list-${postId}`);
+                if (commentsList) {
+                    const commentHTML = `
+                        <div class="comment bounce-in">
+                            <div class="comment-header">
+                                <div class="comment-avatar">${userData.avatar}</div>
+                                <div class="comment-username">${escapeHtml(userData.fullName)}</div>
+                                <div class="comment-time">À l'instant</div>
+                            </div>
+                            <div class="comment-text">${escapeHtml(commentText)}</div>
+                        </div>
+                    `;
+                    
+                    if (commentsList.innerHTML.includes('Les commentaires arrivent')) {
+                        commentsList.innerHTML = commentHTML;
+                    } else {
+                        commentsList.innerHTML = commentHTML + commentsList.innerHTML;
+                    }
+                }
+
+                // Mise à jour compteur
+                const post = posts.find(p => p.id === postId);
+                if (post) {
+                    post.commentsCount = (post.commentsCount || 0) + 1;
+                    const commentBtn = document.querySelector(`button[onclick="toggleComments('${postId}')"] span:last-child`);
+                    if (commentBtn) {
+                        commentBtn.textContent = post.commentsCount;
+                    }
+                }
+
+                commentInput.value = '';
+
+            } catch (error) {
+                console.error('❌ Erreur commentaire:', error);
+                alert('Erreur lors de l\'ajout du commentaire');
+            }
+        };
+
+        window.sharePost = function(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+
+            const shareData = {
+                title: `Publication de ${post.author} sur Express Exchange`,
+                text: post.text || 'Découvrez cette publication géniale !',
+                url: window.location.href
+            };
+
+            if (navigator.share && navigator.canShare?.(shareData)) {
+                navigator.share(shareData).catch(err => console.log('Erreur partage:', err));
+            } else {
+                // Fallback
+                const textToCopy = `${post.text || 'Publication'} - par ${post.author} sur Express Exchange\n${window.location.href}`;
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    alert('🔗 Lien copié dans le presse-papiers !');
+                }).catch(() => {
+                    // Fallback du fallback
+                    const tempInput = document.createElement('input');
+                    tempInput.value = textToCopy;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    alert('📋 Contenu copié !');
+                });
+            }
+        };
+
+        // MES PUBLICATIONS
+        document.getElementById('showMyPostsBtn').addEventListener('click', showMyPostsModal);
+
+        function showMyPostsModal() {
+            if (!validateUserData(userData)) {
+                alert('Veuillez vous reconnecter');
+                return;
+            }
+
+            const modal = document.getElementById('myPostsModal');
+            const myPostsList = document.getElementById('myPostsList');
+            
+            modal.style.display = 'flex';
+            
+            const myPosts = posts.filter(post => post.authorId === userData.id);
+            
+            if (myPosts.length === 0) {
+                myPostsList.innerHTML = `
+                    <div class="empty-state">
+                        <h3>🌟 Aucune publication</h3>
+                        <p>Commencez à partager vos moments !</p>
+                        <div style="margin-top: 16px; font-size: 32px;">📱✨🚀</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const myPostsHTML = myPosts.map(post => `
+                <div class="my-post-item">
+                    ${post.imageUrl ? `
+                        <div class="my-post-thumbnail">
+                            <img src="${post.imageUrl}" alt="Miniature">
+                        </div>
+                    ` : post.videoUrl ? `
+                        <div class="my-post-thumbnail">
+                            <video src="${post.videoUrl}" muted></video>
+                        </div>
+                    ` : ''}
+                    <div class="my-post-content">
+                        <div class="my-post-text">${escapeHtml(post.text || (post.videoUrl ? '🎥 Vidéo partagée' : post.imageUrl ? '📷 Photo partagée' : '📝 Publication'))}</div>
+                        <div class="my-post-time">${formatTimestamp(post.timestamp)} • ${post.likesCount || 0} ❤️ • ${post.videoUrl ? '🎥' : post.imageUrl ? '📷' : '📝'}</div>
+                    </div>
+                    <button class="my-post-delete" onclick="deleteMyPost('${post.id}')" ${!isOnline ? 'disabled' : ''}>
+                        🗑️
+                    </button>
+                </div>
+            `).join('');
+
+            myPostsList.innerHTML = myPostsHTML;
+        }
+
+        document.getElementById('closeMyPostsModal').addEventListener('click', function() {
+            document.getElementById('myPostsModal').style.display = 'none';
+        });
+
+        window.deleteMyPost = async function(postId) {
+            if (!validateUserData(userData) || !confirm('Supprimer cette publication ?')) {
+                return;
+            }
+
+            const deleteBtn = document.querySelector(`button[onclick="deleteMyPost('${postId}')"]`);
+            if (deleteBtn) {
+                deleteBtn.disabled = true;
+                deleteBtn.innerHTML = '⏳ Suppression...';
+            }
+
+            try {
+                await deleteDoc(doc(db, 'posts', postId));
+                console.log('🗑️ Publication supprimée:', postId);
+                
+                posts = posts.filter(post => post.id !== postId);
+                renderPosts();
+                showMyPostsModal();
+                
+                setTimeout(initVideoAutoPlay, 200);
+                
+            } catch (error) {
+                console.error('❌ Erreur suppression:', error);
+                alert('Erreur lors de la suppression');
+                
+                if (deleteBtn) {
+                    deleteBtn.disabled = false;
+                    deleteBtn.innerHTML = '🗑️';
+                }
+            }
+        };
+
+        // GESTION DES ÉVÉNEMENTS RÉSEAU
+        window.addEventListener('online', () => {
+            console.log('🌐 Connexion rétablie');
+            isOnline = true;
+            updateConnectionStatus();
+            
+            if (isAppInitialized && posts.length === 0) {
+                loadPosts();
+            }
+        });
+
+        window.addEventListener('offline', () => {
+            console.log('📡 Connexion perdue');
+            isOnline = false;
+            updateConnectionStatus();
+        });
+
+        // OPTIMISATIONS ET NETTOYAGE
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                pauseAllVideos();
+                console.log('👁️ Page cachée, vidéos pausées');
+            }
+        });
+
+        window.addEventListener('resize', debounce(() => {
+            const particles = document.getElementById('particles');
+            if (particles) {
+                particles.innerHTML = '';
+                createParticles();
+            }
+        }, 300));
+
+        // RACCOURCIS CLAVIER
+        document.addEventListener('keydown', (e) => {
+            // Espace pour play/pause
+            if (e.code === 'Space' && currentPlayingVideo && !e.target.matches('input, textarea')) {
+                e.preventDefault();
+                toggleVideoPlayPause(currentPlayingVideo);
+            }
+            
+            // M pour mute/unmute
+            if (e.code === 'KeyM' && currentPlayingVideo && !e.target.matches('input, textarea')) {
+                e.preventDefault();
+                toggleVideoSound(currentPlayingVideo);
+            }
+            
+            // Flèches pour navigation
+            if (e.code === 'ArrowLeft' && currentPlayingVideo && !e.target.matches('input, textarea')) {
+                e.preventDefault();
+                currentPlayingVideo.currentTime = Math.max(0, currentPlayingVideo.currentTime - 10);
+            }
+            
+            if (e.code === 'ArrowRight' && currentPlayingVideo && !e.target.matches('input, textarea')) {
+                e.preventDefault();
+                currentPlayingVideo.currentTime = Math.min(currentPlayingVideo.duration || 0, currentPlayingVideo.currentTime + 10);
+            }
+        });
+
+        // DÉCONNEXION
+        window.logout = function() {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                console.log('🚪 Déconnexion...');
+                sessionStorage.clear();
+                localStorage.removeItem('expressExchangeUser');
+                location.reload();
+            }
+        };
+
+        // NETTOYAGE AVANT FERMETURE
+        window.addEventListener('beforeunload', () => {
+            if (videoAutoPlayObserver) {
+                videoAutoPlayObserver.disconnect();
+            }
+            
+            pauseAllVideos();
+            
+            if (unsubscribePosts) {
+                unsubscribePosts();
+            }
+            
+            console.log('🧹 Nettoyage effectué');
+        });
+
+        // GESTION D'ERREURS
+        window.addEventListener('error', (event) => {
+            console.error('❌ Erreur globale:', event.error);
+            
+            if (event.error?.message?.includes('video')) {
+                setTimeout(initVideoAutoPlay, 1000);
+            }
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('❌ Promise rejetée:', event.reason);
+        });
+
+        console.log('🎉 Express Exchange - Version complète chargée avec succès !');
+        console.log('🎥 Fonctionnalités: Auto-play vidéos, Profils utilisateurs, Système de suivi');
+        console.log('⚡ Prêt à l\'utilisation !');
+    </script>
+</body>
+</html>

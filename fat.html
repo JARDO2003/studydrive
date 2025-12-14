@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyDrive - Votre Compagnon d'Études</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: #ffffff;
+            color: #333;
+        }
+
+        /* Background with student image */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)),
+                        url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80') center/cover no-repeat;
+            animation: zoomBackground 30s ease-in-out infinite alternate;
+        }
+
+        @keyframes zoomBackground {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 50%, rgba(0, 173, 181, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(83, 92, 145, 0.15) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .shape {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(0, 173, 181, 0.2), rgba(83, 92, 145, 0.2));
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 3s;
+        }
+
+        .shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 60%;
+            animation-delay: 6s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-30px) rotate(90deg);
+            }
+            50% {
+                transform: translateY(0) rotate(180deg);
+            }
+            75% {
+                transform: translateY(30px) rotate(270deg);
+            }
+        }
+
+        /* Main Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        /* Content Frame */
+        .content-frame {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 3rem;
+            border: 1px solid rgba(0, 173, 181, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            animation: frameAppear 1s ease forwards;
+        }
+
+        @keyframes frameAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00adb5, #535c91);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            animation: slideDown 0.8s ease 0.3s backwards;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            color: #555;
+            animation: slideUp 0.8s ease 0.5s backwards;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Video Animation Section */
+        .video-section {
+            width: 100%;
+            margin: 2rem 0;
+            animation: fadeIn 1s ease 0.7s backwards;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(0, 173, 181, 0.15), rgba(83, 92, 145, 0.15));
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid rgba(0, 173, 181, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .animated-illustration {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .book-icon {
+            position: relative;
+            animation: bookFloat 3s ease-in-out infinite;
+        }
+
+        .book-icon svg {
+            width: 100px;
+            height: 100px;
+            filter: drop-shadow(0 10px 20px rgba(0, 173, 181, 0.4));
+        }
+
+        @keyframes bookFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .checkmark-icon {
+            animation: checkFloat 3s ease-in-out infinite 0.5s;
+        }
+
+        .checkmark-icon svg {
+            width: 100px;
+            height: 100px;
+            filter: drop-shadow(0 10px 20px rgba(83, 92, 145, 0.4));
+        }
+
+        @keyframes checkFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-25px) rotate(5deg); }
+        }
+
+        .target-icon {
+            animation: targetFloat 3s ease-in-out infinite 1s;
+        }
+
+        .target-icon svg {
+            width: 100px;
+            height: 100px;
+            filter: drop-shadow(0 10px 20px rgba(0, 173, 181, 0.4));
+        }
+
+        @keyframes targetFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.1); }
+        }
+
+        /* Start Button - Centered */
+        .cta-section {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .start-button {
+            display: inline-block;
+            padding: 1.5rem 5rem;
+            background: linear-gradient(135deg, #00adb5, #535c91);
+            color: white;
+            text-decoration: none;
+            font-size: 1.8rem;
+            font-weight: bold;
+            border-radius: 50px;
+            transition: all 0.4s ease;
+            box-shadow: 0 15px 40px rgba(0, 173, 181, 0.5);
+            animation: buttonPulse 2s ease 1.5s infinite;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 2px;
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 15px 40px rgba(0, 173, 181, 0.5);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 20px 60px rgba(0, 173, 181, 0.7);
+            }
+        }
+
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .start-button:hover {
+            transform: translateY(-8px) scale(1.1);
+            box-shadow: 0 25px 70px rgba(0, 173, 181, 0.8);
+            animation: none;
+        }
+
+        .start-button:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .start-button:active {
+            transform: translateY(-4px) scale(1.05);
+        }
+
+        .start-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: rgba(0, 173, 181, 0.08);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 173, 181, 0.2);
+            transition: all 0.3s ease;
+            animation: cardAppear 0.6s ease backwards;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.9s; }
+        .feature-card:nth-child(2) { animation-delay: 1.1s; }
+        .feature-card:nth-child(3) { animation-delay: 1.3s; }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feature-card:hover {
+            background: rgba(0, 173, 181, 0.15);
+            border-color: rgba(0, 173, 181, 0.5);
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 173, 181, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: #00adb5;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            .tagline {
+                font-size: 1.2rem;
+            }
+
+            .content-frame {
+                padding: 2rem 1.5rem;
+            }
+
+            .video-container {
+                height: 200px;
+            }
+
+            .book-icon svg,
+            .checkmark-icon svg,
+            .target-icon svg {
+                width: 60px;
+                height: 60px;
+            }
+
+            .animated-illustration {
+                padding: 1rem;
+            }
+
+            .start-button {
+                padding: 1.2rem 3rem;
+                font-size: 1.3rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content-frame">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo">📚 StudyDrive</div>
+                <div class="tagline">Votre compagnon ultime pour exceller dans vos études</div>
+            </div>
+
+            <!-- Video Animation Section -->
+            <div class="video-section">
+                <div class="video-container">
+                    <div class="animated-illustration">
+                        <div class="book-icon">
+                            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="20" y="15" width="60" height="70" rx="5" fill="#00adb5" opacity="0.8"/>
+                                <rect x="25" y="20" width="50" height="60" rx="3" fill="#535c91"/>
+                                <line x1="30" y1="30" x2="70" y2="30" stroke="#00adb5" stroke-width="2"/>
+                                <line x1="30" y1="40" x2="70" y2="40" stroke="#00adb5" stroke-width="2"/>
+                                <line x1="30" y1="50" x2="70" y2="50" stroke="#00adb5" stroke-width="2"/>
+                                <line x1="30" y1="60" x2="60" y2="60" stroke="#00adb5" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="checkmark-icon">
+                            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="35" fill="#535c91" opacity="0.8"/>
+                                <path d="M35 50 L45 60 L65 35" stroke="#00adb5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="target-icon">
+                            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="35" stroke="#00adb5" stroke-width="3" opacity="0.8"/>
+                                <circle cx="50" cy="50" r="25" stroke="#535c91" stroke-width="3" opacity="0.8"/>
+                                <circle cx="50" cy="50" r="15" fill="#00adb5"/>
+                                <circle cx="50" cy="50" r="7" fill="white"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Button - Centered in the middle -->
+            <div class="cta-section">
+                <a href="ass.html" class="start-button">
+                    <span>START</span>
+                </a>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">📖</span>
+                    <h3>Sujets d'Examens</h3>
+                    <p>Accédez à une vaste collection de sujets d'examens des années précédentes pour mieux vous préparer.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">✅</span>
+                    <h3>Corrigés Types</h3>
+                    <p>Consultez des corrigés détaillés et comprenez les méthodologies de résolution pour chaque sujet.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🎯</span>
+                    <h3>Organisation Simple</h3>
+                    <p>Trouvez facilement vos ressources grâce à une interface intuitive et bien structurée.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
