@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -189,7 +188,8 @@
         }
 
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 14px 16px;
             background: var(--gray-light);
@@ -203,7 +203,8 @@
         }
 
         .form-group input:focus,
-        .form-group select:focus {
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: none;
             border-color: var(--primary);
             background: var(--white);
@@ -948,7 +949,421 @@
             to { transform: rotate(360deg); }
         }
 
+        /* FOCUS CLASS */
+        .focus-class-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--dark);
+            z-index: 8000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .focus-class-header {
+            background: var(--dark-light);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--dark-lighter);
+        }
+
+        .focus-class-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .focus-class-title h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--white);
+        }
+
+        .focus-badge {
+            padding: 6px 12px;
+            background: var(--success);
+            color: var(--white);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .focus-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--white);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .focus-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .focus-btn {
+            padding: 10px 20px;
+            background: var(--dark-lighter);
+            border: none;
+            border-radius: 10px;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .focus-btn:hover {
+            background: var(--primary);
+        }
+
+        .focus-btn.danger {
+            background: #ef4444;
+        }
+
+        .focus-btn.danger:hover {
+            background: #dc2626;
+        }
+
+        .focus-class-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 0;
+            overflow: hidden;
+        }
+
+        .subject-panel {
+            background: var(--dark-light);
+            padding: 25px;
+            overflow-y: auto;
+            border-right: 1px solid var(--dark-lighter);
+        }
+
+        .subject-panel h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .subject-display {
+            background: var(--dark-lighter);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .subject-display img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .subject-info {
+            padding: 15px;
+        }
+
+        .subject-info h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .subject-info p {
+            font-size: 12px;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        .upload-subject-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-subject-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .video-grid {
+            background: var(--dark);
+            padding: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            align-content: start;
+            overflow-y: auto;
+        }
+
+        .video-container {
+            background: var(--dark-lighter);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 4/3;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-container.local {
+            border: 3px solid var(--primary);
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 6px 12px;
+            border-radius: 8px;
+            color: var(--white);
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .video-muted {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(239, 68, 68, 0.9);
+            padding: 6px 10px;
+            border-radius: 8px;
+            color: var(--white);
+            font-size: 18px;
+        }
+
+        .no-video {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--gray);
+        }
+
+        .no-video-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .no-video-text {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .participants-panel {
+            background: var(--dark-light);
+            border-left: 1px solid var(--dark-lighter);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .participants-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--dark-lighter);
+        }
+
+        .participants-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .participants-count {
+            background: var(--primary);
+            color: var(--white);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .participants-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .participant-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--dark-lighter);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .participant-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .participant-info {
+            flex: 1;
+        }
+
+        .participant-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .participant-status {
+            font-size: 11px;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .media-controls {
+            background: var(--dark-light);
+            padding: 20px 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            border-top: 1px solid var(--dark-lighter);
+        }
+
+        .media-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            background: var(--dark-lighter);
+            color: var(--white);
+            font-size: 22px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .media-btn:hover {
+            background: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .media-btn.active {
+            background: var(--primary);
+        }
+
+        .media-btn.danger {
+            background: #ef4444;
+        }
+
+        .media-btn.danger:hover {
+            background: #dc2626;
+        }
+
+        .subject-upload-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .subject-upload-content {
+            background: var(--white);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            border-radius: 16px;
+        }
+
+        .subject-upload-content h3 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 25px;
+        }
+
         /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .focus-class-content {
+                grid-template-columns: 250px 1fr 300px;
+            }
+        }
+
+        @media (max-width: 968px) {
+            .focus-class-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .subject-panel,
+            .participants-panel {
+                display: none;
+            }
+            
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (max-width: 768px) {
             .navbar-content {
                 flex-direction: column;
@@ -998,12 +1413,6 @@
 
             .intro-title {
                 font-size: 42px;
-            }
-        }
-
-        @media (hover: none) and (pointer: coarse) {
-            .subject-card:active {
-                transform: translateY(-5px);
             }
         }
     </style>
@@ -1071,6 +1480,7 @@
                 <div class="navbar-menu">
                     <a href="#" class="nav-link">Accueil</a>
                     <a href="apropos.html" class="nav-link">À Propos</a>
+                    <a href="#" class="nav-link" onclick="openFocusClass(); return false;">🎯 FocusClass</a>
                     <a href="#" class="nav-link">Ressources</a>
                     <div class="user-badge">
                         <div class="user-avatar" id="userAvatar">U</div>
@@ -1176,7 +1586,7 @@
                     <div class="file-input-wrapper">
                         <label for="subjectImage" class="file-input-btn">
                             <div style="font-size: 50px; margin-bottom: 15px;">📸</div>
-                            <div style="font-weight: 700; color: var(--gold); letter-spacing: 2px;">SÉLECTIONNER</div>
+                            <div style="font-weight: 700; color: var(--primary); letter-spacing: 2px;">SÉLECTIONNER</div>
                             <div style="font-size: 11px; color: var(--gray); margin-top: 10px; text-transform: uppercase; letter-spacing: 1px;">PNG, JPG jusqu'à 10MB</div>
                         </label>
                         <input type="file" id="subjectImage" accept="image/*" required>
@@ -1208,6 +1618,111 @@
         </div>
     </div>
 
+    <!-- FOCUS CLASS SECTION -->
+    <div id="focusClassSection" class="focus-class-section">
+        <div class="focus-class-header">
+            <div class="focus-class-title">
+                <h2>🎯 FocusClass</h2>
+                <div class="focus-badge">
+                    <span>LIVE</span>
+                </div>
+            </div>
+            <div class="focus-controls">
+                <button class="focus-btn" onclick="toggleScreenShare()">
+                    <span>🖥️</span> Partager
+                </button>
+                <button class="focus-btn" onclick="copyRoomLink()">
+                    <span>🔗</span> Copier lien
+                </button>
+                <button class="focus-btn danger" onclick="leaveFocusClass()">
+                    <span>👋</span> Quitter
+                </button>
+            </div>
+        </div>
+
+        <div class="focus-class-content">
+            <!-- SUBJECT PANEL -->
+            <div class="subject-panel">
+                <h3>📚 Sujet d'étude</h3>
+                <div class="subject-display" id="focusSubjectDisplay">
+                    <div style="padding: 40px; text-align: center; color: var(--gray);">
+                        <div style="font-size: 48px; margin-bottom: 15px;">📸</div>
+                        <p style="font-size: 13px;">Aucun sujet ajouté</p>
+                    </div>
+                </div>
+                <button class="upload-subject-btn" onclick="openSubjectUploadModal()">
+                    📤 Ajouter un sujet
+                </button>
+            </div>
+
+            <!-- VIDEO GRID -->
+            <div class="video-grid" id="videoGrid">
+                <div class="video-container local">
+                    <video id="localVideo" autoplay muted playsinline></video>
+                    <div class="video-label">
+                        <span>📹</span>
+                        <span id="localVideoLabel">Vous</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PARTICIPANTS PANEL -->
+            <div class="participants-panel">
+                <div class="participants-header">
+                    <h3>
+                        👥 Participants
+                        <span class="participants-count" id="participantsCount">1</span>
+                    </h3>
+                </div>
+                <div class="participants-list" id="participantsList"></div>
+            </div>
+        </div>
+
+        <div class="media-controls">
+            <button class="media-btn active" id="toggleVideoBtn" onclick="toggleVideo()">
+                <span id="videoIcon">📹</span>
+            </button>
+            <button class="media-btn active" id="toggleAudioBtn" onclick="toggleAudio()">
+                <span id="audioIcon">🎤</span>
+            </button>
+            <button class="media-btn" onclick="openChatPanel()">
+                <span>💬</span>
+            </button>
+            <button class="media-btn danger" onclick="leaveFocusClass()">
+                <span>📞</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- SUBJECT UPLOAD MODAL -->
+    <div id="subjectUploadModal" class="subject-upload-modal">
+        <div class="subject-upload-content">
+            <h3>📚 Ajouter un sujet</h3>
+            <form id="subjectUploadForm">
+                <div class="form-group">
+                    <label>Sélectionner une image</label>
+                    <div class="file-input-wrapper">
+                        <label for="focusSubjectImage" class="file-input-btn">
+                            <div style="font-size: 50px; margin-bottom: 15px;">📸</div>
+                            <div style="font-weight: 700; color: var(--primary); letter-spacing: 2px;">SÉLECTIONNER</div>
+                            <div style="font-size: 11px; color: var(--gray); margin-top: 10px;">PNG, JPG jusqu'à 10MB</div>
+                        </label>
+                        <input type="file" id="focusSubjectImage" accept="image/*" required>
+                    </div>
+                    <div id="focusImagePreview" class="image-preview"></div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="submit-btn" style="background: var(--gray);" onclick="closeSubjectUploadModal()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="submit-btn">
+                        Ajouter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
         import { 
@@ -1220,7 +1735,8 @@
             query, 
             orderBy, 
             serverTimestamp,
-            onSnapshot
+            onSnapshot,
+            deleteDoc
         } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
         const firebaseConfig = {
@@ -1246,6 +1762,19 @@
         let currentFilter = 'all';
         let currentImageUrl = '';
         let searchTimeout = null;
+        let localStream = null;
+        let peerConnections = {};
+        let roomId = null;
+        let isVideoEnabled = true;
+        let isAudioEnabled = true;
+        let currentRoomSubject = null;
+
+        const configuration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
 
         // SEARCH FUNCTIONS
         window.clearSearch = function() {
@@ -1272,7 +1801,6 @@
 
             document.getElementById('searchClear').classList.add('active');
 
-            // Filter subjects based on search
             const filteredResults = subjects.filter(subject => {
                 return subject.title.toLowerCase().includes(searchTerm) ||
                        subject.filiere.toLowerCase().includes(searchTerm) ||
@@ -1337,7 +1865,6 @@
             }
         };
 
-        // Search input event listener
         document.getElementById('searchInput').addEventListener('input', function(e) {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
@@ -1345,7 +1872,6 @@
             }, 300);
         });
 
-        // Close suggestions when clicking outside
         document.addEventListener('click', function(e) {
             const searchContainer = document.querySelector('.search-container');
             if (!searchContainer.contains(e.target)) {
@@ -1445,7 +1971,7 @@
                 console.error('Erreur:', error);
                 alert('Erreur lors de l\'inscription');
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Accéder';
+                submitBtn.textContent = 'Commencer';
             }
         });
 
@@ -1492,7 +2018,7 @@
             if (filteredSubjects.length === 0) {
                 grid.innerHTML = `
                     <div style="grid-column: 1/-1; text-align: center; padding: 80px 20px;">
-                        <h3 style="font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 15px; color: var(--gold-light);">Collection Vide</h3>
+                        <h3 style="font-size: 32px; margin-bottom: 15px; color: var(--dark);">Collection Vide</h3>
                         <p style="color: var(--gray);">Aucun sujet disponible pour cette sélection</p>
                     </div>
                 `;
@@ -1655,14 +2181,339 @@
             });
         }
 
-        // CLOSE MODAL
+        // FOCUS CLASS - OPEN
+       
+  let currentCamera = 'user';
+        let chatMessages = [];
+
+        // FOCUS CLASS - OPEN
+        window.openFocusClass = async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramRoomId = urlParams.get('room');
+            
+            if (paramRoomId) {
+                roomId = paramRoomId;
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('room', roomId);
+                window.history.pushState({}, '', newUrl);
+                
+                document.getElementById('focusClassSection').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+                
+                try {
+                    await initializeMedia();
+                    await joinRoom();
+                } catch (error) {
+                    console.error('Erreur FocusClass:', error);
+                    alert('Impossible d\'accéder à la caméra/micro');
+                }
+            } else {
+                showLiveRoomsList();
+            }
+        };
+
+        // SHOW LIVE ROOMS LIST
+        function showLiveRoomsList() {
+            const modal = document.createElement('div');
+            modal.id = 'liveRoomsModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 10000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: var(--white); padding: 40px; max-width: 600px; width: 100%; border-radius: 16px; max-height: 80vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                        <h2 style="font-size: 28px; font-weight: 800; color: var(--dark);">🎯 Sessions Live</h2>
+                        <button onclick="closeLiveRoomsList()" style="background: var(--gray-light); border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; font-size: 22px;">×</button>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 25px;">
+                        <button onclick="createNewRoom()" style="flex: 1; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">
+                            + Créer une session
+                        </button>
+                    </div>
+                    <div id="liveRoomsList" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            loadLiveRooms();
+        }
+
+        window.closeLiveRoomsList = function() {
+            const modal = document.getElementById('liveRoomsModal');
+            if (modal) modal.remove();
+        };
+
+        window.createNewRoom = async function() {
+            roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            
+            await setDoc(doc(db, 'focusclass_rooms', roomId), {
+                id: roomId,
+                createdBy: userData.id,
+                createdByName: userData.fullName,
+                createdAt: serverTimestamp(),
+                active: true
+            });
+            
+            closeLiveRoomsList();
+            
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('room', roomId);
+            window.history.pushState({}, '', newUrl);
+            
+            document.getElementById('focusClassSection').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            
+            try {
+                await initializeMedia();
+                await joinRoom();
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Impossible d\'accéder à la caméra/micro');
+            }
+        };
+
+        async function loadLiveRooms() {
+            const roomsRef = collection(db, 'focusclass_rooms');
+            const q = query(roomsRef, orderBy('createdAt', 'desc'));
+            
+            onSnapshot(q, async (snapshot) => {
+                const roomsList = document.getElementById('liveRoomsList');
+                if (!roomsList) return;
+                
+                const rooms = [];
+                for (const docSnapshot of snapshot.docs) {
+                    const roomData = docSnapshot.data();
+                    if (roomData.active) {
+                        const participantsSnap = await getDocs(
+                            collection(db, `focusclass_rooms/${docSnapshot.id}/participants`)
+                        );
+                        rooms.push({
+                            id: docSnapshot.id,
+                            ...roomData,
+                            participantCount: participantsSnap.size
+                        });
+                    }
+                }
+                
+                if (rooms.length === 0) {
+                    roomsList.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; color: var(--gray);">
+                            <div style="font-size: 64px; margin-bottom: 20px;">🎯</div>
+                            <p style="font-size: 16px; font-weight: 600;">Aucune session active</p>
+                            <p style="font-size: 14px; margin-top: 8px;">Créez la première session !</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                roomsList.innerHTML = rooms.map(room => `
+                    <div onclick="joinExistingRoom('${room.id}')" style="padding: 20px; background: var(--gray-light); border-radius: 12px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(37, 99, 235, 0.1)'" onmouseout="this.style.background='var(--gray-light)'">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                🎓
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 700; font-size: 16px; color: var(--dark); margin-bottom: 5px;">
+                                    Session de ${room.createdByName}
+                                </div>
+                                <div style="display: flex; gap: 15px; font-size: 13px; color: var(--gray); font-weight: 600;">
+                                    <span>👥 ${room.participantCount} participant(s)</span>
+                                    <span style="color: var(--success); display: flex; align-items: center; gap: 5px;">
+                                        <span style="width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite;"></span>
+                                        LIVE
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="padding: 8px 16px; background: var(--primary); color: var(--white); border-radius: 8px; font-size: 13px; font-weight: 700;">
+                                Rejoindre →
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        window.joinExistingRoom = async function(selectedRoomId) {
+            roomId = selectedRoomId;
+            closeLiveRoomsList();
+            
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('room', roomId);
+            window.history.pushState({}, '', newUrl);
+            
+            document.getElementById('focusClassSection').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            
+            try {
+                await initializeMedia();
+                await joinRoom();
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Impossible d\'accéder à la caméra/micro');
+            }
+        };
+
+        // SWITCH CAMERA
+        window.switchCamera = async function() {
+            try {
+                currentCamera = currentCamera === 'user' ? 'environment' : 'user';
+                
+                const videoTrack = localStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.stop();
+                    localStream.removeTrack(videoTrack);
+                }
+                
+                const newStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: currentCamera,
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
+                
+                const newVideoTrack = newStream.getVideoTracks()[0];
+                localStream.addTrack(newVideoTrack);
+                
+                const localVideo = document.getElementById('localVideo');
+                localVideo.srcObject = localStream;
+                
+                Object.values(peerConnections).forEach(pc => {
+                    const sender = pc.getSenders().find(s => s.track?.kind === 'video');
+                    if (sender) {
+                        sender.replaceTrack(newVideoTrack);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Erreur switch camera:', error);
+                alert('Impossible de changer de caméra');
+            }
+        };
+        // LEAVE FOCUS CLASS
+        window.leaveFocusClass = async function() {
+            try {
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                }
+                
+                Object.values(peerConnections).forEach(pc => pc.close());
+                peerConnections = {};
+                
+                if (roomId && userData) {
+                    await deleteDoc(doc(db, `focusclass_rooms/${roomId}/participants`, userData.id));
+                }
+                
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.delete('room');
+                window.history.pushState({}, '', newUrl);
+                
+                document.getElementById('focusClassSection').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                
+                roomId = null;
+                localStream = null;
+                
+            } catch (error) {
+                console.error('Erreur leave:', error);
+            }
+        };
+
+        // SUBJECT UPLOAD MODAL
+        window.openSubjectUploadModal = function() {
+            document.getElementById('subjectUploadModal').style.display = 'flex';
+        };
+
+        window.closeSubjectUploadModal = function() {
+            document.getElementById('subjectUploadModal').style.display = 'none';
+            document.getElementById('subjectUploadForm').reset();
+            document.getElementById('focusImagePreview').innerHTML = '';
+        };
+
+        // SUBJECT IMAGE PREVIEW
+        document.getElementById('focusSubjectImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('focusImagePreview').innerHTML = 
+                        `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // SUBMIT SUBJECT
+        document.getElementById('subjectUploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Upload...';
+
+            try {
+                const file = document.getElementById('focusSubjectImage').files[0];
+                const imageUrl = await uploadToCloudinary(file);
+                
+                await setDoc(doc(db, 'focusclass_rooms', roomId), {
+                    subject: {
+                        imageUrl,
+                        uploadedBy: userData.fullName,
+                        uploadedAt: serverTimestamp()
+                    }
+                }, { merge: true });
+                
+                closeSubjectUploadModal();
+                
+            } catch (error) {
+                console.error('Erreur upload sujet:', error);
+                alert('Erreur lors de l\'upload');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Ajouter';
+            }
+        });
+
+        // DISPLAY ROOM SUBJECT
+        function displayRoomSubject(subject) {
+            currentRoomSubject = subject;
+            document.getElementById('focusSubjectDisplay').innerHTML = `
+                <img src="${subject.imageUrl}" alt="Sujet" style="width: 100%; cursor: zoom-in;" 
+                     onclick="openImageFullscreen('${subject.imageUrl}')">
+                <div class="subject-info">
+                    <h4>Ajouté par ${subject.uploadedBy}</h4>
+                    <p>Cliquez sur l'image pour l'agrandir</p>
+                </div>
+            `;
+        }
+
+        // OPEN CHAT PANEL
+        window.openChatPanel = function() {
+            alert('💬 Fonctionnalité de chat à venir !');
+        };
+
+        // MODAL CLOSE EVENTS
         document.getElementById('publishModal').addEventListener('click', function(e) {
             if (e.target === this) closePublishModal();
         });
 
-        // CLOSE IMAGE FULLSCREEN ON OUTSIDE CLICK
         document.getElementById('imageFullscreenModal').addEventListener('click', function(e) {
             if (e.target === this) closeImageFullscreen();
+        });
+
+        document.getElementById('subjectUploadModal').addEventListener('click', function(e) {
+            if (e.target === this) closeSubjectUploadModal();
         });
 
         // KEYBOARD SHORTCUTS
@@ -1672,6 +2523,8 @@
                     closeImageFullscreen();
                 } else if (document.getElementById('publishModal').style.display === 'flex') {
                     closePublishModal();
+                } else if (document.getElementById('subjectUploadModal').style.display === 'flex') {
+                    closeSubjectUploadModal();
                 }
             }
         });
