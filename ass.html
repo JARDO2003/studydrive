@@ -2501,8 +2501,7 @@
     </div>
 
     <script type="module">
-       
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+ import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
 import { 
     getFirestore, 
     collection, 
@@ -2510,16 +2509,18 @@ import {
     setDoc, 
     addDoc, 
     getDocs, 
+    getDoc,
     query, 
     orderBy, 
     serverTimestamp,
     onSnapshot,
     deleteDoc,
+    updateDoc,
     limit
 } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
 // ========================================
-// CONFIGURATION FIREBASE
+// CONFIGURATION
 // ========================================
 const firebaseConfig = {
     apiKey: "AIzaSyCPGgtXoDUycykLaTSee0S0yY0tkeJpqKI",
@@ -2534,33 +2535,19 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
-// Configuration Cloudinary
 const cloudinaryConfig = {
     cloudName: 'djxcqczh1',
     uploadPreset: 'database'
 };
 
-// ========================================
-// GESTION DES PERMISSIONS MÉDIAS
-// ========================================
-async function requestPermissionsEarly() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true
-        });
-        sessionStorage.setItem('mediaPermissionsGranted', 'true');
-        stream.getTracks().forEach(track => track.stop());
-        console.log('✅ Permissions pré-accordées');
-        return true;
-    } catch (error) {
-        console.warn('Permissions non accordées:', error);
-        sessionStorage.setItem('mediaPermissionsGranted', 'false');
-        return false;
-    }
-}
-
-window.addEventListener('load', requestPermissionsEarly);
+// Configuration WebRTC
+const rtcConfig = {
+    iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' }
+    ]
+};
 
 // ========================================
 // APPLICATION PRINCIPALE
@@ -2573,7 +2560,7 @@ const app = {
     currentImageUrl: '',
 
     // ========================================
-    // MODULE AUTHENTIFICATION
+    // AUTHENTIFICATION
     // ========================================
     auth: {
         init() {
@@ -2641,7 +2628,7 @@ const app = {
     },
 
     // ========================================
-    // MODULE SUJETS
+    // SUJETS
     // ========================================
     subjects: {
         load() {
@@ -2722,7 +2709,7 @@ const app = {
     },
 
     // ========================================
-    // MODULE RECHERCHE
+    // RECHERCHE
     // ========================================
     search: {
         clear() {
@@ -2805,7 +2792,7 @@ const app = {
     },
 
     // ========================================
-    // MODULE MODALES
+    // MODALES
     // ========================================
     modal: {
         openPublish() {
@@ -2838,21 +2825,11 @@ const app = {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        },
-
-        openSubjectUpload() {
-            document.getElementById('subjectUploadModal').style.display = 'flex';
-        },
-
-        closeSubjectUpload() {
-            document.getElementById('subjectUploadModal').style.display = 'none';
-            document.getElementById('subjectUploadForm').reset();
-            document.getElementById('focusImagePreview').innerHTML = '';
         }
     },
 
     // ========================================
-    // MODULE FOCUSCLASS (LIVE)
+    // FOCUSCLASS - LIVE WEBRTC
     // ========================================
     focusClass: {
         localStream: null,
@@ -2863,20 +2840,45 @@ const app = {
         currentCamera: 'user',
         unsubscribers: [],
         isHost: false,
-        onStageParticipants: [],
-        waitingRequests: [],
+        hostId: null,
+        isOnStage: false,
+
+        async initialize() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramRoomId = urlParams.get('room');
+            
+            if (paramRoomId) {
+                this.roomId = paramRoomId;
+                await this.checkPermissionsAndJoin();
+            } else {
+                this.showRoomsList();
+            }
+        },
+
+        async checkPermissionsAndJoin() {
+            const result = await this.requestMediaPermissions();
+            
+            if (result === 'cancelled') return;
+            
+            if (result === 'spectator') {
+                this.isVideoEnabled = false;
+                this.isAudioEnabled = false;
+            }
+            
+            await this.join();
+        },
 
         async requestMediaPermissions() {
             return new Promise((resolve) => {
-                const permissionModal = document.createElement('div');
-                permissionModal.style.cssText = `
+                const modal = document.createElement('div');
+                modal.style.cssText = `
                     position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
                     background: rgba(0, 0, 0, 0.95); z-index: 11000;
                     display: flex; justify-content: center; align-items: center; padding: 20px;
                     overflow-y: auto;
                 `;
                 
-                permissionModal.innerHTML = `
+                modal.innerHTML = `
                     <div style="background: var(--white); padding: 30px; max-width: 500px; width: 100%; border-radius: 16px;">
                         <div style="text-align: center; margin-bottom: 25px;">
                             <div style="font-size: 64px; margin-bottom: 15px;">📹🎤</div>
@@ -2884,65 +2886,47 @@ const app = {
                                 Autorisation Requise
                             </h2>
                             <p style="color: var(--gray); font-size: 14px; line-height: 1.6;">
-                                Pour participer à FocusClass, vous devez autoriser l'accès à votre caméra et microphone.
+                                Pour participer à FocusClass, autorisez l'accès à votre caméra et microphone.
                             </p>
                         </div>
                         
                         <div style="background: var(--gray-light); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
                             <h3 style="font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 15px;">
-                                📱 Instructions pour Android
+                                📱 Instructions
                             </h3>
                             <ol style="margin: 0; padding-left: 20px; color: var(--dark); font-size: 13px; line-height: 1.8;">
-                                <li>Cliquez sur <strong>"Autoriser"</strong> ci-dessous</li>
-                                <li>Une popup apparaîtra en haut de l'écran</li>
-                                <li>Cliquez sur <strong>"Autoriser"</strong> dans la popup</li>
-                                <li>Si la popup ne s'affiche pas:
-                                    <ul style="margin-top: 8px;">
-                                        <li>Appuyez sur l'icône 🔒 dans la barre d'adresse</li>
-                                        <li>Activez <strong>Caméra</strong> et <strong>Microphone</strong></li>
-                                        <li>Rechargez la page</li>
-                                    </ul>
-                                </li>
+                                <li>Cliquez sur "Autoriser"</li>
+                                <li>Acceptez la popup du navigateur</li>
+                                <li>Si refusé: 🔒 barre d'adresse → Activer</li>
                             </ol>
                         </div>
                         
-                        <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #ffc107;">
-                            <div style="display: flex; align-items: start; gap: 10px;">
-                                <span style="font-size: 20px;">⚠️</span>
-                                <div style="font-size: 12px; color: #856404; line-height: 1.6;">
-                                    <strong>Important:</strong> Pour des raisons de sécurité, les navigateurs ne permettent pas l'accès automatique à la caméra/micro. Vous devez autoriser manuellement.
-                                </div>
-                            </div>
-                        </div>
-                        
                         <div style="display: flex; gap: 10px;">
-                            <button id="cancelPermBtn" 
-                                    style="flex: 1; padding: 14px; background: var(--gray-light); color: var(--dark); border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">
+                            <button id="cancelPermBtn" style="flex: 1; padding: 14px; background: var(--gray-light); color: var(--dark); border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">
                                 Annuler
                             </button>
-                            <button id="requestPermBtn"
-                                    style="flex: 2; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">
-                                ✓ Autoriser Caméra & Micro
+                            <button id="requestPermBtn" style="flex: 2; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">
+                                ✓ Autoriser
                             </button>
                         </div>
                         
-                        <div style="text-align: center; margin-top: 20px;">
+                        <div style="text-align: center; margin-top: 15px;">
                             <button id="spectatorBtn" style="background: none; border: none; color: var(--gray); font-size: 13px; text-decoration: underline; cursor: pointer;">
-                                Continuer en mode spectateur (sans caméra/micro)
+                                Mode spectateur
                             </button>
                         </div>
                     </div>
                 `;
                 
-                document.body.appendChild(permissionModal);
+                document.body.appendChild(modal);
                 
                 document.getElementById('cancelPermBtn').onclick = () => {
-                    permissionModal.remove();
+                    modal.remove();
                     resolve('cancelled');
                 };
                 
                 document.getElementById('spectatorBtn').onclick = () => {
-                    permissionModal.remove();
+                    modal.remove();
                     resolve('spectator');
                 };
                 
@@ -2953,36 +2937,15 @@ const app = {
                             audio: true
                         });
                         stream.getTracks().forEach(track => track.stop());
-                        permissionModal.remove();
+                        modal.remove();
                         resolve('granted');
                     } catch (error) {
-                        alert('❌ Permission refusée.\n\n📱 Pour autoriser:\n1. Cliquez sur l\'icône 🔒 dans la barre d\'adresse\n2. Activez Caméra et Microphone\n3. Rechargez la page');
-                        permissionModal.remove();
+                        alert('❌ Permission refusée. Activez dans les paramètres du navigateur.');
+                        modal.remove();
                         resolve('denied');
                     }
                 };
             });
-        },
-
-        async initialize() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const paramRoomId = urlParams.get('room');
-            
-            const permissionResult = await this.requestMediaPermissions();
-            
-            if (permissionResult === 'cancelled') return;
-            
-            if (permissionResult === 'spectator') {
-                this.isVideoEnabled = false;
-                this.isAudioEnabled = false;
-            }
-            
-            if (paramRoomId) {
-                this.roomId = paramRoomId;
-                await this.join();
-            } else {
-                this.showRoomsList();
-            }
         },
 
         showRoomsList() {
@@ -3000,12 +2963,10 @@ const app = {
                         <h2 style="font-size: 28px; font-weight: 800; color: var(--dark);">🎯 Sessions Live</h2>
                         <button onclick="this.closest('#liveRoomsModal').remove()" style="background: var(--gray-light); border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; font-size: 22px;">×</button>
                     </div>
-                    <div style="display: flex; gap: 10px; margin-bottom: 25px;">
-                        <button onclick="app.focusClass.createRoom()" style="flex: 1; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">
-                            + Créer une session
-                        </button>
-                    </div>
-                    <div id="liveRoomsList" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                    <button onclick="app.focusClass.createRoom()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border: none; border-radius: 10px; font-weight: 700; cursor: pointer; margin-bottom: 25px;">
+                        + Créer une session
+                    </button>
+                    <div id="liveRoomsList"></div>
                 </div>
             `;
             
@@ -3041,32 +3002,28 @@ const app = {
                         <div style="text-align: center; padding: 60px 20px; color: var(--gray);">
                             <div style="font-size: 64px; margin-bottom: 20px;">🎯</div>
                             <p style="font-size: 16px; font-weight: 600;">Aucune session active</p>
-                            <p style="font-size: 14px; margin-top: 8px;">Créez la première session !</p>
                         </div>
                     `;
                     return;
                 }
                 
                 roomsList.innerHTML = rooms.map(room => `
-                    <div onclick="app.focusClass.joinRoom('${room.id}')" style="padding: 20px; background: var(--gray-light); border-radius: 12px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(37, 99, 235, 0.1)'" onmouseout="this.style.background='var(--gray-light)'">
+                    <div onclick="app.focusClass.joinRoom('${room.id}')" style="padding: 20px; background: var(--gray-light); border-radius: 12px; cursor: pointer; transition: all 0.3s ease; margin-bottom: 15px;" onmouseover="this.style.background='rgba(37, 99, 235, 0.1)'" onmouseout="this.style.background='var(--gray-light)'">
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
                                 🎓
                             </div>
                             <div style="flex: 1;">
                                 <div style="font-weight: 700; font-size: 16px; color: var(--dark); margin-bottom: 5px;">
-                                    Session de ${room.createdByName}
+                                    ${room.createdByName}
                                 </div>
                                 <div style="display: flex; gap: 15px; font-size: 13px; color: var(--gray); font-weight: 600;">
-                                    <span>👥 ${room.participantCount} participant(s)</span>
-                                    <span style="color: var(--success); display: flex; align-items: center; gap: 5px;">
-                                        <span style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></span>
-                                        LIVE
-                                    </span>
+                                    <span>👥 ${room.participantCount}</span>
+                                    <span style="color: var(--success);">🔴 LIVE</span>
                                 </div>
                             </div>
                             <div style="padding: 8px 16px; background: var(--primary); color: var(--white); border-radius: 8px; font-size: 13px; font-weight: 700;">
-                                Rejoindre →
+                                Rejoindre
                             </div>
                         </div>
                     </div>
@@ -3078,41 +3035,40 @@ const app = {
             try {
                 this.roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
                 this.isHost = true;
+                this.hostId = app.userData.id;
                 
                 await setDoc(doc(db, 'focusclass_rooms', this.roomId), {
                     id: this.roomId,
                     createdBy: app.userData.id,
                     createdByName: app.userData.fullName,
                     createdAt: serverTimestamp(),
-                    active: true,
-                    subject: null
+                    active: true
                 });
                 
                 const modal = document.getElementById('liveRoomsModal');
                 if (modal) modal.remove();
                 
-                await this.join();
+                await this.checkPermissionsAndJoin();
             } catch (error) {
                 console.error('Error creating room:', error);
-                alert('Impossible de créer la session');
+                alert('Erreur lors de la création');
             }
         },
 
         async joinRoom(roomId) {
             this.roomId = roomId;
             
-            // Vérifier si l'utilisateur est l'hôte
-            const roomDoc = await getDocs(query(collection(db, 'focusclass_rooms')));
-            roomDoc.forEach(doc => {
-                if (doc.id === roomId) {
-                    const roomData = doc.data();
-                    this.isHost = roomData.createdBy === app.userData.id;
-                }
-            });
+            const roomDoc = await getDoc(doc(db, 'focusclass_rooms', roomId));
+            if (roomDoc.exists()) {
+                const roomData = roomDoc.data();
+                this.hostId = roomData.createdBy;
+                this.isHost = this.hostId === app.userData.id;
+            }
             
             const modal = document.getElementById('liveRoomsModal');
             if (modal) modal.remove();
-            await this.join();
+            
+            await this.checkPermissionsAndJoin();
         },
 
         async join() {
@@ -3124,16 +3080,6 @@ const app = {
                 document.getElementById('focusClassSection').style.display = 'flex';
                 document.getElementById('mainApp').style.display = 'none';
                 
-                // Récupérer les infos de la room pour savoir qui est l'hôte
-                const roomDoc = await getDocs(query(collection(db, 'focusclass_rooms')));
-                let hostId = null;
-                roomDoc.forEach(doc => {
-                    if (doc.id === this.roomId) {
-                        hostId = doc.data().createdBy;
-                    }
-                });
-                
-                // Afficher/masquer les éléments selon le rôle
                 if (this.isHost) {
                     document.getElementById('liveRequests').style.display = 'block';
                     document.getElementById('requestStageBtn').style.display = 'none';
@@ -3142,117 +3088,58 @@ const app = {
                     document.getElementById('requestStageBtn').style.display = 'block';
                 }
                 
-                try {
-                    await this.initMedia();
-                } catch (mediaError) {
-                    console.warn('Media initialization failed:', mediaError);
-                    this.isVideoEnabled = false;
-                    this.isAudioEnabled = false;
-                    this.showSpectatorMode();
-                }
-                
+                await this.initMedia();
                 await this.registerParticipant();
-                this.listenToHostStream(hostId);
+                
                 this.listenToParticipants();
+                this.listenToHostSignals();
                 this.listenToMessages();
                 this.listenToReactions();
                 this.listenToRequests();
                 this.listenToStageParticipants();
                 
-                console.log('✅ Joined room:', this.roomId, 'Host:', hostId, 'IsHost:', this.isHost);
+                console.log('✅ Joined room:', this.roomId, 'IsHost:', this.isHost);
             } catch (error) {
-                console.error('Error joining room:', error);
-                alert('Impossible de rejoindre la session');
+                console.error('Error joining:', error);
+                alert('Erreur de connexion');
                 this.leave();
             }
         },
-        
-        async listenToHostStream(hostId) {
-            // Écouter le stream de l'hôte pour l'afficher en grand
-            const participantsRef = collection(db, `focusclass_rooms/${this.roomId}/participants`);
-            
-            const unsubscribe = onSnapshot(participantsRef, (snapshot) => {
-                snapshot.forEach(doc => {
-                    const participant = doc.data();
-                    // Si c'est l'hôte et que je ne suis pas l'hôte
-                    if (participant.id === hostId && !this.isHost) {
-                        // Afficher le stream de l'hôte en grand écran
-                        document.getElementById('mainVideoLabel').textContent = participant.name;
-                        // Note: Le stream vidéo réel nécessiterait WebRTC
-                    }
-                    // Si je suis l'hôte
-                    if (this.isHost) {
-                        const mainVideo = document.getElementById('mainVideo');
-                        mainVideo.srcObject = this.localStream;
-                        document.getElementById('mainVideoLabel').textContent = app.userData.fullName;
-                    }
+
+        async initMedia() {
+            if (!this.isVideoEnabled && !this.isAudioEnabled) {
+                this.showSpectatorMode();
+                return;
+            }
+
+            try {
+                this.localStream = await navigator.mediaDevices.getUserMedia({
+                    video: this.isVideoEnabled ? { facingMode: this.currentCamera } : false,
+                    audio: this.isAudioEnabled
                 });
-            });
-            
-            this.unsubscribers.push(unsubscribe);
+                
+                const mainVideo = document.getElementById('mainVideo');
+                mainVideo.srcObject = this.localStream;
+                document.getElementById('mainVideoLabel').textContent = app.userData.fullName;
+                
+                if (this.isHost) {
+                    await this.createHostOffer();
+                }
+            } catch (error) {
+                console.error('Media init error:', error);
+                this.showSpectatorMode();
+            }
         },
 
         showSpectatorMode() {
             const mainVideo = document.getElementById('mainVideo');
-            mainVideo.style.display = 'none';
-            
             const container = mainVideo.parentElement;
             container.innerHTML = `
-                <div class="no-video" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <div class="no-video-icon" style="font-size: 64px; margin-bottom: 20px;">👁️</div>
-                    <div class="no-video-text" style="font-size: 18px; font-weight: 700; color: white;">Mode Spectateur</div>
-                    <div style="font-size: 14px; margin-top: 10px; opacity: 0.7; color: white;">Caméra/micro non disponible</div>
+                <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--dark);">
+                    <div style="font-size: 64px; margin-bottom: 20px;">👁️</div>
+                    <div style="font-size: 18px; font-weight: 700; color: white;">Mode Spectateur</div>
                 </div>
             `;
-        },
-
-        async initMedia() {
-            const mediaConfigs = [
-                { video: { facingMode: this.currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } },
-                  audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } },
-                { video: { facingMode: this.currentCamera, width: { ideal: 640 }, height: { ideal: 480 } }, audio: true },
-                { video: { facingMode: this.currentCamera }, audio: true },
-                { video: { facingMode: this.currentCamera }, audio: false },
-                { video: false, audio: true }
-            ];
-            
-            let lastError = null;
-            
-            for (let i = 0; i < mediaConfigs.length; i++) {
-                try {
-                    this.localStream = await navigator.mediaDevices.getUserMedia(mediaConfigs[i]);
-                    
-                    const mainVideo = document.getElementById('mainVideo');
-                    mainVideo.srcObject = this.localStream;
-                    document.getElementById('mainVideoLabel').textContent = app.userData.fullName;
-                    
-                    const hasVideo = this.localStream.getVideoTracks().length > 0;
-                    const hasAudio = this.localStream.getAudioTracks().length > 0;
-                    
-                    this.isVideoEnabled = hasVideo;
-                    this.isAudioEnabled = hasAudio;
-                    
-                    if (!hasVideo) {
-                        document.getElementById('toggleVideoBtn').classList.remove('active');
-                        document.getElementById('videoIcon').textContent = '🚫';
-                    }
-                    if (!hasAudio) {
-                        document.getElementById('toggleAudioBtn').classList.remove('active');
-                        document.getElementById('audioIcon').textContent = '🔇';
-                    }
-                    
-                    if (!hasVideo && !hasAudio) {
-                        throw new Error('No media tracks available');
-                    }
-                    
-                    return;
-                } catch (error) {
-                    lastError = error;
-                    continue;
-                }
-            }
-            
-            throw lastError || new Error('Impossible d\'accéder à la caméra/micro');
         },
 
         async registerParticipant() {
@@ -3260,85 +3147,158 @@ const app = {
                 id: app.userData.id,
                 name: app.userData.fullName,
                 avatar: app.userData.avatar,
-                joinedAt: serverTimestamp(),
-                isVideoEnabled: this.isVideoEnabled,
-                isAudioEnabled: this.isAudioEnabled
+                isHost: this.isHost,
+                joinedAt: serverTimestamp()
             });
         },
 
-        listenToParticipants() {
-            const participantsRef = collection(db, `focusclass_rooms/${this.roomId}/participants`);
+        // ========================================
+        // WEBRTC - HOST CREE L'OFFRE
+        // ========================================
+        async createHostOffer() {
+            if (!this.isHost || !this.localStream) return;
             
-            const unsubscribe = onSnapshot(participantsRef, (snapshot) => {
-                const participants = [];
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    participants.push(data);
+            const signalRef = doc(db, `focusclass_rooms/${this.roomId}/signals`, 'host');
+            
+            const pc = new RTCPeerConnection(rtcConfig);
+            
+            this.localStream.getTracks().forEach(track => {
+                pc.addTrack(track, this.localStream);
+            });
+            
+            pc.onicecandidate = async (event) => {
+                if (event.candidate) {
+                    await updateDoc(signalRef, {
+                        hostCandidates: [...(await this.getHostCandidates()), event.candidate.toJSON()]
+                    });
+                }
+            };
+            
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            
+            await setDoc(signalRef, {
+                hostOffer: {
+                    type: offer.type,
+                    sdp: offer.sdp
+                },
+                hostCandidates: [],
+                timestamp: serverTimestamp()
+            });
+            
+            console.log('✅ Host offer created');
+        },
+
+        async getHostCandidates() {
+            const signalDoc = await getDoc(doc(db, `focusclass_rooms/${this.roomId}/signals`, 'host'));
+            return signalDoc.exists() ? (signalDoc.data().hostCandidates || []) : [];
+        },
+
+        // ========================================
+        // WEBRTC - VIEWERS RECOIVENT LE STREAM HOST
+        // ========================================
+        listenToHostSignals() {
+            if (this.isHost) return;
+            
+            const signalRef = doc(db, `focusclass_rooms/${this.roomId}/signals`, 'host');
+            
+            const unsubscribe = onSnapshot(signalRef, async (snapshot) => {
+                if (!snapshot.exists()) return;
+                
+                const data = snapshot.data();
+                
+                if (data.hostOffer && !this.peerConnections.has('host')) {
+                    await this.connectToHost(data.hostOffer, data.hostCandidates || []);
+                }
+            });
+            
+            this.unsubscribers.push(unsubscribe);
+        },
+
+        async connectToHost(hostOffer, hostCandidates) {
+            const pc = new RTCPeerConnection(rtcConfig);
+            this.peerConnections.set('host', pc);
+            
+            pc.ontrack = (event) => {
+                console.log('✅ Received host stream');
+                const mainVideo = document.getElementById('mainVideo');
+                mainVideo.srcObject = event.streams[0];
+                mainVideo.muted = false;
+                
+                const roomDoc = await getDoc(doc(db, 'focusclass_rooms', this.roomId));
+                if (roomDoc.exists()) {
+                    document.getElementById('mainVideoLabel').textContent = roomDoc.data().createdByName;
+                }
+            };
+            
+            pc.onicecandidate = async (event) => {
+                if (event.candidate) {
+                    const answerRef = doc(db, `focusclass_rooms/${this.roomId}/signals`, `viewer_${app.userData.id}`);
+                    const answerDoc = await getDoc(answerRef);
+                    const candidates = answerDoc.exists() ? (answerDoc.data().candidates || []) : [];
+                    await setDoc(answerRef, {
+                        candidates: [...candidates, event.candidate.toJSON()]
+                    }, { merge: true });
+                }
+            };
+            
+            await pc.setRemoteDescription(new RTCSessionDescription(hostOffer));
+            
+            for (const candidate of hostCandidates) {
+                await pc.addIceCandidate(new RTCIceCandidate(candidate));
+            }
+            
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            
+            console.log('✅ Connected to host stream');
+        },
+
+        // ========================================
+        // STAGE PARTICIPANTS
+        // ========================================
+        async requestStage() {
+            await setDoc(doc(db, `focusclass_rooms/${this.roomId}/requests`, app.userData.id), {
+                userId: app.userData.id,
+                userName: app.userData.fullName,
+                userAvatar: app.userData.avatar,
+                requestedAt: serverTimestamp()
+            });
+            
+            const btn = document.getElementById('requestStageBtn');
+            btn.textContent = '⏳ Demande envoyée';
+            btn.disabled = true;
+        },
+
+        async acceptRequest(userId) {
+            try {
+                const participantDoc = await getDoc(doc(db, `focusclass_rooms/${this.roomId}/participants`, userId));
+                
+                if (!participantDoc.exists()) return;
+                
+                const participantData = participantDoc.data();
+                
+                await setDoc(doc(db, `focusclass_rooms/${this.roomId}/onStage`, userId), {
+                    userId,
+                    name: participantData.name,
+                    avatar: participantData.avatar,
+                    addedAt: serverTimestamp()
                 });
                 
-                document.getElementById('liveParticipantsCount').textContent = participants.length;
-                document.getElementById('viewersCount').textContent = `${participants.length}`;
+                await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/requests`, userId));
                 
-                const scroll = document.getElementById('participantsScroll');
-                scroll.innerHTML = participants.map(p => `
-                    <div class="live-participant-item">
-                        <div class="live-participant-avatar">${p.avatar}</div>
-                        <div class="live-participant-name">${p.name}</div>
-                    </div>
-                `).join('');
-            });
-            
-            this.unsubscribers.push(unsubscribe);
+                console.log(`✅ ${participantData.name} sur scène`);
+            } catch (error) {
+                console.error('Error accepting:', error);
+            }
         },
 
-        listenToMessages() {
-            const messagesRef = collection(db, `focusclass_rooms/${this.roomId}/messages`);
-            const q = query(messagesRef, orderBy('timestamp', 'desc'), limit(20));
-            
-            const unsubscribe = onSnapshot(q, (snapshot) => {
-                const container = document.getElementById('liveMessages');
-                const messages = [];
-                snapshot.forEach(doc => messages.unshift(doc.data()));
-                
-                container.innerHTML = messages.map(msg => `
-                    <div class="live-message">
-                        <span class="message-author">${msg.userName}:</span>
-                        <span class="message-text">${msg.text}</span>
-                    </div>
-                `).join('');
-                
-                container.scrollTop = container.scrollHeight;
-            });
-            
-            this.unsubscribers.push(unsubscribe);
+        async rejectRequest(userId) {
+            await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/requests`, userId));
         },
 
-        listenToReactions() {
-            const reactionsRef = collection(db, `focusclass_rooms/${this.roomId}/reactions`);
-            
-            const unsubscribe = onSnapshot(reactionsRef, (snapshot) => {
-                snapshot.docChanges().forEach(change => {
-                    if (change.type === 'added') {
-                        const reaction = change.doc.data();
-                        if (reaction.userId !== app.userData.id) {
-                            this.showReactionAnimation(reaction.emoji);
-                        }
-                    }
-                });
-            });
-            
-            this.unsubscribers.push(unsubscribe);
-        },
-
-        showReactionAnimation(emoji) {
-            const container = document.getElementById('floatingReactions');
-            const reaction = document.createElement('div');
-            reaction.className = 'floating-reaction';
-            reaction.textContent = emoji;
-            reaction.style.left = Math.random() * 40 + 'px';
-            container.appendChild(reaction);
-            
-            setTimeout(() => reaction.remove(), 3000);
+        async kickFromStage(userId) {
+            await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/onStage`, userId));
         },
 
         listenToRequests() {
@@ -3364,7 +3324,7 @@ const app = {
                         </div>
                     `).join('');
                 } else {
-                    document.getElementById('liveRequests').style.display = 'none';
+                    document.getElementById('requestsList').innerHTML = '';
                 }
             });
             
@@ -3376,29 +3336,14 @@ const app = {
             
             const unsubscribe = onSnapshot(stageRef, async (snapshot) => {
                 const stageParticipants = [];
-                
-                // Récupérer les infos complètes des participants sur scène
-                for (const doc of snapshot.docs) {
-                    const stageData = doc.data();
-                    const participantDoc = await getDocs(
-                        query(collection(db, `focusclass_rooms/${this.roomId}/participants`))
-                    );
-                    
-                    participantDoc.forEach(pDoc => {
-                        if (pDoc.id === stageData.userId) {
-                            stageParticipants.push({
-                                ...stageData,
-                                ...pDoc.data()
-                            });
-                        }
-                    });
-                }
+                snapshot.forEach(doc => stageParticipants.push(doc.data()));
                 
                 const container = document.getElementById('stageParticipants');
                 
-                // Si je suis sur scène en tant que participant (pas hôte)
-                if (!this.isHost && stageParticipants.some(p => p.userId === app.userData.id)) {
-                    // Afficher mon stream en petit
+                const isUserOnStage = stageParticipants.some(p => p.userId === app.userData.id);
+                this.isOnStage = isUserOnStage;
+                
+                if (!this.isHost && isUserOnStage) {
                     container.innerHTML = `
                         <div class="stage-participant-box">
                             <video id="myStageVideo" autoplay muted playsinline></video>
@@ -3406,24 +3351,20 @@ const app = {
                         </div>
                     `;
                     
-                    // Connecter mon stream local à la petite fenêtre
                     const myVideo = document.getElementById('myStageVideo');
                     if (this.localStream) {
                         myVideo.srcObject = this.localStream;
                     }
                     
-                    // Cacher le bouton "Demander la parole"
                     document.getElementById('requestStageBtn').style.display = 'none';
                 } else if (this.isHost) {
-                    // Si je suis l'hôte, afficher tous les participants invités en petit
                     container.innerHTML = stageParticipants
-                        .filter(p => p.userId !== app.userData.id) // Ne pas m'afficher moi-même
+                        .filter(p => p.userId !== app.userData.id)
                         .map(p => `
                             <div class="stage-participant-box">
-                                <div class="no-video" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--dark-lighter);">
+                                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--dark-lighter);">
                                     <div style="text-align: center;">
-                                        <div style="font-size: 32px; margin-bottom: 8px;">${p.avatar}</div>
-                                        <div style="font-size: 11px; color: var(--gray);">En attente de stream</div>
+                                        <div style="font-size: 32px;">${p.avatar}</div>
                                     </div>
                                 </div>
                                 <div class="stage-participant-name">${p.name}</div>
@@ -3431,133 +3372,69 @@ const app = {
                             </div>
                         `).join('');
                 } else {
-                    // Si je ne suis pas sur scène, afficher les autres participants
-                    container.innerHTML = stageParticipants
-                        .filter(p => p.userId !== app.userData.id)
-                        .map(p => `
-                            <div class="stage-participant-box">
-                                <div class="no-video" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--dark-lighter);">
-                                    <div style="text-align: center;">
-                                        <div style="font-size: 32px; margin-bottom: 8px;">${p.avatar}</div>
-                                    </div>
-                                </div>
-                                <div class="stage-participant-name">${p.name}</div>
-                            </div>
-                        `).join('');
+                    container.innerHTML = '';
+                    document.getElementById('requestStageBtn').style.display = 'block';
                 }
             });
             
             this.unsubscribers.push(unsubscribe);
         },
 
-        async requestStage() {
-            if (!this.roomId || !app.userData) return;
+        // ========================================
+        // PARTICIPANTS
+        // ========================================
+        listenToParticipants() {
+            const participantsRef = collection(db, `focusclass_rooms/${this.roomId}/participants`);
             
-            try {
-                await setDoc(doc(db, `focusclass_rooms/${this.roomId}/requests`, app.userData.id), {
-                    userId: app.userData.id,
-                    userName: app.userData.fullName,
-                    userAvatar: app.userData.avatar,
-                    requestedAt: serverTimestamp()
-                });
+            const unsubscribe = onSnapshot(participantsRef, (snapshot) => {
+                const participants = [];
+                snapshot.forEach(doc => participants.push(doc.data()));
                 
-                document.getElementById('requestStageBtn').textContent = '⏳ Demande envoyée';
-                document.getElementById('requestStageBtn').disabled = true;
-            } catch (error) {
-                console.error('Error requesting stage:', error);
-            }
-        },
-
-        async acceptRequest(userId) {
-            try {
-                // Récupérer les infos du participant
-                const participantDoc = await getDocs(
-                    query(collection(db, `focusclass_rooms/${this.roomId}/participants`))
-                );
+                document.getElementById('liveParticipantsCount').textContent = participants.length;
+                document.getElementById('viewersCount').textContent = participants.length;
                 
-                let participantData = null;
-                participantDoc.forEach(doc => {
-                    if (doc.id === userId) {
-                        participantData = doc.data();
-                    }
-                });
-                
-                if (!participantData) return;
-                
-                // Ajouter à la liste des participants sur scène
-                await setDoc(doc(db, `focusclass_rooms/${this.roomId}/onStage`, userId), {
-                    userId,
-                    name: participantData.name,
-                    avatar: participantData.avatar,
-                    addedAt: serverTimestamp()
-                });
-                
-                // Supprimer la demande
-                await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/requests`, userId));
-                
-                console.log(`✅ ${participantData.name} ajouté sur scène`);
-            } catch (error) {
-                console.error('Error accepting request:', error);
-            }
-        },
-
-        async rejectRequest(userId) {
-            try {
-                await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/requests`, userId));
-            } catch (error) {
-                console.error('Error rejecting request:', error);
-            }
-        },
-
-        async kickFromStage(userId) {
-            try {
-                await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/onStage`, userId));
-                console.log(`✅ Participant ${userId} retiré de la scène`);
-            } catch (error) {
-                console.error('Error kicking participant:', error);
-            }
-        },
-        
-        async leaveStage() {
-            // Fonction pour quitter volontairement la scène
-            if (!this.isHost) {
-                try {
-                    await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/onStage`, app.userData.id));
-                    document.getElementById('requestStageBtn').style.display = 'block';
-                    document.getElementById('requestStageBtn').textContent = '🎤 Demander la parole';
-                    document.getElementById('requestStageBtn').disabled = false;
-                    console.log('✅ Vous avez quitté la scène');
-                } catch (error) {
-                    console.error('Error leaving stage:', error);
-                }
-            }
-        },
-
-        sendReaction(emoji) {
-            const container = document.getElementById('floatingReactions');
-            const reaction = document.createElement('div');
-            reaction.className = 'floating-reaction';
-            reaction.textContent = emoji;
-            reaction.style.left = Math.random() * 40 + 'px';
-            container.appendChild(reaction);
+                const scroll = document.getElementById('participantsScroll');
+                scroll.innerHTML = participants.map(p => `
+                    <div class="live-participant-item">
+                        <div class="live-participant-avatar">${p.avatar}</div>
+                        <div class="live-participant-name">${p.name}</div>
+                    </div>
+                `).join('');
+            });
             
-            setTimeout(() => reaction.remove(), 3000);
+            this.unsubscribers.push(unsubscribe);
+        },
+
+        // ========================================
+        // MESSAGES & REACTIONS
+        // ========================================
+        listenToMessages() {
+            const messagesRef = collection(db, `focusclass_rooms/${this.roomId}/messages`);
+            const q = query(messagesRef, orderBy('timestamp', 'desc'), limit(20));
             
-            if (this.roomId) {
-                addDoc(collection(db, `focusclass_rooms/${this.roomId}/reactions`), {
-                    emoji,
-                    userId: app.userData.id,
-                    userName: app.userData.fullName,
-                    timestamp: serverTimestamp()
-                });
-            }
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('liveMessages');
+                const messages = [];
+                snapshot.forEach(doc => messages.unshift(doc.data()));
+                
+                container.innerHTML = messages.map(msg => `
+                    <div class="live-message">
+                        <span class="message-author">${msg.userName}:</span>
+                        <span class="message-text">${msg.text}</span>
+                    </div>
+                `).join('');
+                
+                container.scrollTop = container.scrollHeight;
+            });
+            
+            this.unsubscribers.push(unsubscribe);
         },
 
         sendMessage() {
             const input = document.getElementById('chatInput');
             const message = input.value.trim();
             
-            if (!message || !this.roomId) return;
+            if (!message) return;
             
             addDoc(collection(db, `focusclass_rooms/${this.roomId}/messages`), {
                 text: message,
@@ -3569,13 +3446,53 @@ const app = {
             input.value = '';
         },
 
+        listenToReactions() {
+            const reactionsRef = collection(db, `focusclass_rooms/${this.roomId}/reactions`);
+            
+            const unsubscribe = onSnapshot(reactionsRef, (snapshot) => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        const reaction = change.doc.data();
+                        if (reaction.userId !== app.userData.id) {
+                            this.showReactionAnimation(reaction.emoji);
+                        }
+                    }
+                });
+            });
+            
+            this.unsubscribers.push(unsubscribe);
+        },
+
+        sendReaction(emoji) {
+            this.showReactionAnimation(emoji);
+            
+            addDoc(collection(db, `focusclass_rooms/${this.roomId}/reactions`), {
+                emoji,
+                userId: app.userData.id,
+                userName: app.userData.fullName,
+                timestamp: serverTimestamp()
+            });
+        },
+
+        showReactionAnimation(emoji) {
+            const container = document.getElementById('floatingReactions');
+            const reaction = document.createElement('div');
+            reaction.className = 'floating-reaction';
+            reaction.textContent = emoji;
+            reaction.style.left = Math.random() * 40 + 'px';
+            container.appendChild(reaction);
+            
+            setTimeout(() => reaction.remove(), 3000);
+        },
+
+        // ========================================
+        // CONTROLES MEDIA
+        // ========================================
         toggleVideo() {
             this.isVideoEnabled = !this.isVideoEnabled;
             
-            const videoTrack = this.localStream?.getVideoTracks()[0];
-            if (videoTrack) {
-                videoTrack.enabled = this.isVideoEnabled;
-            }
+            const track = this.localStream?.getVideoTracks()[0];
+            if (track) track.enabled = this.isVideoEnabled;
             
             const btn = document.getElementById('toggleVideoBtn');
             const icon = document.getElementById('videoIcon');
@@ -3592,10 +3509,8 @@ const app = {
         toggleAudio() {
             this.isAudioEnabled = !this.isAudioEnabled;
             
-            const audioTrack = this.localStream?.getAudioTracks()[0];
-            if (audioTrack) {
-                audioTrack.enabled = this.isAudioEnabled;
-            }
+            const track = this.localStream?.getAudioTracks()[0];
+            if (track) track.enabled = this.isAudioEnabled;
             
             const btn = document.getElementById('toggleAudioBtn');
             const icon = document.getElementById('audioIcon');
@@ -3626,24 +3541,20 @@ const app = {
                 const newVideoTrack = newStream.getVideoTracks()[0];
                 this.localStream.addTrack(newVideoTrack);
                 
-                const mainVideo = document.getElementById('mainVideo');
-                mainVideo.srcObject = this.localStream;
+                document.getElementById('mainVideo').srcObject = this.localStream;
             } catch (error) {
-                console.error('Error switching camera:', error);
-                alert('Impossible de changer de caméra');
+                console.error('Camera switch error:', error);
             }
         },
 
         showPermissionsHelp() {
-            alert('📱 ACTIVER CAMÉRA & MICRO sur Android:\n\n1. Cliquez sur l\'icône 🔒 dans la barre d\'adresse\n2. Cherchez "Caméra" et "Microphone"\n3. Changez de "Bloqué" à "Autoriser"\n4. Rechargez la page');
+            alert('📱 ACTIVER PERMISSIONS:\n\n1. Cliquez 🔒 barre d\'adresse\n2. Activez Caméra & Micro\n3. Rechargez');
         },
 
         copyRoomLink() {
             const link = `${window.location.origin}${window.location.pathname}?room=${this.roomId}`;
             navigator.clipboard.writeText(link).then(() => {
                 alert('✅ Lien copié !');
-            }).catch(() => {
-                alert('❌ Impossible de copier le lien');
             });
         },
 
@@ -3656,7 +3567,7 @@ const app = {
                 this.peerConnections.forEach(pc => pc.close());
                 this.peerConnections.clear();
                 
-                if (this.roomId && app.userData) {
+                if (this.roomId) {
                     await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/participants`, app.userData.id));
                 }
                 
@@ -3671,10 +3582,9 @@ const app = {
                 document.getElementById('mainApp').style.display = 'block';
                 
                 this.roomId = null;
-                this.localStream = null;
                 this.isHost = false;
             } catch (error) {
-                console.error('Error leaving room:', error);
+                console.error('Leave error:', error);
             }
         }
     },
@@ -3726,10 +3636,9 @@ const app = {
 };
 
 // ========================================
-// INITIALISATION DES EVENT LISTENERS
+// EVENT LISTENERS
 // ========================================
 
-// Remplir les années
 const yearSelect = document.getElementById('subjectYear');
 const currentYear = new Date().getFullYear();
 for (let i = currentYear; i >= currentYear - 10; i--) {
@@ -3739,7 +3648,6 @@ for (let i = currentYear; i >= currentYear - 10; i--) {
     yearSelect.appendChild(option);
 }
 
-// Formulaire d'inscription
 document.getElementById('registrationForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const submitBtn = e.target.querySelector('.submit-btn');
@@ -3754,13 +3662,12 @@ document.getElementById('registrationForm').addEventListener('submit', async (e)
             contact: document.getElementById('contact').value.trim()
         });
     } catch (error) {
-        alert('Erreur lors de l\'inscription');
+        alert('Erreur inscription');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Commencer';
     }
 });
 
-// Formulaire de publication
 document.getElementById('publishForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const submitBtn = e.target.querySelector('.submit-btn');
@@ -3780,49 +3687,31 @@ document.getElementById('publishForm').addEventListener('submit', async (e) => {
         });
 
         app.modal.closePublish();
-        alert('✅ Sujet publié avec succès !');
+        alert('✅ Publié !');
     } catch (error) {
-        console.error('Error publishing:', error);
-        alert('❌ Erreur lors de la publication');
+        alert('❌ Erreur');
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Publier';
     }
 });
 
-// Preview d'image principale
 document.getElementById('subjectImage').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-            document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}">`;
         };
         reader.readAsDataURL(file);
     }
 });
 
-// Preview FocusClass
-document.getElementById('focusSubjectImage').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            document.getElementById('focusImagePreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-        };
-        reader.readAsDataURL(file);
-    }
-});
-
-// Recherche
 document.getElementById('searchInput').addEventListener('input', (e) => {
     clearTimeout(app.searchTimeout);
-    app.searchTimeout = setTimeout(() => {
-        app.search.perform(e.target.value);
-    }, 300);
+    app.searchTimeout = setTimeout(() => app.search.perform(e.target.value), 300);
 });
 
-// Clic en dehors de la recherche
 document.addEventListener('click', (e) => {
     const searchContainer = document.querySelector('.search-container');
     if (!searchContainer.contains(e.target)) {
@@ -3830,7 +3719,6 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Filtres
 document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -3840,7 +3728,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     });
 });
 
-// Fermeture des modales
 document.getElementById('publishModal').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) app.modal.closePublish();
 });
@@ -3849,24 +3736,16 @@ document.getElementById('imageFullscreenModal').addEventListener('click', (e) =>
     if (e.target === e.currentTarget) app.modal.closeFullscreen();
 });
 
-document.getElementById('subjectUploadModal').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) app.modal.closeSubjectUpload();
-});
-
-// Touches clavier
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         if (document.getElementById('imageFullscreenModal').style.display === 'flex') {
             app.modal.closeFullscreen();
         } else if (document.getElementById('publishModal').style.display === 'flex') {
             app.modal.closePublish();
-        } else if (document.getElementById('subjectUploadModal').style.display === 'flex') {
-            app.modal.closeSubjectUpload();
         }
     }
 });
 
-// Chat FocusClass - Envoi par Entrée
 document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -3874,11 +3753,9 @@ document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
     }
 });
 
-// Export global
 window.app = app;
-
-// Initialisation
 app.auth.init();
+
 </script>
 </body>
 </html>
