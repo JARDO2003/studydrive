@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StudyDrive - Plateforme Académique Professionnelle</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -1629,6 +1633,9 @@
                 </div>
             </div>
             <div class="focus-controls">
+                <button class="focus-btn" onclick="app.focusClass.showPermissionsHelp()">
+                    <span>❓</span> Aide
+                </button>
                 <button class="focus-btn" onclick="app.focusClass.copyRoomLink()">
                     <span>🔗</span> Copier lien
                 </button>
@@ -1737,9 +1744,7 @@
             deleteDoc
         } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
-        // =======================
-        // FIREBASE CONFIGURATION
-        // =======================
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCPGgtXoDUycykLaTSee0S0yY0tkeJpqKI",
             authDomain: "data-com-a94a8.firebaseapp.com",
@@ -1758,108 +1763,119 @@
             uploadPreset: 'database'
         };
 
-        // =======================
-        // APPLICATION STATE
-        // =======================
-        const app = {
-    userData: null,
-    subjectsData: [],
-    currentFilter: 'all',
-    searchTimeout: null,
-    currentImageUrl: '',
-
-    // ============
-    // AUTH MODULE
-    // ============
-    auth: {
-        init() {
-            setTimeout(() => {
-                const intro = document.getElementById('introSection');
-                intro.style.transition = 'opacity 1.5s ease, transform 1.5s ease';
-                intro.style.opacity = '0';
-                intro.style.transform = 'scale(1.1)';
-                setTimeout(() => {
-                    intro.style.display = 'none';
-                    app.auth.checkUser();
-                }, 1500);
-            }, 3000);
-        },
-
-        checkUser() {
-            const sessionData = sessionStorage.getItem('studydriveUser');
-            const localData = localStorage.getItem('studydriveUser');
-            const dataToUse = sessionData || localData;
-            
-            if (dataToUse) {
-                app.userData = JSON.parse(dataToUse);
-                document.getElementById('registrationOverlay').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                document.getElementById('userName').textContent = app.userData.fullName;
-                document.getElementById('userAvatar').textContent = app.userData.avatar;
-                document.getElementById('userFiliere').textContent = app.userData.filiere;
-                app.subjects.load();
-            } else {
-                document.getElementById('registrationOverlay').style.display = 'flex';
-            }
-        },
-
-        async register(formData) {
+        // Demander les permissions tôt
+        async function requestPermissionsEarly() {
             try {
-                const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                
-                app.userData = {
-                    id: userId,
-                    ...formData,
-                    fullName: `${formData.prenom} ${formData.nom}`,
-                    avatar: `${formData.prenom[0].toUpperCase()}${formData.nom[0].toUpperCase()}`,
-                    registeredAt: new Date().toISOString()
-                };
-
-                sessionStorage.setItem('studydriveUser', JSON.stringify(app.userData));
-                localStorage.setItem('studydriveUser', JSON.stringify(app.userData));
-
-                await setDoc(doc(db, 'studydrive_users', app.userData.id), {
-                    ...app.userData,
-                    createdAt: serverTimestamp()
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: true
                 });
-
-                document.getElementById('registrationOverlay').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                
-                document.getElementById('userName').textContent = app.userData.fullName;
-                document.getElementById('userAvatar').textContent = app.userData.avatar;
-                document.getElementById('userFiliere').textContent = app.userData.filiere;
-
-                app.subjects.load();
+                sessionStorage.setItem('mediaPermissionsGranted', 'true');
+                stream.getTracks().forEach(track => track.stop());
+                console.log('✅ Permissions pré-accordées');
+                return true;
             } catch (error) {
-                console.error('Registration error:', error);
-                throw error;
+                console.warn('Permissions non accordées:', error);
+                sessionStorage.setItem('mediaPermissionsGranted', 'false');
+                return false;
             }
         }
-    },
 
-    // ===============
-    // SUBJECTS MODULE
-    // ===============
-    subjects: {
-        load() {
-            const q = query(collection(db, 'studydrive_subjects'), orderBy('timestamp', 'desc'));
-            
-            onSnapshot(q, (snapshot) => {
-                app.subjectsData = [];  // Utilise subjectsData au lieu de subjects
-                snapshot.forEach((doc) => {
-                    app.subjectsData.push({ id: doc.id, ...doc.data() });
-                });
-                app.subjects.render();
-            });
-        },
+        window.addEventListener('load', requestPermissionsEarly);
 
-        render() {
-            const grid = document.getElementById('subjectsGrid');
-            
-            const filtered = app.currentFilter === 'all' 
-                ? app.subjectsData  // Utilise subjectsData
-                : app.subjectsData.filter(s => s.filiere === app.currentFilter);
+        const app = {
+            userData: null,
+            subjectsData: [],
+            currentFilter: 'all',
+            searchTimeout: null,
+            currentImageUrl: '',
+
+            auth: {
+                init() {
+                    setTimeout(() => {
+                        const intro = document.getElementById('introSection');
+                        intro.style.transition = 'opacity 1.5s ease, transform 1.5s ease';
+                        intro.style.opacity = '0';
+                        intro.style.transform = 'scale(1.1)';
+                        setTimeout(() => {
+                            intro.style.display = 'none';
+                            app.auth.checkUser();
+                        }, 1500);
+                    }, 3000);
+                },
+
+                checkUser() {
+                    const sessionData = sessionStorage.getItem('studydriveUser');
+                    const localData = localStorage.getItem('studydriveUser');
+                    const dataToUse = sessionData || localData;
+                    
+                    if (dataToUse) {
+                        app.userData = JSON.parse(dataToUse);
+                        document.getElementById('registrationOverlay').style.display = 'none';
+                        document.getElementById('mainApp').style.display = 'block';
+                        document.getElementById('userName').textContent = app.userData.fullName;
+                        document.getElementById('userAvatar').textContent = app.userData.avatar;
+                        document.getElementById('userFiliere').textContent = app.userData.filiere;
+                        app.subjects.load();
+                    } else {
+                        document.getElementById('registrationOverlay').style.display = 'flex';
+                    }
+                },
+
+                async register(formData) {
+                    try {
+                        const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                        
+                        app.userData = {
+                            id: userId,
+                            ...formData,
+                            fullName: `${formData.prenom} ${formData.nom}`,
+                            avatar: `${formData.prenom[0].toUpperCase()}${formData.nom[0].toUpperCase()}`,
+                            registeredAt: new Date().toISOString()
+                        };
+
+                        sessionStorage.setItem('studydriveUser', JSON.stringify(app.userData));
+                        localStorage.setItem('studydriveUser', JSON.stringify(app.userData));
+
+                        await setDoc(doc(db, 'studydrive_users', app.userData.id), {
+                            ...app.userData,
+                            createdAt: serverTimestamp()
+                        });
+
+                        document.getElementById('registrationOverlay').style.display = 'none';
+                        document.getElementById('mainApp').style.display = 'block';
+                        
+                        document.getElementById('userName').textContent = app.userData.fullName;
+                        document.getElementById('userAvatar').textContent = app.userData.avatar;
+                        document.getElementById('userFiliere').textContent = app.userData.filiere;
+
+                        app.subjects.load();
+                    } catch (error) {
+                        console.error('Registration error:', error);
+                        throw error;
+                    }
+                }
+            },
+
+            subjects: {
+                load() {
+                    const q = query(collection(db, 'studydrive_subjects'), orderBy('timestamp', 'desc'));
+                    
+                    onSnapshot(q, (snapshot) => {
+                        app.subjectsData = [];
+                        snapshot.forEach((doc) => {
+                            app.subjectsData.push({ id: doc.id, ...doc.data() });
+                        });
+                        app.subjects.render();
+                    });
+                },
+
+                render() {
+                    const grid = document.getElementById('subjectsGrid');
+                    
+                    const filtered = app.currentFilter === 'all' 
+                        ? app.subjectsData
+                        : app.subjectsData.filter(s => s.filiere === app.currentFilter);
 
                     if (filtered.length === 0) {
                         grid.innerHTML = `
@@ -1895,6 +1911,7 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
                         `;
                     }).join('');
                 },
@@ -1917,9 +1934,6 @@
                 }
             },
 
-            // ==============
-            // SEARCH MODULE
-            // ==============
             search: {
                 clear() {
                     document.getElementById('searchInput').value = '';
@@ -2001,9 +2015,6 @@
                 }
             },
 
-            // =============
-            // MODAL MODULE
-            // =============
             modal: {
                 openPublish() {
                     document.getElementById('publishModal').style.display = 'flex';
@@ -2048,9 +2059,6 @@
                 }
             },
 
-            // ===================
-            // FOCUS CLASS MODULE
-            // ===================
             focusClass: {
                 localStream: null,
                 peerConnections: new Map(),
@@ -2060,75 +2068,128 @@
                 currentCamera: 'user',
                 unsubscribers: [],
 
-async initialize() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const paramRoomId = urlParams.get('room');
-    
-    // Demander les permissions d'abord
-    const hasPermission = await this.requestMediaPermissions();
-    if (!hasPermission) {
-        alert('Vous devez autoriser l\'accès caméra/micro pour rejoindre');
-        return;
-    }
-    
-    if (paramRoomId) {
-        this.roomId = paramRoomId;
-        await this.join();
-    } else {
-        this.showRoomsList();
-    }
-},           
+                async requestMediaPermissions() {
+                    return new Promise((resolve) => {
+                        const permissionModal = document.createElement('div');
+                        permissionModal.style.cssText = `
+                            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+                            background: rgba(0, 0, 0, 0.95); z-index: 11000;
+                            display: flex; justify-content: center; align-items: center; padding: 20px;
+                            overflow-y: auto;
+                        `;
+                        
+                        permissionModal.innerHTML = `
+                            <div style="background: var(--white); padding: 30px; max-width: 500px; width: 100%; border-radius: 16px;">
+                                <div style="text-align: center; margin-bottom: 25px;">
+                                    <div style="font-size: 64px; margin-bottom: 15px;">📹🎤</div>
+                                    <h2 style="font-size: 22px; font-weight: 800; color: var(--dark); margin-bottom: 10px;">
+                                        Autorisation Requise
+                                    </h2>
+                                    <p style="color: var(--gray); font-size: 14px; line-height: 1.6;">
+                                        Pour participer à FocusClass, vous devez autoriser l'accès à votre caméra et microphone.
+                                    </p>
+                                </div>
+                                
+                                <div style="background: var(--gray-light); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                                    <h3 style="font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 15px;">
+                                        📱 Instructions pour Android
+                                    </h3>
+                                    <ol style="margin: 0; padding-left: 20px; color: var(--dark); font-size: 13px; line-height: 1.8;">
+                                        <li>Cliquez sur <strong>"Autoriser"</strong> ci-dessous</li>
+                                        <li>Une popup apparaîtra en haut de l'écran</li>
+                                        <li>Cliquez sur <strong>"Autoriser"</strong> dans la popup</li>
+                                        <li>Si la popup ne s'affiche pas:
+                                            <ul style="margin-top: 8px;">
+                                                <li>Appuyez sur l'icône 🔒 dans la barre d'adresse</li>
+                                                <li>Activez <strong>Caméra</strong> et <strong>Microphone</strong></li>
+                                                <li>Rechargez la page</li>
+                                            </ul>
+                                        </li>
+                                    </ol>
+                                </div>
+                                
+                                <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #ffc107;">
+                                    <div style="display: flex; align-items: start; gap: 10px;">
+                                        <span style="font-size: 20px;">⚠️</span>
+                                        <div style="font-size: 12px; color: #856404; line-height: 1.6;">
+                                            <strong>Important:</strong> Pour des raisons de sécurité, les navigateurs ne permettent pas l'accès automatique à la caméra/micro. Vous devez autoriser manuellement.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; gap: 10px;">
+                                    <button id="cancelPermBtn" 
+                                            style="flex: 1; padding: 14px; background: var(--gray-light); color: var(--dark); border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">
+                                        Annuler
+                                    </button>
+                                    <button id="requestPermBtn"
+                                            style="flex: 2; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">
+                                        ✓ Autoriser Caméra & Micro
+                                    </button>
+                                </div>
+                                
+                                <div style="text-align: center; margin-top: 20px;">
+                                    <button id="spectatorBtn" style="background: none; border: none; color: var(--gray); font-size: 13px; text-decoration: underline; cursor: pointer;">
+                                        Continuer en mode spectateur (sans caméra/micro)
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        document.body.appendChild(permissionModal);
+                        
+                        document.getElementById('cancelPermBtn').onclick = () => {
+                            permissionModal.remove();
+                            resolve('cancelled');
+                        };
+                        
+                        document.getElementById('spectatorBtn').onclick = () => {
+                            permissionModal.remove();
+                            resolve('spectator');
+                        };
+                        
+                        document.getElementById('requestPermBtn').onclick = async () => {
+                            try {
+                                const stream = await navigator.mediaDevices.getUserMedia({
+                                    video: true,
+                                    audio: true
+                                });
+                                stream.getTracks().forEach(track => track.stop());
+                                permissionModal.remove();
+                                resolve('granted');
+                            } catch (error) {
+                                alert('❌ Permission refusée.\n\n📱 Pour autoriser:\n1. Cliquez sur l\'icône 🔒 dans la barre d\'adresse\n2. Activez Caméra et Microphone\n3. Rechargez la page');
+                                permissionModal.remove();
+                                resolve('denied');
+                            }
+                        };
+                    });
+                },
 
-async requestMediaPermissions() {
-    return new Promise((resolve) => {
-        // Créer un modal pour demander les permissions
-        const permissionModal = document.createElement('div');
-        permissionModal.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            background: rgba(0, 0, 0, 0.95); z-index: 11000;
-            display: flex; justify-content: center; align-items: center; padding: 20px;
-        `;
-        
-        permissionModal.innerHTML = `
-            <div style="background: var(--white); padding: 40px; max-width: 500px; width: 100%; border-radius: 16px; text-align: center;">
-                <div style="font-size: 64px; margin-bottom: 20px;">📹</div>
-                <h2 style="font-size: 24px; font-weight: 800; color: var(--dark); margin-bottom: 15px;">
-                    Accès Caméra & Micro
-                </h2>
-                <p style="color: var(--gray); margin-bottom: 30px; line-height: 1.6;">
-                    Pour participer à la session FocusClass, nous avons besoin d'accéder à votre caméra et microphone.
-                    <br><br>
-                    <strong>Sur Android:</strong> Cliquez sur "Continuer" puis autorisez l'accès dans la popup du navigateur.
-                </p>
-                <div style="display: flex; gap: 10px;">
-                    <button onclick="this.closest('div').previousElementSibling.click()" 
-                            style="flex: 1; padding: 16px; background: var(--gray-light); color: var(--dark); border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">
-                        Annuler
-                    </button>
-                    <button onclick="this.closest('div').nextElementSibling.click()"
-                            style="flex: 1; padding: 16px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">
-                        Continuer →
-                    </button>
-                </div>
-                <button style="display: none;" data-action="cancel"></button>
-                <button style="display: none;" data-action="continue"></button>
-            </div>
-        `;
-        
-        document.body.appendChild(permissionModal);
-        
-        permissionModal.querySelector('[data-action="cancel"]').onclick = () => {
-            permissionModal.remove();
-            resolve(false);
-        };
-        
-        permissionModal.querySelector('[data-action="continue"]').onclick = () => {
-            permissionModal.remove();
-            resolve(true);
-        };
-    });
-},
-showRoomsList() {
+                async initialize() {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const paramRoomId = urlParams.get('room');
+                    
+                    const permissionResult = await this.requestMediaPermissions();
+                    
+                    if (permissionResult === 'cancelled') {
+                        return;
+                    }
+                    
+                    if (permissionResult === 'spectator') {
+                        this.isVideoEnabled = false;
+                        this.isAudioEnabled = false;
+                    }
+                    
+                    if (paramRoomId) {
+                        this.roomId = paramRoomId;
+                        await this.join();
+                    } else {
+                        this.showRoomsList();
+                    }
+                },
+
+                showRoomsList() {
                     const modal = document.createElement('div');
                     modal.id = 'liveRoomsModal';
                     modal.style.cssText = `
@@ -2256,7 +2317,28 @@ showRoomsList() {
                         document.getElementById('focusClassSection').style.display = 'flex';
                         document.getElementById('mainApp').style.display = 'none';
                         
-                        await this.initMedia();
+                        try {
+                            await this.initMedia();
+                        } catch (mediaError) {
+                            console.warn('Media initialization failed:', mediaError);
+                            this.isVideoEnabled = false;
+                            this.isAudioEnabled = false;
+                            
+                            const localVideo = document.getElementById('localVideo');
+                            localVideo.style.display = 'none';
+                            document.querySelector('.video-container.local').innerHTML = `
+                                <div class="no-video">
+                                    <div class="no-video-icon">👤</div>
+                                    <div class="no-video-text">Mode Spectateur</div>
+                                    <div style="font-size: 11px; margin-top: 8px; opacity: 0.7;">Caméra/micro non disponible</div>
+                                </div>
+                                <div class="video-label">
+                                    <span>👁️</span>
+                                    <span id="localVideoLabel">${app.userData.fullName}</span>
+                                </div>
+                            `;
+                        }
+                        
                         await this.registerParticipant();
                         this.listenToParticipants();
                         this.listenToRoomUpdates();
@@ -2265,31 +2347,61 @@ showRoomsList() {
                     } catch (error) {
                         console.error('Error joining room:', error);
                         alert('Impossible de rejoindre la session');
+                        this.leave();
                     }
                 },
 
                 async initMedia() {
-                    try {
-                        this.localStream = await navigator.mediaDevices.getUserMedia({
-                            video: {
-                                facingMode: this.currentCamera,
-                                width: { ideal: 1280 },
-                                height: { ideal: 720 }
-                            },
-                            audio: {
-                                echoCancellation: true,
-                                noiseSuppression: true,
-                                autoGainControl: true
+                    const mediaConfigs = [
+                        { video: { facingMode: this.currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } },
+                          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } },
+                        { video: { facingMode: this.currentCamera, width: { ideal: 640 }, height: { ideal: 480 } }, audio: true },
+                        { video: { facingMode: this.currentCamera }, audio: true },
+                        { video: { facingMode: this.currentCamera }, audio: false },
+                        { video: false, audio: true }
+                    ];
+                    
+                    let lastError = null;
+                    
+                    for (let i = 0; i < mediaConfigs.length; i++) {
+                        try {
+                            console.log(`Trying media config ${i + 1}/${mediaConfigs.length}...`);
+                            this.localStream = await navigator.mediaDevices.getUserMedia(mediaConfigs[i]);
+                            
+                            const localVideo = document.getElementById('localVideo');
+                            localVideo.srcObject = this.localStream;
+                            document.getElementById('localVideoLabel').textContent = app.userData.fullName;
+                            
+                            const hasVideo = this.localStream.getVideoTracks().length > 0;
+                            const hasAudio = this.localStream.getAudioTracks().length > 0;
+                            
+                            this.isVideoEnabled = hasVideo;
+                            this.isAudioEnabled = hasAudio;
+                            
+                            if (!hasVideo) {
+                                document.getElementById('toggleVideoBtn').classList.remove('active');
+                                document.getElementById('videoIcon').textContent = '🚫';
                             }
-                        });
-                        
-                        const localVideo = document.getElementById('localVideo');
-                        localVideo.srcObject = this.localStream;
-                        document.getElementById('localVideoLabel').textContent = app.userData.fullName;
-                    } catch (error) {
-                        console.error('Media access error:', error);
-                        throw new Error('Caméra/micro non accessible');
+                            if (!hasAudio) {
+                                document.getElementById('toggleAudioBtn').classList.remove('active');
+                                document.getElementById('audioIcon').textContent = '🔇';
+                            }
+                            
+                            console.log(`✅ Media initialized: Video=${hasVideo}, Audio=${hasAudio}`);
+                            
+                            if (!hasVideo && !hasAudio) {
+                                throw new Error('No media tracks available');
+                            }
+                            
+                            return;
+                        } catch (error) {
+                            console.warn(`Config ${i + 1} failed:`, error);
+                            lastError = error;
+                            continue;
+                        }
                     }
+                    
+                    throw lastError || new Error('Impossible d\'accéder à la caméra/micro');
                 },
 
                 async registerParticipant() {
@@ -2375,7 +2487,7 @@ showRoomsList() {
                 toggleVideo() {
                     this.isVideoEnabled = !this.isVideoEnabled;
                     
-                    const videoTrack = this.localStream.getVideoTracks()[0];
+                    const videoTrack = this.localStream?.getVideoTracks()[0];
                     if (videoTrack) {
                         videoTrack.enabled = this.isVideoEnabled;
                     }
@@ -2395,7 +2507,7 @@ showRoomsList() {
                 toggleAudio() {
                     this.isAudioEnabled = !this.isAudioEnabled;
                     
-                    const audioTrack = this.localStream.getAudioTracks()[0];
+                    const audioTrack = this.localStream?.getAudioTracks()[0];
                     if (audioTrack) {
                         audioTrack.enabled = this.isAudioEnabled;
                     }
@@ -2416,18 +2528,14 @@ showRoomsList() {
                     try {
                         this.currentCamera = this.currentCamera === 'user' ? 'environment' : 'user';
                         
-                        const videoTrack = this.localStream.getVideoTracks()[0];
+                        const videoTrack = this.localStream?.getVideoTracks()[0];
                         if (videoTrack) {
                             videoTrack.stop();
                             this.localStream.removeTrack(videoTrack);
                         }
                         
                         const newStream = await navigator.mediaDevices.getUserMedia({
-                            video: {
-                                facingMode: this.currentCamera,
-                                width: { ideal: 1280 },
-                                height: { ideal: 720 }
-                            }
+                            video: { facingMode: this.currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } }
                         });
                         
                         const newVideoTrack = newStream.getVideoTracks()[0];
@@ -2441,278 +2549,250 @@ showRoomsList() {
                     }
                 },
 
-                copyRoomLink() {
-                    const link = `${window.location.origin}${window.location.pathname}?room=${this.roomId}`;
-                    navigator.clipboard.writeText(link).then(() => {
-                        alert('✅ Lien copié dans le presse-papiers !');
-                    }).catch(() => {
-                        alert('❌ Impossible de copier le lien');
-                    });
-                },
-
-                async leave() {
-                    try {
-                        if (this.localStream) {
-                            this.localStream.getTracks().forEach(track => track.stop());
-                        }
-                        
-                        this.peerConnections.forEach(pc => pc.close());
-                        this.peerConnections.clear();
-                        
-                        if (this.roomId && app.userData) {
-                            await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/participants`, app.userData.id));
-                        }
-                        
-                        this.unsubscribers.forEach(unsubscribe => unsubscribe());
-                        this.unsubscribers = [];
-                        
-                        const newUrl = new URL(window.location);
-                        newUrl.searchParams.delete('room');
-                        window.history.pushState({}, '', newUrl);
-                        
-                        document.getElementById('focusClassSection').style.display = 'none';
-                        document.getElementById('mainApp').style.display = 'block';
-                        
-                        this.roomId = null;
-                        this.localStream = null;
-                    } catch (error) {
-                        console.error('Error leaving room:', error);
-                    }
-                }
+                showPermissionsHelp() {
+                    alert(`📱 ACTIVER CAMÉRA & MICRO sur Android:\n\n1. Cliquez sur l'icône 🔒 dans la barre d'adresse\n2. Cherchez "Caméra" et "Microphone"\n3. Changez de "Bloqué" à "Autoriser"\n4. Rechargez la page\n\n✓ Les permissions seront mémorisées pour les prochaines fois!`);
+},
+            copyRoomLink() {
+                const link = `${window.location.origin}${window.location.pathname}?room=${this.roomId}`;
+                navigator.clipboard.writeText(link).then(() => {
+                    alert('✅ Lien copié dans le presse-papiers !');
+                }).catch(() => {
+                    alert('❌ Impossible de copier le lien');
+                });
             },
 
-            // =============
-            // UTILS MODULE
-            // =============
-            utils: {
-                formatTime(timestamp) {
-                    if (!timestamp) return 'À l\'instant';
-                    
-                    let date;
-                    if (timestamp.seconds) {
-                        date = new Date(timestamp.seconds * 1000);
-                    } else if (typeof timestamp === 'string') {
-                        date = new Date(timestamp);
-                    } else {
-                        return 'À l\'instant';
+            async leave() {
+                try {
+                    if (this.localStream) {
+                        this.localStream.getTracks().forEach(track => track.stop());
                     }
-
-                    const now = new Date();
-                    const diffMs = now - date;
-                    const diffMins = Math.floor(diffMs / 60000);
-                    const diffHours = Math.floor(diffMs / 3600000);
-                    const diffDays = Math.floor(diffMs / 86400000);
-
-                    if (diffMins < 1) return 'À l\'instant';
-                    if (diffMins < 60) return `${diffMins} min`;
-                    if (diffHours < 24) return `${diffHours}h`;
-                    if (diffDays < 7) return `${diffDays}j`;
                     
-                    return date.toLocaleDateString('fr-FR', { 
-                        day: 'numeric', 
-                        month: 'short'
-                    });
-                },
-
-                async uploadToCloudinary(file) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+                    this.peerConnections.forEach(pc => pc.close());
+                    this.peerConnections.clear();
                     
-                    const response = await fetch(
-                        `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
-                        {
-                            method: 'POST',
-                            body: formData
-                        }
-                    );
+                    if (this.roomId && app.userData) {
+                        await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/participants`, app.userData.id));
+                    }
                     
-                    const data = await response.json();
-                    return data.secure_url;
+                    this.unsubscribers.forEach(unsubscribe => unsubscribe());
+                    this.unsubscribers = [];
+                    
+                    const newUrl = new URL(window.location);
+                    newUrl.searchParams.delete('room');
+                    window.history.pushState({}, '', newUrl);
+                    
+                    document.getElementById('focusClassSection').style.display = 'none';
+                    document.getElementById('mainApp').style.display = 'block';
+                    
+                    this.roomId = null;
+                    this.localStream = null;
+                } catch (error) {
+                    console.error('Error leaving room:', error);
                 }
             }
-        };
+        },
 
-        // ====================
-        // EVENT LISTENERS
-        // ====================
+        utils: {
+            formatTime(timestamp) {
+                if (!timestamp) return 'À l\'instant';
+                
+                let date;
+                if (timestamp.seconds) {
+                    date = new Date(timestamp.seconds * 1000);
+                } else if (typeof timestamp === 'string') {
+                    date = new Date(timestamp);
+                } else {
+                    return 'À l\'instant';
+                }
 
-        // Year selector
-        const yearSelect = document.getElementById('subjectYear');
-        const currentYear = new Date().getFullYear();
-        for (let i = currentYear; i >= currentYear - 10; i--) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.textContent = i;
-            yearSelect.appendChild(option);
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
+
+                if (diffMins < 1) return 'À l\'instant';
+                if (diffMins < 60) return `${diffMins} min`;
+                if (diffHours < 24) return `${diffHours}h`;
+                if (diffDays < 7) return `${diffDays}j`;
+                
+                return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+            },
+
+            async uploadToCloudinary(file) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+                
+                const response = await fetch(
+                    `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
+                    { method: 'POST', body: formData }
+                );
+                
+                const data = await response.json();
+                return data.secure_url;
+            }
         }
+    };
 
-        // Registration form
-        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitBtn = e.target.querySelector('.submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Connexion...';
+    // EVENT LISTENERS
+    const yearSelect = document.getElementById('subjectYear');
+    const currentYear = new Date().getFullYear();
+    for (let i = currentYear; i >= currentYear - 10; i--) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        yearSelect.appendChild(option);
+    }
 
-            try {
-                await app.auth.register({
-                    nom: document.getElementById('nom').value.trim(),
-                    prenom: document.getElementById('prenom').value.trim(),
-                    filiere: document.getElementById('filiere').value,
-                    contact: document.getElementById('contact').value.trim()
-                });
-            } catch (error) {
-                alert('Erreur lors de l\'inscription');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Commencer';
-            }
-        });
+    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = e.target.querySelector('.submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Connexion...';
 
-        // Publish form
-        document.getElementById('publishForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitBtn = e.target.querySelector('.submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Publication...';
-
-            try {
-                const imageFile = document.getElementById('subjectImage').files[0];
-                const imageUrl = await app.utils.uploadToCloudinary(imageFile);
-
-                await app.subjects.create({
-                    title: document.getElementById('subjectTitle').value,
-                    filiere: document.getElementById('subjectFiliere').value,
-                    year: parseInt(document.getElementById('subjectYear').value),
-                    description: document.getElementById('subjectDescription').value,
-                    imageUrl
-                });
-
-                app.modal.closePublish();
-                alert('✅ Sujet publié avec succès !');
-            } catch (error) {
-                console.error('Error publishing:', error);
-                alert('❌ Erreur lors de la publication');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Publier';
-            }
-        });
-
-        // Subject upload form (FocusClass)
-        document.getElementById('subjectUploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitBtn = e.target.querySelector('.submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Upload...';
-
-            try {
-                const file = document.getElementById('focusSubjectImage').files[0];
-                const imageUrl = await app.utils.uploadToCloudinary(file);
-                
-                await setDoc(doc(db, 'focusclass_rooms', app.focusClass.roomId), {
-                    subject: {
-                        imageUrl,
-                        uploadedBy: app.userData.fullName,
-                        uploadedAt: serverTimestamp()
-                    }
-                }, { merge: true });
-                
-                app.modal.closeSubjectUpload();
-            } catch (error) {
-                console.error('Error uploading subject:', error);
-                alert('Erreur lors de l\'upload');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Ajouter';
-            }
-        });
-
-        // Image preview (publish)
-        document.getElementById('subjectImage').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('imagePreview').innerHTML = 
-                        `<img src="${e.target.result}" alt="Preview">`;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Image preview (focus subject)
-        document.getElementById('focusSubjectImage').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('focusImagePreview').innerHTML = 
-                        `<img src="${e.target.result}" alt="Preview">`;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Search input
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            clearTimeout(app.searchTimeout);
-            app.searchTimeout = setTimeout(() => {
-                app.search.perform(e.target.value);
-            }, 300);
-        });
-
-        // Close search on outside click
-        document.addEventListener('click', (e) => {
-            const searchContainer = document.querySelector('.search-container');
-            if (!searchContainer.contains(e.target)) {
-                document.getElementById('searchSuggestions').classList.remove('active');
-            }
-        });
-
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                app.currentFilter = this.dataset.filter;
-                app.subjects.render();
+        try {
+            await app.auth.register({
+                nom: document.getElementById('nom').value.trim(),
+                prenom: document.getElementById('prenom').value.trim(),
+                filiere: document.getElementById('filiere').value,
+                contact: document.getElementById('contact').value.trim()
             });
-        });
+        } catch (error) {
+            alert('Erreur lors de l\'inscription');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Commencer';
+        }
+    });
 
-        // Modal close on outside click
-        document.getElementById('publishModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) app.modal.closePublish();
-        });
+    document.getElementById('publishForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = e.target.querySelector('.submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Publication...';
 
-        document.getElementById('imageFullscreenModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) app.modal.closeFullscreen();
-        });
+        try {
+            const imageFile = document.getElementById('subjectImage').files[0];
+            const imageUrl = await app.utils.uploadToCloudinary(imageFile);
 
-        document.getElementById('subjectUploadModal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) app.modal.closeSubjectUpload();
-        });
+            await app.subjects.create({
+                title: document.getElementById('subjectTitle').value,
+                filiere: document.getElementById('subjectFiliere').value,
+                year: parseInt(document.getElementById('subjectYear').value),
+                description: document.getElementById('subjectDescription').value,
+                imageUrl
+            });
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (document.getElementById('imageFullscreenModal').style.display === 'flex') {
-                    app.modal.closeFullscreen();
-                } else if (document.getElementById('publishModal').style.display === 'flex') {
-                    app.modal.closePublish();
-                } else if (document.getElementById('subjectUploadModal').style.display === 'flex') {
-                    app.modal.closeSubjectUpload();
+            app.modal.closePublish();
+            alert('✅ Sujet publié avec succès !');
+        } catch (error) {
+            console.error('Error publishing:', error);
+            alert('❌ Erreur lors de la publication');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Publier';
+        }
+    });
+
+    document.getElementById('subjectUploadForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = e.target.querySelector('.submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Upload...';
+
+        try {
+            const file = document.getElementById('focusSubjectImage').files[0];
+            const imageUrl = await app.utils.uploadToCloudinary(file);
+            
+            await setDoc(doc(db, 'focusclass_rooms', app.focusClass.roomId), {
+                subject: {
+                    imageUrl,
+                    uploadedBy: app.userData.fullName,
+                    uploadedAt: serverTimestamp()
                 }
-            }
+            }, { merge: true });
+            
+            app.modal.closeSubjectUpload();
+        } catch (error) {
+            console.error('Error uploading subject:', error);
+            alert('Erreur lors de l\'upload');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Ajouter';
+        }
+    });
+
+    document.getElementById('subjectImage').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('focusSubjectImage').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('focusImagePreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        clearTimeout(app.searchTimeout);
+        app.searchTimeout = setTimeout(() => {
+            app.search.perform(e.target.value);
+        }, 300);
+    });
+
+    document.addEventListener('click', (e) => {
+        const searchContainer = document.querySelector('.search-container');
+        if (!searchContainer.contains(e.target)) {
+            document.getElementById('searchSuggestions').classList.remove('active');
+        }
+    });
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            app.currentFilter = this.dataset.filter;
+            app.subjects.render();
         });
+    });
 
+    document.getElementById('publishModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) app.modal.closePublish();
+    });
 
-        
-  window.app = app;
-        
-        app.auth.init();
-    </script>
+    document.getElementById('imageFullscreenModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) app.modal.closeFullscreen();
+    });
+
+    document.getElementById('subjectUploadModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) app.modal.closeSubjectUpload();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (document.getElementById('imageFullscreenModal').style.display === 'flex') {
+                app.modal.closeFullscreen();
+            } else if (document.getElementById('publishModal').style.display === 'flex') {
+                app.modal.closePublish();
+            } else if (document.getElementById('subjectUploadModal').style.display === 'flex') {
+                app.modal.closeSubjectUpload();
+            }
+        }
+    });
+
+    window.app = app;
+    app.auth.init();
+</script>
 </body>
 </html>
