@@ -3124,10 +3124,21 @@ const app = {
                 document.getElementById('focusClassSection').style.display = 'flex';
                 document.getElementById('mainApp').style.display = 'none';
                 
+                // Récupérer les infos de la room pour savoir qui est l'hôte
+                const roomDoc = await getDocs(query(collection(db, 'focusclass_rooms')));
+                let hostId = null;
+                roomDoc.forEach(doc => {
+                    if (doc.id === this.roomId) {
+                        hostId = doc.data().createdBy;
+                    }
+                });
+                
                 // Afficher/masquer les éléments selon le rôle
                 if (this.isHost) {
                     document.getElementById('liveRequests').style.display = 'block';
+                    document.getElementById('requestStageBtn').style.display = 'none';
                 } else {
+                    document.getElementById('liveRequests').style.display = 'none';
                     document.getElementById('requestStageBtn').style.display = 'block';
                 }
                 
@@ -3141,18 +3152,44 @@ const app = {
                 }
                 
                 await this.registerParticipant();
+                this.listenToHostStream(hostId);
                 this.listenToParticipants();
                 this.listenToMessages();
                 this.listenToReactions();
                 this.listenToRequests();
                 this.listenToStageParticipants();
                 
-                console.log('✅ Joined room:', this.roomId);
+                console.log('✅ Joined room:', this.roomId, 'Host:', hostId, 'IsHost:', this.isHost);
             } catch (error) {
                 console.error('Error joining room:', error);
                 alert('Impossible de rejoindre la session');
                 this.leave();
             }
+        },
+        
+        async listenToHostStream(hostId) {
+            // Écouter le stream de l'hôte pour l'afficher en grand
+            const participantsRef = collection(db, `focusclass_rooms/${this.roomId}/participants`);
+            
+            const unsubscribe = onSnapshot(participantsRef, (snapshot) => {
+                snapshot.forEach(doc => {
+                    const participant = doc.data();
+                    // Si c'est l'hôte et que je ne suis pas l'hôte
+                    if (participant.id === hostId && !this.isHost) {
+                        // Afficher le stream de l'hôte en grand écran
+                        document.getElementById('mainVideoLabel').textContent = participant.name;
+                        // Note: Le stream vidéo réel nécessiterait WebRTC
+                    }
+                    // Si je suis l'hôte
+                    if (this.isHost) {
+                        const mainVideo = document.getElementById('mainVideo');
+                        mainVideo.srcObject = this.localStream;
+                        document.getElementById('mainVideoLabel').textContent = app.userData.fullName;
+                    }
+                });
+            });
+            
+            this.unsubscribers.push(unsubscribe);
         },
 
         showSpectatorMode() {
@@ -3337,18 +3374,77 @@ const app = {
         listenToStageParticipants() {
             const stageRef = collection(db, `focusclass_rooms/${this.roomId}/onStage`);
             
-            const unsubscribe = onSnapshot(stageRef, (snapshot) => {
+            const unsubscribe = onSnapshot(stageRef, async (snapshot) => {
                 const stageParticipants = [];
-                snapshot.forEach(doc => stageParticipants.push(doc.data()));
+                
+                // Récupérer les infos complètes des participants sur scène
+                for (const doc of snapshot.docs) {
+                    const stageData = doc.data();
+                    const participantDoc = await getDocs(
+                        query(collection(db, `focusclass_rooms/${this.roomId}/participants`))
+                    );
+                    
+                    participantDoc.forEach(pDoc => {
+                        if (pDoc.id === stageData.userId) {
+                            stageParticipants.push({
+                                ...stageData,
+                                ...pDoc.data()
+                            });
+                        }
+                    });
+                }
                 
                 const container = document.getElementById('stageParticipants');
-                container.innerHTML = stageParticipants.map(p => `
-                    <div class="stage-participant-box">
-                        <video autoplay playsinline></video>
-                        <div class="stage-participant-name">${p.userName || 'Participant'}</div>
-                        ${this.isHost ? `<button class="kick-participant-btn" onclick="app.focusClass.kickFromStage('${p.userId}')">✕</button>` : ''}
-                    </div>
-                `).join('');
+                
+                // Si je suis sur scène en tant que participant (pas hôte)
+                if (!this.isHost && stageParticipants.some(p => p.userId === app.userData.id)) {
+                    // Afficher mon stream en petit
+                    container.innerHTML = `
+                        <div class="stage-participant-box">
+                            <video id="myStageVideo" autoplay muted playsinline></video>
+                            <div class="stage-participant-name">Vous</div>
+                        </div>
+                    `;
+                    
+                    // Connecter mon stream local à la petite fenêtre
+                    const myVideo = document.getElementById('myStageVideo');
+                    if (this.localStream) {
+                        myVideo.srcObject = this.localStream;
+                    }
+                    
+                    // Cacher le bouton "Demander la parole"
+                    document.getElementById('requestStageBtn').style.display = 'none';
+                } else if (this.isHost) {
+                    // Si je suis l'hôte, afficher tous les participants invités en petit
+                    container.innerHTML = stageParticipants
+                        .filter(p => p.userId !== app.userData.id) // Ne pas m'afficher moi-même
+                        .map(p => `
+                            <div class="stage-participant-box">
+                                <div class="no-video" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--dark-lighter);">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 32px; margin-bottom: 8px;">${p.avatar}</div>
+                                        <div style="font-size: 11px; color: var(--gray);">En attente de stream</div>
+                                    </div>
+                                </div>
+                                <div class="stage-participant-name">${p.name}</div>
+                                <button class="kick-participant-btn" onclick="app.focusClass.kickFromStage('${p.userId}')">✕</button>
+                            </div>
+                        `).join('');
+                } else {
+                    // Si je ne suis pas sur scène, afficher les autres participants
+                    container.innerHTML = stageParticipants
+                        .filter(p => p.userId !== app.userData.id)
+                        .map(p => `
+                            <div class="stage-participant-box">
+                                <div class="no-video" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--dark-lighter);">
+                                    <div style="text-align: center;">
+                                        <div style="font-size: 32px; margin-bottom: 8px;">${p.avatar}</div>
+                                    </div>
+                                </div>
+                                <div class="stage-participant-name">${p.name}</div>
+                            </div>
+                        `).join('');
+                }
             });
             
             this.unsubscribers.push(unsubscribe);
@@ -3374,12 +3470,32 @@ const app = {
 
         async acceptRequest(userId) {
             try {
+                // Récupérer les infos du participant
+                const participantDoc = await getDocs(
+                    query(collection(db, `focusclass_rooms/${this.roomId}/participants`))
+                );
+                
+                let participantData = null;
+                participantDoc.forEach(doc => {
+                    if (doc.id === userId) {
+                        participantData = doc.data();
+                    }
+                });
+                
+                if (!participantData) return;
+                
+                // Ajouter à la liste des participants sur scène
                 await setDoc(doc(db, `focusclass_rooms/${this.roomId}/onStage`, userId), {
                     userId,
+                    name: participantData.name,
+                    avatar: participantData.avatar,
                     addedAt: serverTimestamp()
                 });
                 
+                // Supprimer la demande
                 await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/requests`, userId));
+                
+                console.log(`✅ ${participantData.name} ajouté sur scène`);
             } catch (error) {
                 console.error('Error accepting request:', error);
             }
@@ -3396,8 +3512,24 @@ const app = {
         async kickFromStage(userId) {
             try {
                 await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/onStage`, userId));
+                console.log(`✅ Participant ${userId} retiré de la scène`);
             } catch (error) {
                 console.error('Error kicking participant:', error);
+            }
+        },
+        
+        async leaveStage() {
+            // Fonction pour quitter volontairement la scène
+            if (!this.isHost) {
+                try {
+                    await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/onStage`, app.userData.id));
+                    document.getElementById('requestStageBtn').style.display = 'block';
+                    document.getElementById('requestStageBtn').textContent = '🎤 Demander la parole';
+                    document.getElementById('requestStageBtn').disabled = false;
+                    console.log('✅ Vous avez quitté la scène');
+                } catch (error) {
+                    console.error('Error leaving stage:', error);
+                }
             }
         },
 
