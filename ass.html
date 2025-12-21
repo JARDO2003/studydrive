@@ -1422,6 +1422,305 @@
                 font-size: 42px;
             }
         }
+
+        /* AMÉLIORATIONS MOBILES */
+@media (max-width: 768px) {
+    /* FocusClass Header - Optimisé mobile */
+    .focus-class-header {
+        padding: 12px 15px;
+        flex-wrap: wrap;
+    }
+
+    .focus-class-title {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .focus-class-title h2 {
+        font-size: 18px;
+    }
+
+    .focus-badge {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+
+    .focus-controls {
+        width: 100%;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .focus-btn {
+        padding: 8px 12px;
+        font-size: 11px;
+        flex: 1;
+    }
+
+    .focus-btn span:first-child {
+        display: none; /* Cache les emojis sur mobile */
+    }
+
+    /* Video Grid - Plein écran sur mobile */
+    .focus-class-content {
+        grid-template-columns: 1fr !important;
+    }
+
+    .video-grid {
+        padding: 15px;
+        grid-template-columns: 1fr !important;
+        gap: 15px;
+    }
+
+    .video-container {
+        aspect-ratio: 3/4; /* Format portrait pour mobile */
+        max-height: 70vh;
+    }
+
+    .video-label {
+        bottom: 8px;
+        left: 8px;
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    /* Media Controls - Optimisés */
+    .media-controls {
+        padding: 12px 15px;
+        gap: 10px;
+    }
+
+    .media-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+    }
+
+    /* Panels cachés sur mobile */
+    .subject-panel,
+    .participants-panel {
+        display: none !important;
+    }
+
+    /* Modal permissions - Adapté mobile */
+    .registration-box,
+    .modal-content,
+    .subject-upload-content {
+        padding: 25px 20px;
+        max-width: 95%;
+    }
+
+    /* Navbar mobile */
+    .navbar {
+        padding: 12px 0;
+    }
+
+    .navbar-menu {
+        font-size: 12px;
+        gap: 15px;
+    }
+
+    .nav-link {
+        font-size: 12px;
+    }
+
+    .logo-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+
+    .logo-text h1 {
+        font-size: 18px;
+    }
+
+    .logo-text p {
+        font-size: 10px;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+
+    .user-info h3 {
+        font-size: 12px;
+    }
+
+    .user-info p {
+        font-size: 10px;
+    }
+
+    /* Subjects Grid mobile */
+    .subjects-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px;
+        padding: 0 15px 40px;
+    }
+
+    .subject-image {
+        height: 180px;
+    }
+
+    .subject-content {
+        padding: 20px;
+    }
+
+    .subject-title {
+        font-size: 18px;
+    }
+
+    /* Controls mobile */
+    .controls-section {
+        padding: 0 15px;
+        gap: 15px;
+    }
+
+    .section-title {
+        font-size: 24px;
+    }
+
+    .filter-btn {
+        padding: 8px 15px;
+        font-size: 12px;
+    }
+
+    .publish-btn {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+
+    /* Search mobile */
+    .search-section {
+        padding: 0 15px;
+        margin: 20px auto;
+    }
+
+    .search-box {
+        padding: 12px 15px;
+    }
+
+    .search-input {
+        font-size: 14px;
+    }
+
+    /* Intro mobile */
+    .intro-title {
+        font-size: 36px;
+    }
+
+    .intro-subtitle {
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+
+    .intro-logo {
+        width: 80px;
+        height: 80px;
+        font-size: 40px;
+        margin-bottom: 20px;
+    }
+
+    /* No video state */
+    .no-video {
+        padding: 20px;
+    }
+
+    .no-video-icon {
+        font-size: 36px;
+        margin-bottom: 8px;
+    }
+
+    .no-video-text {
+        font-size: 12px;
+    }
+}
+
+/* Extra small devices (moins de 375px) */
+@media (max-width: 375px) {
+    .focus-class-title h2 {
+        font-size: 16px;
+    }
+
+    .focus-btn {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+
+    .media-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .video-container {
+        max-height: 60vh;
+    }
+
+    .subject-image {
+        height: 150px;
+    }
+
+    .intro-title {
+        font-size: 32px;
+    }
+}
+
+/* Landscape mobile */
+@media (max-width: 968px) and (orientation: landscape) {
+    .focus-class-header {
+        padding: 8px 15px;
+    }
+
+    .focus-class-title h2 {
+        font-size: 16px;
+    }
+
+    .focus-badge {
+        font-size: 9px;
+    }
+
+    .focus-btn {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+
+    .video-container {
+        aspect-ratio: 16/9;
+        max-height: 75vh;
+    }
+
+    .media-controls {
+        padding: 8px 15px;
+    }
+
+    .media-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .video-grid {
+        padding: 10px;
+        gap: 10px;
+    }
+}
+
+/* Fix pour les notchs iPhone */
+@supports (padding-top: env(safe-area-inset-top)) {
+    .focus-class-header {
+        padding-top: max(20px, env(safe-area-inset-top));
+    }
+
+    .media-controls {
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+
+    .navbar {
+        padding-top: env(safe-area-inset-top);
+    }
+}
     </style>
 </head>
 <body>
