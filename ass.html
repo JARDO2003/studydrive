@@ -1721,6 +1721,444 @@
         padding-top: env(safe-area-inset-top);
     }
 }
+
+/* LIVE INTERFACE STYLE */
+.main-video-section {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: var(--dark);
+}
+
+.main-video-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.main-video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.main-video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+}
+
+.host-badge {
+    background: rgba(239, 68, 68, 0.9);
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.viewers-count {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* STAGE PARTICIPANTS (petites fenêtres) */
+.stage-participants {
+    position: absolute;
+    bottom: 80px;
+    right: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 50%;
+    overflow-y: auto;
+}
+
+.stage-participant-box {
+    width: 100px;
+    height: 130px;
+    background: var(--dark-lighter);
+    border-radius: 12px;
+    border: 2px solid var(--primary);
+    overflow: hidden;
+    position: relative;
+}
+
+.stage-participant-box video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.stage-participant-name {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 5px;
+    border-radius: 5px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kick-participant-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    background: rgba(239, 68, 68, 0.9);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* SIDEBAR */
+.live-sidebar {
+    position: absolute;
+    right: 15px;
+    top: 80px;
+    bottom: 180px;
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 100;
+}
+
+.live-requests {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.requests-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.requests-header h4 {
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.requests-badge {
+    background: var(--danger);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+.request-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.request-name {
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    flex: 1;
+}
+
+.request-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.request-accept, .request-reject {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.request-accept {
+    background: var(--success);
+    color: white;
+}
+
+.request-reject {
+    background: var(--danger);
+    color: white;
+}
+
+/* REACTIONS */
+.live-reactions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.reaction-btn {
+    width: 50px;
+    height: 50px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.reaction-btn:active {
+    transform: scale(1.3);
+}
+
+/* FLOATING REACTIONS */
+.floating-reactions {
+    position: absolute;
+    bottom: 100px;
+    left: 20px;
+    width: 60px;
+    height: 400px;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.floating-reaction {
+    position: absolute;
+    font-size: 32px;
+    animation: floatUp 3s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes floatUp {
+    0% {
+        bottom: 0;
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translateX(20px) scale(1.2);
+    }
+    100% {
+        bottom: 400px;
+        opacity: 0;
+        transform: translateX(-10px) scale(0.8);
+    }
+}
+
+/* PARTICIPANTS LIST */
+.live-participants-list {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 10px;
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.participants-list-header h4 {
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+#participantsScroll {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.live-participant-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.live-participant-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+}
+
+.live-participant-name {
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    flex: 1;
+}
+
+/* BOTTOM CONTROLS */
+.live-bottom-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+    padding: 15px;
+}
+
+.live-chat-container {
+    max-width: 600px;
+}
+
+.live-messages {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.live-message {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 12px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+    display: inline-block;
+    max-width: 80%;
+}
+
+.message-author {
+    color: var(--primary-light);
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 5px;
+}
+
+.message-text {
+    color: white;
+    font-size: 12px;
+}
+
+.live-chat-input {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.live-chat-input input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    padding: 10px 15px;
+    color: white;
+    font-size: 13px;
+}
+
+.live-chat-input input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.send-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    border: none;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.request-stage-btn {
+    position: absolute;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+    .stage-participants {
+        bottom: 150px;
+        right: 10px;
+    }
+
+    .stage-participant-box {
+        width: 80px;
+        height: 110px;
+    }
+
+    .live-sidebar {
+        width: 50px;
+        right: 10px;
+        top: 60px;
+    }
+
+    .reaction-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+
+    .live-chat-input input {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+}
     </style>
 </head>
 <body>
@@ -1943,44 +2381,79 @@
                 </button>
             </div>
         </div>
-
-        <div class="focus-class-content">
-            <!-- SUBJECT PANEL -->
-            <div class="subject-panel">
-                <h3>📚 Sujet d'étude</h3>
-                <div class="subject-display" id="focusSubjectDisplay">
-                    <div style="padding: 40px; text-align: center; color: var(--gray);">
-                        <div style="font-size: 48px; margin-bottom: 15px;">📸</div>
-                        <p style="font-size: 13px;">Aucun sujet ajouté</p>
-                    </div>
+<div class="focus-class-content">
+    <!-- MAIN VIDEO (Host principal) -->
+    <div class="main-video-section">
+        <div class="main-video-container">
+            <video id="mainVideo" autoplay muted playsinline></video>
+            <div class="main-video-overlay">
+                <div class="host-badge">
+                    <span>👑</span>
+                    <span id="mainVideoLabel">Hôte</span>
                 </div>
-                <button class="upload-subject-btn" onclick="app.modal.openSubjectUpload()">
-                    📤 Ajouter un sujet
-                </button>
-            </div>
-
-            <!-- VIDEO GRID -->
-            <div class="video-grid" id="videoGrid">
-                <div class="video-container local">
-                    <video id="localVideo" autoplay muted playsinline></video>
-                    <div class="video-label">
-                        <span>📹</span>
-                        <span id="localVideoLabel">Vous</span>
-                    </div>
+                <div class="viewers-count">
+                    <span>👁️</span>
+                    <span id="viewersCount">140.1K</span>
                 </div>
-            </div>
-
-            <!-- PARTICIPANTS PANEL -->
-            <div class="participants-panel">
-                <div class="participants-header">
-                    <h3>
-                        👥 Participants
-                        <span class="participants-count" id="participantsCount">1</span>
-                    </h3>
-                </div>
-                <div class="participants-list" id="participantsList"></div>
             </div>
         </div>
+
+        <!-- PARTICIPANTS ON STAGE (Petites fenêtres) -->
+        <div class="stage-participants" id="stageParticipants">
+            <!-- Rempli dynamiquement -->
+        </div>
+    </div>
+
+    <!-- SIDEBAR RIGHT -->
+    <div class="live-sidebar">
+        <!-- Requests (uniquement pour l'hôte) -->
+        <div class="live-requests" id="liveRequests" style="display: none;">
+            <div class="requests-header">
+                <h4>Demandes</h4>
+                <span class="requests-badge" id="requestsBadge">0</span>
+            </div>
+            <div class="requests-list" id="requestsList"></div>
+        </div>
+
+        <!-- Reactions -->
+        <div class="live-reactions">
+            <button class="reaction-btn" onclick="app.focusClass.sendReaction('❤️')">❤️</button>
+            <button class="reaction-btn" onclick="app.focusClass.sendReaction('👍')">👍</button>
+            <button class="reaction-btn" onclick="app.focusClass.sendReaction('🔥')">🔥</button>
+            <button class="reaction-btn" onclick="app.focusClass.sendReaction('👏')">👏</button>
+            <button class="reaction-btn" onclick="app.focusClass.sendReaction('😂')">😂</button>
+        </div>
+
+        <!-- Participants List -->
+        <div class="live-participants-list" id="liveParticipantsList">
+            <div class="participants-list-header">
+                <h4>👥 <span id="liveParticipantsCount">1</span></h4>
+            </div>
+            <div id="participantsScroll"></div>
+        </div>
+    </div>
+</div>
+
+<!-- BOTTOM CONTROLS -->
+<div class="live-bottom-controls">
+    <div class="live-chat-container">
+        <div class="live-messages" id="liveMessages"></div>
+        <div class="live-chat-input">
+            <input type="text" id="chatInput" placeholder="Saisis ton message..." maxlength="150">
+            <button class="send-btn" onclick="app.focusClass.sendMessage()">
+                <span>📤</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Request to join stage button (pour les non-hôtes) -->
+    <button class="request-stage-btn" id="requestStageBtn" style="display: none;" onclick="app.focusClass.requestStage()">
+        🎤 Demander la parole
+    </button>
+</div>
+
+<!-- Floating reactions animation -->
+<div class="floating-reactions" id="floatingReactions"></div>
 
         <div class="media-controls">
             <button class="media-btn active" id="toggleVideoBtn" onclick="app.focusClass.toggleVideo()">
@@ -2028,1070 +2501,1252 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { 
-            getFirestore, 
-            collection, 
-            doc, 
-            setDoc, 
-            addDoc, 
-            getDocs, 
-            query, 
-            orderBy, 
-            serverTimestamp,
-            onSnapshot,
-            deleteDoc
-        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+       
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+import { 
+    getFirestore, 
+    collection, 
+    doc, 
+    setDoc, 
+    addDoc, 
+    getDocs, 
+    query, 
+    orderBy, 
+    serverTimestamp,
+    onSnapshot,
+    deleteDoc,
+    limit
+} from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCPGgtXoDUycykLaTSee0S0yY0tkeJpqKI",
-            authDomain: "data-com-a94a8.firebaseapp.com",
-            databaseURL: "https://data-com-a94a8-default-rtdb.firebaseio.com",
-            projectId: "data-com-a94a8",
-            storageBucket: "data-com-a94a8.appspot.com",
-            messagingSenderId: "276904640935",
-            appId: "1:276904640935:web:9cd805aeba6c34c767f682"
-        };
+// ========================================
+// CONFIGURATION FIREBASE
+// ========================================
+const firebaseConfig = {
+    apiKey: "AIzaSyCPGgtXoDUycykLaTSee0S0yY0tkeJpqKI",
+    authDomain: "data-com-a94a8.firebaseapp.com",
+    databaseURL: "https://data-com-a94a8-default-rtdb.firebaseio.com",
+    projectId: "data-com-a94a8",
+    storageBucket: "data-com-a94a8.appspot.com",
+    messagingSenderId: "276904640935",
+    appId: "1:276904640935:web:9cd805aeba6c34c767f682"
+};
 
-        const firebaseApp = initializeApp(firebaseConfig);
-        const db = getFirestore(firebaseApp);
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
 
-        const cloudinaryConfig = {
-            cloudName: 'djxcqczh1',
-            uploadPreset: 'database'
-        };
+// Configuration Cloudinary
+const cloudinaryConfig = {
+    cloudName: 'djxcqczh1',
+    uploadPreset: 'database'
+};
 
-        // Demander les permissions tôt
-        async function requestPermissionsEarly() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: true,
-                    audio: true
-                });
-                sessionStorage.setItem('mediaPermissionsGranted', 'true');
-                stream.getTracks().forEach(track => track.stop());
-                console.log('✅ Permissions pré-accordées');
-                return true;
-            } catch (error) {
-                console.warn('Permissions non accordées:', error);
-                sessionStorage.setItem('mediaPermissionsGranted', 'false');
-                return false;
-            }
-        }
+// ========================================
+// GESTION DES PERMISSIONS MÉDIAS
+// ========================================
+async function requestPermissionsEarly() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+        });
+        sessionStorage.setItem('mediaPermissionsGranted', 'true');
+        stream.getTracks().forEach(track => track.stop());
+        console.log('✅ Permissions pré-accordées');
+        return true;
+    } catch (error) {
+        console.warn('Permissions non accordées:', error);
+        sessionStorage.setItem('mediaPermissionsGranted', 'false');
+        return false;
+    }
+}
 
-        window.addEventListener('load', requestPermissionsEarly);
+window.addEventListener('load', requestPermissionsEarly);
 
-        const app = {
-            userData: null,
-            subjectsData: [],
-            currentFilter: 'all',
-            searchTimeout: null,
-            currentImageUrl: '',
+// ========================================
+// APPLICATION PRINCIPALE
+// ========================================
+const app = {
+    userData: null,
+    subjectsData: [],
+    currentFilter: 'all',
+    searchTimeout: null,
+    currentImageUrl: '',
 
-            auth: {
-                init() {
-                    setTimeout(() => {
-                        const intro = document.getElementById('introSection');
-                        intro.style.transition = 'opacity 1.5s ease, transform 1.5s ease';
-                        intro.style.opacity = '0';
-                        intro.style.transform = 'scale(1.1)';
-                        setTimeout(() => {
-                            intro.style.display = 'none';
-                            app.auth.checkUser();
-                        }, 1500);
-                    }, 3000);
-                },
+    // ========================================
+    // MODULE AUTHENTIFICATION
+    // ========================================
+    auth: {
+        init() {
+            setTimeout(() => {
+                const intro = document.getElementById('introSection');
+                intro.style.transition = 'opacity 1.5s ease, transform 1.5s ease';
+                intro.style.opacity = '0';
+                intro.style.transform = 'scale(1.1)';
+                
+                setTimeout(() => {
+                    intro.style.display = 'none';
+                    app.auth.checkUser();
+                }, 1500);
+            }, 3000);
+        },
 
-                checkUser() {
-                    const sessionData = sessionStorage.getItem('studydriveUser');
-                    const localData = localStorage.getItem('studydriveUser');
-                    const dataToUse = sessionData || localData;
-                    
-                    if (dataToUse) {
-                        app.userData = JSON.parse(dataToUse);
-                        document.getElementById('registrationOverlay').style.display = 'none';
-                        document.getElementById('mainApp').style.display = 'block';
-                        document.getElementById('userName').textContent = app.userData.fullName;
-                        document.getElementById('userAvatar').textContent = app.userData.avatar;
-                        document.getElementById('userFiliere').textContent = app.userData.filiere;
-                        app.subjects.load();
-                    } else {
-                        document.getElementById('registrationOverlay').style.display = 'flex';
-                    }
-                },
-
-                async register(formData) {
-                    try {
-                        const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                        
-                        app.userData = {
-                            id: userId,
-                            ...formData,
-                            fullName: `${formData.prenom} ${formData.nom}`,
-                            avatar: `${formData.prenom[0].toUpperCase()}${formData.nom[0].toUpperCase()}`,
-                            registeredAt: new Date().toISOString()
-                        };
-
-                        sessionStorage.setItem('studydriveUser', JSON.stringify(app.userData));
-                        localStorage.setItem('studydriveUser', JSON.stringify(app.userData));
-
-                        await setDoc(doc(db, 'studydrive_users', app.userData.id), {
-                            ...app.userData,
-                            createdAt: serverTimestamp()
-                        });
-
-                        document.getElementById('registrationOverlay').style.display = 'none';
-                        document.getElementById('mainApp').style.display = 'block';
-                        
-                        document.getElementById('userName').textContent = app.userData.fullName;
-                        document.getElementById('userAvatar').textContent = app.userData.avatar;
-                        document.getElementById('userFiliere').textContent = app.userData.filiere;
-
-                        app.subjects.load();
-                    } catch (error) {
-                        console.error('Registration error:', error);
-                        throw error;
-                    }
-                }
-            },
-
-            subjects: {
-                load() {
-                    const q = query(collection(db, 'studydrive_subjects'), orderBy('timestamp', 'desc'));
-                    
-                    onSnapshot(q, (snapshot) => {
-                        app.subjectsData = [];
-                        snapshot.forEach((doc) => {
-                            app.subjectsData.push({ id: doc.id, ...doc.data() });
-                        });
-                        app.subjects.render();
-                    });
-                },
-
-                render() {
-                    const grid = document.getElementById('subjectsGrid');
-                    
-                    const filtered = app.currentFilter === 'all' 
-                        ? app.subjectsData
-                        : app.subjectsData.filter(s => s.filiere === app.currentFilter);
-
-                    if (filtered.length === 0) {
-                        grid.innerHTML = `
-                            <div style="grid-column: 1/-1; text-align: center; padding: 80px 20px;">
-                                <h3 style="font-size: 32px; margin-bottom: 15px; color: var(--dark);">Collection Vide</h3>
-                                <p style="color: var(--gray);">Aucun sujet disponible pour cette sélection</p>
-                            </div>
-                        `;
-                        return;
-                    }
-
-                    grid.innerHTML = filtered.map(subject => {
-                        const badgeClass = `badge-${subject.filiere.toLowerCase()}`;
-                        return `
-                            <div class="subject-card">
-                                <img src="${subject.imageUrl}" alt="${subject.title}" class="subject-image" onclick="app.modal.openFullscreen('${subject.imageUrl}')" style="cursor: zoom-in;">
-                                <div class="subject-content">
-                                    <div class="subject-header">
-                                        <div class="subject-title">${subject.title}</div>
-                                        <span class="subject-badge ${badgeClass}">${subject.filiere}</span>
-                                    </div>
-                                    <div class="subject-meta">
-                                        <span>📅 ${subject.year}</span>
-                                        <span>💬 ${subject.messages?.length || 0}</span>
-                                    </div>
-                                    ${subject.description ? `<p style="color: var(--gray); font-size: 14px; margin-bottom: 15px; line-height: 1.6;">${subject.description}</p>` : ''}
-                                    <div class="subject-divider"></div>
-                                    <div class="subject-author">
-                                        <div class="author-avatar">${subject.authorAvatar}</div>
-                                        <div style="flex: 1;">
-                                            <div class="author-name">${subject.authorName}</div>
-                                            <div class="author-time">${app.utils.formatTime(subject.timestamp)}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                },
-
-                async create(formData) {
-                    try {
-                        await addDoc(collection(db, 'studydrive_subjects'), {
-                            ...formData,
-                            authorId: app.userData.id,
-                            authorName: app.userData.fullName,
-                            authorAvatar: app.userData.avatar,
-                            authorContact: app.userData.contact,
-                            messages: [],
-                            timestamp: serverTimestamp()
-                        });
-                    } catch (error) {
-                        console.error('Error creating subject:', error);
-                        throw error;
-                    }
-                }
-            },
-
-            search: {
-                clear() {
-                    document.getElementById('searchInput').value = '';
-                    document.getElementById('searchClear').classList.remove('active');
-                    document.getElementById('searchSuggestions').classList.remove('active');
-                    app.subjects.render();
-                },
-
-                quick(term) {
-                    document.getElementById('searchInput').value = term;
-                    this.perform(term);
-                },
-
-                perform(query) {
-                    const searchTerm = query.toLowerCase().trim();
-                    
-                    if (searchTerm === '') {
-                        document.getElementById('searchSuggestions').classList.remove('active');
-                        document.getElementById('searchClear').classList.remove('active');
-                        return;
-                    }
-
-                    document.getElementById('searchClear').classList.add('active');
-
-                    const results = app.subjectsData.filter(subject => {
-                        return subject.title.toLowerCase().includes(searchTerm) ||
-                               subject.filiere.toLowerCase().includes(searchTerm) ||
-                               subject.year.toString().includes(searchTerm) ||
-                               (subject.description && subject.description.toLowerCase().includes(searchTerm)) ||
-                               subject.authorName.toLowerCase().includes(searchTerm);
-                    });
-
-                    this.displaySuggestions(results, searchTerm);
-                },
-
-                displaySuggestions(results, searchTerm) {
-                    const list = document.getElementById('suggestionsList');
-                    const count = document.getElementById('suggestionsCount');
-                    const container = document.getElementById('searchSuggestions');
-
-                    count.textContent = `${results.length} trouvé(s)`;
-                    container.classList.add('active');
-
-                    if (results.length === 0) {
-                        list.innerHTML = `
-                            <div class="no-results">
-                                <div class="no-results-icon">🔍</div>
-                                <div class="no-results-text">Aucun résultat trouvé</div>
-                                <div class="no-results-hint">Essayez avec d'autres mots-clés</div>
-                            </div>
-                        `;
-                        return;
-                    }
-
-                    list.innerHTML = results.map(subject => {
-                        const badgeClass = `badge-${subject.filiere.toLowerCase()}`;
-                        const highlightedTitle = this.highlightText(subject.title, searchTerm);
-                        
-                        return `
-                            <div class="suggestion-item" onclick="app.modal.openFullscreen('${subject.imageUrl}')">
-                                <img src="${subject.imageUrl}" alt="${subject.title}" class="suggestion-icon">
-                                <div class="suggestion-info">
-                                    <div class="suggestion-title">${highlightedTitle}</div>
-                                    <div class="suggestion-meta">
-                                        <span class="suggestion-badge ${badgeClass}">${subject.filiere}</span>
-                                        <span>📅 ${subject.year}</span>
-                                        <span>👤 ${subject.authorName}</span>
-                                        <span>💬 ${subject.messages?.length || 0}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                },
-
-                highlightText(text, query) {
-                    const regex = new RegExp(`(${query})`, 'gi');
-                    return text.replace(regex, '<span class="suggestion-highlight">$1</span>');
-                }
-            },
-
-            modal: {
-                openPublish() {
-                    document.getElementById('publishModal').style.display = 'flex';
-                },
-
-                closePublish() {
-                    document.getElementById('publishModal').style.display = 'none';
-                    document.getElementById('publishForm').reset();
-                    document.getElementById('imagePreview').innerHTML = '';
-                },
-
-                openFullscreen(imageUrl) {
-                    app.currentImageUrl = imageUrl;
-                    document.getElementById('fullscreenImage').src = imageUrl;
-                    document.getElementById('imageFullscreenModal').style.display = 'flex';
-                },
-
-                closeFullscreen() {
-                    document.getElementById('imageFullscreenModal').style.display = 'none';
-                    app.currentImageUrl = '';
-                },
-
-                downloadImage() {
-                    if (!app.currentImageUrl) return;
-                    
-                    const link = document.createElement('a');
-                    link.href = app.currentImageUrl;
-                    link.download = `StudyDrive_${Date.now()}.jpg`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                },
-
-                openSubjectUpload() {
-                    document.getElementById('subjectUploadModal').style.display = 'flex';
-                },
-
-                closeSubjectUpload() {
-                    document.getElementById('subjectUploadModal').style.display = 'none';
-                    document.getElementById('subjectUploadForm').reset();
-                    document.getElementById('focusImagePreview').innerHTML = '';
-                }
-            },
-
-            focusClass: {
-                localStream: null,
-                peerConnections: new Map(),
-                roomId: null,
-                isVideoEnabled: true,
-                isAudioEnabled: true,
-                currentCamera: 'user',
-                unsubscribers: [],
-
-                async requestMediaPermissions() {
-                    return new Promise((resolve) => {
-                        const permissionModal = document.createElement('div');
-                        permissionModal.style.cssText = `
-                            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-                            background: rgba(0, 0, 0, 0.95); z-index: 11000;
-                            display: flex; justify-content: center; align-items: center; padding: 20px;
-                            overflow-y: auto;
-                        `;
-                        
-                        permissionModal.innerHTML = `
-                            <div style="background: var(--white); padding: 30px; max-width: 500px; width: 100%; border-radius: 16px;">
-                                <div style="text-align: center; margin-bottom: 25px;">
-                                    <div style="font-size: 64px; margin-bottom: 15px;">📹🎤</div>
-                                    <h2 style="font-size: 22px; font-weight: 800; color: var(--dark); margin-bottom: 10px;">
-                                        Autorisation Requise
-                                    </h2>
-                                    <p style="color: var(--gray); font-size: 14px; line-height: 1.6;">
-                                        Pour participer à FocusClass, vous devez autoriser l'accès à votre caméra et microphone.
-                                    </p>
-                                </div>
-                                
-                                <div style="background: var(--gray-light); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                                    <h3 style="font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 15px;">
-                                        📱 Instructions pour Android
-                                    </h3>
-                                    <ol style="margin: 0; padding-left: 20px; color: var(--dark); font-size: 13px; line-height: 1.8;">
-                                        <li>Cliquez sur <strong>"Autoriser"</strong> ci-dessous</li>
-                                        <li>Une popup apparaîtra en haut de l'écran</li>
-                                        <li>Cliquez sur <strong>"Autoriser"</strong> dans la popup</li>
-                                        <li>Si la popup ne s'affiche pas:
-                                            <ul style="margin-top: 8px;">
-                                                <li>Appuyez sur l'icône 🔒 dans la barre d'adresse</li>
-                                                <li>Activez <strong>Caméra</strong> et <strong>Microphone</strong></li>
-                                                <li>Rechargez la page</li>
-                                            </ul>
-                                        </li>
-                                    </ol>
-                                </div>
-                                
-                                <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #ffc107;">
-                                    <div style="display: flex; align-items: start; gap: 10px;">
-                                        <span style="font-size: 20px;">⚠️</span>
-                                        <div style="font-size: 12px; color: #856404; line-height: 1.6;">
-                                            <strong>Important:</strong> Pour des raisons de sécurité, les navigateurs ne permettent pas l'accès automatique à la caméra/micro. Vous devez autoriser manuellement.
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div style="display: flex; gap: 10px;">
-                                    <button id="cancelPermBtn" 
-                                            style="flex: 1; padding: 14px; background: var(--gray-light); color: var(--dark); border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">
-                                        Annuler
-                                    </button>
-                                    <button id="requestPermBtn"
-                                            style="flex: 2; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">
-                                        ✓ Autoriser Caméra & Micro
-                                    </button>
-                                </div>
-                                
-                                <div style="text-align: center; margin-top: 20px;">
-                                    <button id="spectatorBtn" style="background: none; border: none; color: var(--gray); font-size: 13px; text-decoration: underline; cursor: pointer;">
-                                        Continuer en mode spectateur (sans caméra/micro)
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                        
-                        document.body.appendChild(permissionModal);
-                        
-                        document.getElementById('cancelPermBtn').onclick = () => {
-                            permissionModal.remove();
-                            resolve('cancelled');
-                        };
-                        
-                        document.getElementById('spectatorBtn').onclick = () => {
-                            permissionModal.remove();
-                            resolve('spectator');
-                        };
-                        
-                        document.getElementById('requestPermBtn').onclick = async () => {
-                            try {
-                                const stream = await navigator.mediaDevices.getUserMedia({
-                                    video: true,
-                                    audio: true
-                                });
-                                stream.getTracks().forEach(track => track.stop());
-                                permissionModal.remove();
-                                resolve('granted');
-                            } catch (error) {
-                                alert('❌ Permission refusée.\n\n📱 Pour autoriser:\n1. Cliquez sur l\'icône 🔒 dans la barre d\'adresse\n2. Activez Caméra et Microphone\n3. Rechargez la page');
-                                permissionModal.remove();
-                                resolve('denied');
-                            }
-                        };
-                    });
-                },
-
-                async initialize() {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const paramRoomId = urlParams.get('room');
-                    
-                    const permissionResult = await this.requestMediaPermissions();
-                    
-                    if (permissionResult === 'cancelled') {
-                        return;
-                    }
-                    
-                    if (permissionResult === 'spectator') {
-                        this.isVideoEnabled = false;
-                        this.isAudioEnabled = false;
-                    }
-                    
-                    if (paramRoomId) {
-                        this.roomId = paramRoomId;
-                        await this.join();
-                    } else {
-                        this.showRoomsList();
-                    }
-                },
-
-                showRoomsList() {
-                    const modal = document.createElement('div');
-                    modal.id = 'liveRoomsModal';
-                    modal.style.cssText = `
-                        position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-                        background: rgba(0, 0, 0, 0.9); z-index: 10000;
-                        display: flex; justify-content: center; align-items: center; padding: 20px;
-                    `;
-                    
-                    modal.innerHTML = `
-                        <div style="background: var(--white); padding: 40px; max-width: 600px; width: 100%; border-radius: 16px; max-height: 80vh; overflow-y: auto;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                                <h2 style="font-size: 28px; font-weight: 800; color: var(--dark);">🎯 Sessions Live</h2>
-                                <button onclick="this.closest('#liveRoomsModal').remove()" style="background: var(--gray-light); border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; font-size: 22px;">×</button>
-                            </div>
-                            <div style="display: flex; gap: 10px; margin-bottom: 25px;">
-                                <button onclick="app.focusClass.createRoom()" style="flex: 1; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">
-                                    + Créer une session
-                                </button>
-                            </div>
-                            <div id="liveRoomsList" style="display: flex; flex-direction: column; gap: 15px;"></div>
-                        </div>
-                    `;
-                    
-                    document.body.appendChild(modal);
-                    this.loadRoomsList();
-                },
-
-                async loadRoomsList() {
-                    const roomsRef = collection(db, 'focusclass_rooms');
-                    const q = query(roomsRef, orderBy('createdAt', 'desc'));
-                    
-                    const unsubscribe = onSnapshot(q, async (snapshot) => {
-                        const roomsList = document.getElementById('liveRoomsList');
-                        if (!roomsList) return;
-                        
-                        const rooms = [];
-                        for (const docSnapshot of snapshot.docs) {
-                            const roomData = docSnapshot.data();
-                            if (roomData.active) {
-                                const participantsSnap = await getDocs(
-                                    collection(db, `focusclass_rooms/${docSnapshot.id}/participants`)
-                                );
-                                rooms.push({
-                                    id: docSnapshot.id,
-                                    ...roomData,
-                                    participantCount: participantsSnap.size
-                                });
-                            }
-                        }
-                        
-                        if (rooms.length === 0) {
-                            roomsList.innerHTML = `
-                                <div style="text-align: center; padding: 60px 20px; color: var(--gray);">
-                                    <div style="font-size: 64px; margin-bottom: 20px;">🎯</div>
-                                    <p style="font-size: 16px; font-weight: 600;">Aucune session active</p>
-                                    <p style="font-size: 14px; margin-top: 8px;">Créez la première session !</p>
-                                </div>
-                            `;
-                            return;
-                        }
-                        
-                        roomsList.innerHTML = rooms.map(room => `
-                            <div onclick="app.focusClass.joinRoom('${room.id}')" style="padding: 20px; background: var(--gray-light); border-radius: 12px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(37, 99, 235, 0.1)'" onmouseout="this.style.background='var(--gray-light)'">
-                                <div style="display: flex; align-items: center; gap: 15px;">
-                                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-                                        🎓
-                                    </div>
-                                    <div style="flex: 1;">
-                                        <div style="font-weight: 700; font-size: 16px; color: var(--dark); margin-bottom: 5px;">
-                                            Session de ${room.createdByName}
-                                        </div>
-                                        <div style="display: flex; gap: 15px; font-size: 13px; color: var(--gray); font-weight: 600;">
-                                            <span>👥 ${room.participantCount} participant(s)</span>
-                                            <span style="color: var(--success); display: flex; align-items: center; gap: 5px;">
-                                                <span style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></span>
-                                                LIVE
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div style="padding: 8px 16px; background: var(--primary); color: var(--white); border-radius: 8px; font-size: 13px; font-weight: 700;">
-                                        Rejoindre →
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('');
-                    });
-                },
-
-                async createRoom() {
-                    try {
-                        this.roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-                        
-                        await setDoc(doc(db, 'focusclass_rooms', this.roomId), {
-                            id: this.roomId,
-                            createdBy: app.userData.id,
-                            createdByName: app.userData.fullName,
-                            createdAt: serverTimestamp(),
-                            active: true,
-                            subject: null
-                        });
-                        
-                        const modal = document.getElementById('liveRoomsModal');
-                        if (modal) modal.remove();
-                        
-                        await this.join();
-                    } catch (error) {
-                        console.error('Error creating room:', error);
-                        alert('Impossible de créer la session');
-                    }
-                },
-
-                async joinRoom(roomId) {
-                    this.roomId = roomId;
-                    const modal = document.getElementById('liveRoomsModal');
-                    if (modal) modal.remove();
-                    await this.join();
-                },
-
-                async join() {
-                    try {
-                        const newUrl = new URL(window.location);
-                        newUrl.searchParams.set('room', this.roomId);
-                        window.history.pushState({}, '', newUrl);
-                        
-                        document.getElementById('focusClassSection').style.display = 'flex';
-                        document.getElementById('mainApp').style.display = 'none';
-                        
-                        try {
-                            await this.initMedia();
-                        } catch (mediaError) {
-                            console.warn('Media initialization failed:', mediaError);
-                            this.isVideoEnabled = false;
-                            this.isAudioEnabled = false;
-                            
-                            const localVideo = document.getElementById('localVideo');
-                            localVideo.style.display = 'none';
-                            document.querySelector('.video-container.local').innerHTML = `
-                                <div class="no-video">
-                                    <div class="no-video-icon">👤</div>
-                                    <div class="no-video-text">Mode Spectateur</div>
-                                    <div style="font-size: 11px; margin-top: 8px; opacity: 0.7;">Caméra/micro non disponible</div>
-                                </div>
-                                <div class="video-label">
-                                    <span>👁️</span>
-                                    <span id="localVideoLabel">${app.userData.fullName}</span>
-                                </div>
-                            `;
-                        }
-                        
-                        await this.registerParticipant();
-                        this.listenToParticipants();
-                        this.listenToRoomUpdates();
-                        
-                        console.log('✅ Joined room:', this.roomId);
-                    } catch (error) {
-                        console.error('Error joining room:', error);
-                        alert('Impossible de rejoindre la session');
-                        this.leave();
-                    }
-                },
-
-                async initMedia() {
-                    const mediaConfigs = [
-                        { video: { facingMode: this.currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } },
-                          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } },
-                        { video: { facingMode: this.currentCamera, width: { ideal: 640 }, height: { ideal: 480 } }, audio: true },
-                        { video: { facingMode: this.currentCamera }, audio: true },
-                        { video: { facingMode: this.currentCamera }, audio: false },
-                        { video: false, audio: true }
-                    ];
-                    
-                    let lastError = null;
-                    
-                    for (let i = 0; i < mediaConfigs.length; i++) {
-                        try {
-                            console.log(`Trying media config ${i + 1}/${mediaConfigs.length}...`);
-                            this.localStream = await navigator.mediaDevices.getUserMedia(mediaConfigs[i]);
-                            
-                            const localVideo = document.getElementById('localVideo');
-                            localVideo.srcObject = this.localStream;
-                            document.getElementById('localVideoLabel').textContent = app.userData.fullName;
-                            
-                            const hasVideo = this.localStream.getVideoTracks().length > 0;
-                            const hasAudio = this.localStream.getAudioTracks().length > 0;
-                            
-                            this.isVideoEnabled = hasVideo;
-                            this.isAudioEnabled = hasAudio;
-                            
-                            if (!hasVideo) {
-                                document.getElementById('toggleVideoBtn').classList.remove('active');
-                                document.getElementById('videoIcon').textContent = '🚫';
-                            }
-                            if (!hasAudio) {
-                                document.getElementById('toggleAudioBtn').classList.remove('active');
-                                document.getElementById('audioIcon').textContent = '🔇';
-                            }
-                            
-                            console.log(`✅ Media initialized: Video=${hasVideo}, Audio=${hasAudio}`);
-                            
-                            if (!hasVideo && !hasAudio) {
-                                throw new Error('No media tracks available');
-                            }
-                            
-                            return;
-                        } catch (error) {
-                            console.warn(`Config ${i + 1} failed:`, error);
-                            lastError = error;
-                            continue;
-                        }
-                    }
-                    
-                    throw lastError || new Error('Impossible d\'accéder à la caméra/micro');
-                },
-
-                async registerParticipant() {
-                    await setDoc(doc(db, `focusclass_rooms/${this.roomId}/participants`, app.userData.id), {
-                        id: app.userData.id,
-                        name: app.userData.fullName,
-                        avatar: app.userData.avatar,
-                        joinedAt: serverTimestamp(),
-                        isVideoEnabled: this.isVideoEnabled,
-                        isAudioEnabled: this.isAudioEnabled
-                    });
-                },
-
-                listenToParticipants() {
-                    const participantsRef = collection(db, `focusclass_rooms/${this.roomId}/participants`);
-                    
-                    const unsubscribe = onSnapshot(participantsRef, (snapshot) => {
-                        const participants = [];
-                        snapshot.forEach((doc) => {
-                            const data = doc.data();
-                            if (data.id !== app.userData.id) {
-                                participants.push(data);
-                            }
-                        });
-                        
-                        this.renderParticipants([
-                            {
-                                id: app.userData.id,
-                                name: app.userData.fullName,
-                                avatar: app.userData.avatar,
-                                isVideoEnabled: this.isVideoEnabled,
-                                isAudioEnabled: this.isAudioEnabled
-                            },
-                            ...participants
-                        ]);
-                    });
-                    
-                    this.unsubscribers.push(unsubscribe);
-                },
-
-                renderParticipants(participants) {
-                    document.getElementById('participantsCount').textContent = participants.length;
-                    
-                    const list = document.getElementById('participantsList');
-                    list.innerHTML = participants.map(p => `
-                        <div class="participant-item">
-                            <div class="participant-avatar">${p.avatar}</div>
-                            <div class="participant-info">
-                                <div class="participant-name">${p.name}</div>
-                                <div class="participant-status">
-                                    <span class="status-indicator"></span>
-                                    Connecté
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                },
-
-                listenToRoomUpdates() {
-                    const roomRef = doc(db, 'focusclass_rooms', this.roomId);
-                    
-                    const unsubscribe = onSnapshot(roomRef, (snapshot) => {
-                        const data = snapshot.data();
-                        if (data?.subject) {
-                            this.displaySubject(data.subject);
-                        }
-                    });
-                    
-                    this.unsubscribers.push(unsubscribe);
-                },
-
-                displaySubject(subject) {
-                    document.getElementById('focusSubjectDisplay').innerHTML = `
-                        <img src="${subject.imageUrl}" alt="Sujet" style="width: 100%; cursor: zoom-in;" 
-                             onclick="app.modal.openFullscreen('${subject.imageUrl}')">
-                        <div class="subject-info">
-                            <h4>Ajouté par ${subject.uploadedBy}</h4>
-                            <p>Cliquez sur l'image pour l'agrandir</p>
-                        </div>
-                    `;
-                },
-
-                toggleVideo() {
-                    this.isVideoEnabled = !this.isVideoEnabled;
-                    
-                    const videoTrack = this.localStream?.getVideoTracks()[0];
-                    if (videoTrack) {
-                        videoTrack.enabled = this.isVideoEnabled;
-                    }
-                    
-                    const btn = document.getElementById('toggleVideoBtn');
-                    const icon = document.getElementById('videoIcon');
-                    
-                    if (this.isVideoEnabled) {
-                        btn.classList.add('active');
-                        icon.textContent = '📹';
-                    } else {
-                        btn.classList.remove('active');
-                        icon.textContent = '🚫';
-                    }
-                },
-
-                toggleAudio() {
-                    this.isAudioEnabled = !this.isAudioEnabled;
-                    
-                    const audioTrack = this.localStream?.getAudioTracks()[0];
-                    if (audioTrack) {
-                        audioTrack.enabled = this.isAudioEnabled;
-                    }
-                    
-                    const btn = document.getElementById('toggleAudioBtn');
-                    const icon = document.getElementById('audioIcon');
-                    
-                    if (this.isAudioEnabled) {
-                        btn.classList.add('active');
-                        icon.textContent = '🎤';
-                    } else {
-                        btn.classList.remove('active');
-                        icon.textContent = '🔇';
-                    }
-                },
-
-                async switchCamera() {
-                    try {
-                        this.currentCamera = this.currentCamera === 'user' ? 'environment' : 'user';
-                        
-                        const videoTrack = this.localStream?.getVideoTracks()[0];
-                        if (videoTrack) {
-                            videoTrack.stop();
-                            this.localStream.removeTrack(videoTrack);
-                        }
-                        
-                        const newStream = await navigator.mediaDevices.getUserMedia({
-                            video: { facingMode: this.currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } }
-                        });
-                        
-                        const newVideoTrack = newStream.getVideoTracks()[0];
-                        this.localStream.addTrack(newVideoTrack);
-                        
-                        const localVideo = document.getElementById('localVideo');
-                        localVideo.srcObject = this.localStream;
-                    } catch (error) {
-                        console.error('Error switching camera:', error);
-                        alert('Impossible de changer de caméra');
-                    }
-                },
-
-                showPermissionsHelp() {
-                    alert(`📱 ACTIVER CAMÉRA & MICRO sur Android:\n\n1. Cliquez sur l'icône 🔒 dans la barre d'adresse\n2. Cherchez "Caméra" et "Microphone"\n3. Changez de "Bloqué" à "Autoriser"\n4. Rechargez la page\n\n✓ Les permissions seront mémorisées pour les prochaines fois!`);
-},
-            copyRoomLink() {
-                const link = `${window.location.origin}${window.location.pathname}?room=${this.roomId}`;
-                navigator.clipboard.writeText(link).then(() => {
-                    alert('✅ Lien copié dans le presse-papiers !');
-                }).catch(() => {
-                    alert('❌ Impossible de copier le lien');
-                });
-            },
-
-            async leave() {
-                try {
-                    if (this.localStream) {
-                        this.localStream.getTracks().forEach(track => track.stop());
-                    }
-                    
-                    this.peerConnections.forEach(pc => pc.close());
-                    this.peerConnections.clear();
-                    
-                    if (this.roomId && app.userData) {
-                        await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/participants`, app.userData.id));
-                    }
-                    
-                    this.unsubscribers.forEach(unsubscribe => unsubscribe());
-                    this.unsubscribers = [];
-                    
-                    const newUrl = new URL(window.location);
-                    newUrl.searchParams.delete('room');
-                    window.history.pushState({}, '', newUrl);
-                    
-                    document.getElementById('focusClassSection').style.display = 'none';
-                    document.getElementById('mainApp').style.display = 'block';
-                    
-                    this.roomId = null;
-                    this.localStream = null;
-                } catch (error) {
-                    console.error('Error leaving room:', error);
-                }
+        checkUser() {
+            const sessionData = sessionStorage.getItem('studydriveUser');
+            const localData = localStorage.getItem('studydriveUser');
+            const dataToUse = sessionData || localData;
+            
+            if (dataToUse) {
+                app.userData = JSON.parse(dataToUse);
+                this.showMainApp();
+            } else {
+                document.getElementById('registrationOverlay').style.display = 'flex';
             }
         },
 
-        utils: {
-            formatTime(timestamp) {
-                if (!timestamp) return 'À l\'instant';
-                
-                let date;
-                if (timestamp.seconds) {
-                    date = new Date(timestamp.seconds * 1000);
-                } else if (typeof timestamp === 'string') {
-                    date = new Date(timestamp);
-                } else {
-                    return 'À l\'instant';
-                }
+        showMainApp() {
+            document.getElementById('registrationOverlay').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('userName').textContent = app.userData.fullName;
+            document.getElementById('userAvatar').textContent = app.userData.avatar;
+            document.getElementById('userFiliere').textContent = app.userData.filiere;
+            app.subjects.load();
+        },
 
-                const now = new Date();
-                const diffMs = now - date;
-                const diffMins = Math.floor(diffMs / 60000);
-                const diffHours = Math.floor(diffMs / 3600000);
-                const diffDays = Math.floor(diffMs / 86400000);
+        async register(formData) {
+            try {
+                const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                
+                app.userData = {
+                    id: userId,
+                    ...formData,
+                    fullName: `${formData.prenom} ${formData.nom}`,
+                    avatar: `${formData.prenom[0].toUpperCase()}${formData.nom[0].toUpperCase()}`,
+                    registeredAt: new Date().toISOString()
+                };
 
-                if (diffMins < 1) return 'À l\'instant';
-                if (diffMins < 60) return `${diffMins} min`;
-                if (diffHours < 24) return `${diffHours}h`;
-                if (diffDays < 7) return `${diffDays}j`;
-                
-                return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-            },
+                sessionStorage.setItem('studydriveUser', JSON.stringify(app.userData));
+                localStorage.setItem('studydriveUser', JSON.stringify(app.userData));
 
-            async uploadToCloudinary(file) {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-                
-                const response = await fetch(
-                    `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
-                    { method: 'POST', body: formData }
-                );
-                
-                const data = await response.json();
-                return data.secure_url;
+                await setDoc(doc(db, 'studydrive_users', app.userData.id), {
+                    ...app.userData,
+                    createdAt: serverTimestamp()
+                });
+
+                this.showMainApp();
+            } catch (error) {
+                console.error('Registration error:', error);
+                throw error;
             }
         }
-    };
+    },
 
-    // EVENT LISTENERS
-    const yearSelect = document.getElementById('subjectYear');
-    const currentYear = new Date().getFullYear();
-    for (let i = currentYear; i >= currentYear - 10; i--) {
-        const option = document.createElement('option');
-        option.value = i;
-        option.textContent = i;
-        yearSelect.appendChild(option);
-    }
-
-    document.getElementById('registrationForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const submitBtn = e.target.querySelector('.submit-btn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Connexion...';
-
-        try {
-            await app.auth.register({
-                nom: document.getElementById('nom').value.trim(),
-                prenom: document.getElementById('prenom').value.trim(),
-                filiere: document.getElementById('filiere').value,
-                contact: document.getElementById('contact').value.trim()
-            });
-        } catch (error) {
-            alert('Erreur lors de l\'inscription');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Commencer';
-        }
-    });
-
-    document.getElementById('publishForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const submitBtn = e.target.querySelector('.submit-btn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Publication...';
-
-        try {
-            const imageFile = document.getElementById('subjectImage').files[0];
-            const imageUrl = await app.utils.uploadToCloudinary(imageFile);
-
-            await app.subjects.create({
-                title: document.getElementById('subjectTitle').value,
-                filiere: document.getElementById('subjectFiliere').value,
-                year: parseInt(document.getElementById('subjectYear').value),
-                description: document.getElementById('subjectDescription').value,
-                imageUrl
-            });
-
-            app.modal.closePublish();
-            alert('✅ Sujet publié avec succès !');
-        } catch (error) {
-            console.error('Error publishing:', error);
-            alert('❌ Erreur lors de la publication');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Publier';
-        }
-    });
-
-    document.getElementById('subjectUploadForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const submitBtn = e.target.querySelector('.submit-btn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Upload...';
-
-        try {
-            const file = document.getElementById('focusSubjectImage').files[0];
-            const imageUrl = await app.utils.uploadToCloudinary(file);
+    // ========================================
+    // MODULE SUJETS
+    // ========================================
+    subjects: {
+        load() {
+            const q = query(collection(db, 'studydrive_subjects'), orderBy('timestamp', 'desc'));
             
-            await setDoc(doc(db, 'focusclass_rooms', app.focusClass.roomId), {
-                subject: {
-                    imageUrl,
-                    uploadedBy: app.userData.fullName,
-                    uploadedAt: serverTimestamp()
-                }
-            }, { merge: true });
+            onSnapshot(q, (snapshot) => {
+                app.subjectsData = [];
+                snapshot.forEach((doc) => {
+                    app.subjectsData.push({ id: doc.id, ...doc.data() });
+                });
+                app.subjects.render();
+            });
+        },
+
+        render() {
+            const grid = document.getElementById('subjectsGrid');
             
-            app.modal.closeSubjectUpload();
-        } catch (error) {
-            console.error('Error uploading subject:', error);
-            alert('Erreur lors de l\'upload');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Ajouter';
+            const filtered = app.currentFilter === 'all' 
+                ? app.subjectsData
+                : app.subjectsData.filter(s => s.filiere === app.currentFilter);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 80px 20px;">
+                        <h3 style="font-size: 32px; margin-bottom: 15px; color: var(--dark);">Collection Vide</h3>
+                        <p style="color: var(--gray);">Aucun sujet disponible pour cette sélection</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(subject => {
+                const badgeClass = `badge-${subject.filiere.toLowerCase()}`;
+                return `
+                    <div class="subject-card">
+                        <img src="${subject.imageUrl}" alt="${subject.title}" class="subject-image" 
+                             onclick="app.modal.openFullscreen('${subject.imageUrl}')" style="cursor: zoom-in;">
+                        <div class="subject-content">
+                            <div class="subject-header">
+                                <div class="subject-title">${subject.title}</div>
+                                <span class="subject-badge ${badgeClass}">${subject.filiere}</span>
+                            </div>
+                            <div class="subject-meta">
+                                <span>📅 ${subject.year}</span>
+                                <span>💬 ${subject.messages?.length || 0}</span>
+                            </div>
+                            ${subject.description ? `<p style="color: var(--gray); font-size: 14px; margin-bottom: 15px; line-height: 1.6;">${subject.description}</p>` : ''}
+                            <div class="subject-divider"></div>
+                            <div class="subject-author">
+                                <div class="author-avatar">${subject.authorAvatar}</div>
+                                <div style="flex: 1;">
+                                    <div class="author-name">${subject.authorName}</div>
+                                    <div class="author-time">${app.utils.formatTime(subject.timestamp)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        },
+
+        async create(formData) {
+            try {
+                await addDoc(collection(db, 'studydrive_subjects'), {
+                    ...formData,
+                    authorId: app.userData.id,
+                    authorName: app.userData.fullName,
+                    authorAvatar: app.userData.avatar,
+                    authorContact: app.userData.contact,
+                    messages: [],
+                    timestamp: serverTimestamp()
+                });
+            } catch (error) {
+                console.error('Error creating subject:', error);
+                throw error;
+            }
         }
-    });
+    },
 
-    document.getElementById('subjectImage').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    document.getElementById('focusSubjectImage').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('focusImagePreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-        clearTimeout(app.searchTimeout);
-        app.searchTimeout = setTimeout(() => {
-            app.search.perform(e.target.value);
-        }, 300);
-    });
-
-    document.addEventListener('click', (e) => {
-        const searchContainer = document.querySelector('.search-container');
-        if (!searchContainer.contains(e.target)) {
+    // ========================================
+    // MODULE RECHERCHE
+    // ========================================
+    search: {
+        clear() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchClear').classList.remove('active');
             document.getElementById('searchSuggestions').classList.remove('active');
+        },
+
+        quick(term) {
+            document.getElementById('searchInput').value = term;
+            this.perform(term);
+        },
+
+        perform(query) {
+            const searchTerm = query.toLowerCase().trim();
+            
+            if (searchTerm === '') {
+                document.getElementById('searchSuggestions').classList.remove('active');
+                document.getElementById('searchClear').classList.remove('active');
+                return;
+            }
+
+            document.getElementById('searchClear').classList.add('active');
+
+            const results = app.subjectsData.filter(subject => {
+                return subject.title.toLowerCase().includes(searchTerm) ||
+                       subject.filiere.toLowerCase().includes(searchTerm) ||
+                       subject.year.toString().includes(searchTerm) ||
+                       (subject.description && subject.description.toLowerCase().includes(searchTerm)) ||
+                       subject.authorName.toLowerCase().includes(searchTerm);
+            });
+
+            this.displaySuggestions(results, searchTerm);
+        },
+
+        displaySuggestions(results, searchTerm) {
+            const list = document.getElementById('suggestionsList');
+            const count = document.getElementById('suggestionsCount');
+            const container = document.getElementById('searchSuggestions');
+
+            count.textContent = `${results.length} trouvé(s)`;
+            container.classList.add('active');
+
+            if (results.length === 0) {
+                list.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <div class="no-results-text">Aucun résultat trouvé</div>
+                        <div class="no-results-hint">Essayez avec d'autres mots-clés</div>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = results.map(subject => {
+                const badgeClass = `badge-${subject.filiere.toLowerCase()}`;
+                const highlightedTitle = this.highlightText(subject.title, searchTerm);
+                
+                return `
+                    <div class="suggestion-item" onclick="app.modal.openFullscreen('${subject.imageUrl}')">
+                        <img src="${subject.imageUrl}" alt="${subject.title}" class="suggestion-icon">
+                        <div class="suggestion-info">
+                            <div class="suggestion-title">${highlightedTitle}</div>
+                            <div class="suggestion-meta">
+                                <span class="suggestion-badge ${badgeClass}">${subject.filiere}</span>
+                                <span>📅 ${subject.year}</span>
+                                <span>👤 ${subject.authorName}</span>
+                                <span>💬 ${subject.messages?.length || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        },
+
+        highlightText(text, query) {
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<span class="suggestion-highlight">$1</span>');
         }
-    });
+    },
 
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            app.currentFilter = this.dataset.filter;
-            app.subjects.render();
-        });
-    });
+    // ========================================
+    // MODULE MODALES
+    // ========================================
+    modal: {
+        openPublish() {
+            document.getElementById('publishModal').style.display = 'flex';
+        },
 
-    document.getElementById('publishModal').addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) app.modal.closePublish();
-    });
+        closePublish() {
+            document.getElementById('publishModal').style.display = 'none';
+            document.getElementById('publishForm').reset();
+            document.getElementById('imagePreview').innerHTML = '';
+        },
 
-    document.getElementById('imageFullscreenModal').addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) app.modal.closeFullscreen();
-    });
+        openFullscreen(imageUrl) {
+            app.currentImageUrl = imageUrl;
+            document.getElementById('fullscreenImage').src = imageUrl;
+            document.getElementById('imageFullscreenModal').style.display = 'flex';
+        },
 
-    document.getElementById('subjectUploadModal').addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) app.modal.closeSubjectUpload();
-    });
+        closeFullscreen() {
+            document.getElementById('imageFullscreenModal').style.display = 'none';
+            app.currentImageUrl = '';
+        },
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            if (document.getElementById('imageFullscreenModal').style.display === 'flex') {
-                app.modal.closeFullscreen();
-            } else if (document.getElementById('publishModal').style.display === 'flex') {
-                app.modal.closePublish();
-            } else if (document.getElementById('subjectUploadModal').style.display === 'flex') {
-                app.modal.closeSubjectUpload();
+        downloadImage() {
+            if (!app.currentImageUrl) return;
+            
+            const link = document.createElement('a');
+            link.href = app.currentImageUrl;
+            link.download = `StudyDrive_${Date.now()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        },
+
+        openSubjectUpload() {
+            document.getElementById('subjectUploadModal').style.display = 'flex';
+        },
+
+        closeSubjectUpload() {
+            document.getElementById('subjectUploadModal').style.display = 'none';
+            document.getElementById('subjectUploadForm').reset();
+            document.getElementById('focusImagePreview').innerHTML = '';
+        }
+    },
+
+    // ========================================
+    // MODULE FOCUSCLASS (LIVE)
+    // ========================================
+    focusClass: {
+        localStream: null,
+        peerConnections: new Map(),
+        roomId: null,
+        isVideoEnabled: true,
+        isAudioEnabled: true,
+        currentCamera: 'user',
+        unsubscribers: [],
+        isHost: false,
+        onStageParticipants: [],
+        waitingRequests: [],
+
+        async requestMediaPermissions() {
+            return new Promise((resolve) => {
+                const permissionModal = document.createElement('div');
+                permissionModal.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+                    background: rgba(0, 0, 0, 0.95); z-index: 11000;
+                    display: flex; justify-content: center; align-items: center; padding: 20px;
+                    overflow-y: auto;
+                `;
+                
+                permissionModal.innerHTML = `
+                    <div style="background: var(--white); padding: 30px; max-width: 500px; width: 100%; border-radius: 16px;">
+                        <div style="text-align: center; margin-bottom: 25px;">
+                            <div style="font-size: 64px; margin-bottom: 15px;">📹🎤</div>
+                            <h2 style="font-size: 22px; font-weight: 800; color: var(--dark); margin-bottom: 10px;">
+                                Autorisation Requise
+                            </h2>
+                            <p style="color: var(--gray); font-size: 14px; line-height: 1.6;">
+                                Pour participer à FocusClass, vous devez autoriser l'accès à votre caméra et microphone.
+                            </p>
+                        </div>
+                        
+                        <div style="background: var(--gray-light); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                            <h3 style="font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 15px;">
+                                📱 Instructions pour Android
+                            </h3>
+                            <ol style="margin: 0; padding-left: 20px; color: var(--dark); font-size: 13px; line-height: 1.8;">
+                                <li>Cliquez sur <strong>"Autoriser"</strong> ci-dessous</li>
+                                <li>Une popup apparaîtra en haut de l'écran</li>
+                                <li>Cliquez sur <strong>"Autoriser"</strong> dans la popup</li>
+                                <li>Si la popup ne s'affiche pas:
+                                    <ul style="margin-top: 8px;">
+                                        <li>Appuyez sur l'icône 🔒 dans la barre d'adresse</li>
+                                        <li>Activez <strong>Caméra</strong> et <strong>Microphone</strong></li>
+                                        <li>Rechargez la page</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                        </div>
+                        
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #ffc107;">
+                            <div style="display: flex; align-items: start; gap: 10px;">
+                                <span style="font-size: 20px;">⚠️</span>
+                                <div style="font-size: 12px; color: #856404; line-height: 1.6;">
+                                    <strong>Important:</strong> Pour des raisons de sécurité, les navigateurs ne permettent pas l'accès automatique à la caméra/micro. Vous devez autoriser manuellement.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button id="cancelPermBtn" 
+                                    style="flex: 1; padding: 14px; background: var(--gray-light); color: var(--dark); border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">
+                                Annuler
+                            </button>
+                            <button id="requestPermBtn"
+                                    style="flex: 2; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px;">
+                                ✓ Autoriser Caméra & Micro
+                            </button>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button id="spectatorBtn" style="background: none; border: none; color: var(--gray); font-size: 13px; text-decoration: underline; cursor: pointer;">
+                                Continuer en mode spectateur (sans caméra/micro)
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(permissionModal);
+                
+                document.getElementById('cancelPermBtn').onclick = () => {
+                    permissionModal.remove();
+                    resolve('cancelled');
+                };
+                
+                document.getElementById('spectatorBtn').onclick = () => {
+                    permissionModal.remove();
+                    resolve('spectator');
+                };
+                
+                document.getElementById('requestPermBtn').onclick = async () => {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({
+                            video: true,
+                            audio: true
+                        });
+                        stream.getTracks().forEach(track => track.stop());
+                        permissionModal.remove();
+                        resolve('granted');
+                    } catch (error) {
+                        alert('❌ Permission refusée.\n\n📱 Pour autoriser:\n1. Cliquez sur l\'icône 🔒 dans la barre d\'adresse\n2. Activez Caméra et Microphone\n3. Rechargez la page');
+                        permissionModal.remove();
+                        resolve('denied');
+                    }
+                };
+            });
+        },
+
+        async initialize() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramRoomId = urlParams.get('room');
+            
+            const permissionResult = await this.requestMediaPermissions();
+            
+            if (permissionResult === 'cancelled') return;
+            
+            if (permissionResult === 'spectator') {
+                this.isVideoEnabled = false;
+                this.isAudioEnabled = false;
+            }
+            
+            if (paramRoomId) {
+                this.roomId = paramRoomId;
+                await this.join();
+            } else {
+                this.showRoomsList();
+            }
+        },
+
+        showRoomsList() {
+            const modal = document.createElement('div');
+            modal.id = 'liveRoomsModal';
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+                background: rgba(0, 0, 0, 0.9); z-index: 10000;
+                display: flex; justify-content: center; align-items: center; padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: var(--white); padding: 40px; max-width: 600px; width: 100%; border-radius: 16px; max-height: 80vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                        <h2 style="font-size: 28px; font-weight: 800; color: var(--dark);">🎯 Sessions Live</h2>
+                        <button onclick="this.closest('#liveRoomsModal').remove()" style="background: var(--gray-light); border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; font-size: 22px;">×</button>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 25px;">
+                        <button onclick="app.focusClass.createRoom()" style="flex: 1; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border: none; border-radius: 10px; font-weight: 700; cursor: pointer;">
+                            + Créer une session
+                        </button>
+                    </div>
+                    <div id="liveRoomsList" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            this.loadRoomsList();
+        },
+
+        async loadRoomsList() {
+            const roomsRef = collection(db, 'focusclass_rooms');
+            const q = query(roomsRef, orderBy('createdAt', 'desc'));
+            
+            onSnapshot(q, async (snapshot) => {
+                const roomsList = document.getElementById('liveRoomsList');
+                if (!roomsList) return;
+                
+                const rooms = [];
+                for (const docSnapshot of snapshot.docs) {
+                    const roomData = docSnapshot.data();
+                    if (roomData.active) {
+                        const participantsSnap = await getDocs(
+                            collection(db, `focusclass_rooms/${docSnapshot.id}/participants`)
+                        );
+                        rooms.push({
+                            id: docSnapshot.id,
+                            ...roomData,
+                            participantCount: participantsSnap.size
+                        });
+                    }
+                }
+                
+                if (rooms.length === 0) {
+                    roomsList.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; color: var(--gray);">
+                            <div style="font-size: 64px; margin-bottom: 20px;">🎯</div>
+                            <p style="font-size: 16px; font-weight: 600;">Aucune session active</p>
+                            <p style="font-size: 14px; margin-top: 8px;">Créez la première session !</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                roomsList.innerHTML = rooms.map(room => `
+                    <div onclick="app.focusClass.joinRoom('${room.id}')" style="padding: 20px; background: var(--gray-light); border-radius: 12px; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(37, 99, 235, 0.1)'" onmouseout="this.style.background='var(--gray-light)'">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                🎓
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 700; font-size: 16px; color: var(--dark); margin-bottom: 5px;">
+                                    Session de ${room.createdByName}
+                                </div>
+                                <div style="display: flex; gap: 15px; font-size: 13px; color: var(--gray); font-weight: 600;">
+                                    <span>👥 ${room.participantCount} participant(s)</span>
+                                    <span style="color: var(--success); display: flex; align-items: center; gap: 5px;">
+                                        <span style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></span>
+                                        LIVE
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="padding: 8px 16px; background: var(--primary); color: var(--white); border-radius: 8px; font-size: 13px; font-weight: 700;">
+                                Rejoindre →
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            });
+        },
+
+        async createRoom() {
+            try {
+                this.roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                this.isHost = true;
+                
+                await setDoc(doc(db, 'focusclass_rooms', this.roomId), {
+                    id: this.roomId,
+                    createdBy: app.userData.id,
+                    createdByName: app.userData.fullName,
+                    createdAt: serverTimestamp(),
+                    active: true,
+                    subject: null
+                });
+                
+                const modal = document.getElementById('liveRoomsModal');
+                if (modal) modal.remove();
+                
+                await this.join();
+            } catch (error) {
+                console.error('Error creating room:', error);
+                alert('Impossible de créer la session');
+            }
+        },
+
+        async joinRoom(roomId) {
+            this.roomId = roomId;
+            
+            // Vérifier si l'utilisateur est l'hôte
+            const roomDoc = await getDocs(query(collection(db, 'focusclass_rooms')));
+            roomDoc.forEach(doc => {
+                if (doc.id === roomId) {
+                    const roomData = doc.data();
+                    this.isHost = roomData.createdBy === app.userData.id;
+                }
+            });
+            
+            const modal = document.getElementById('liveRoomsModal');
+            if (modal) modal.remove();
+            await this.join();
+        },
+
+        async join() {
+            try {
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('room', this.roomId);
+                window.history.pushState({}, '', newUrl);
+                
+                document.getElementById('focusClassSection').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+                
+                // Afficher/masquer les éléments selon le rôle
+                if (this.isHost) {
+                    document.getElementById('liveRequests').style.display = 'block';
+                } else {
+                    document.getElementById('requestStageBtn').style.display = 'block';
+                }
+                
+                try {
+                    await this.initMedia();
+                } catch (mediaError) {
+                    console.warn('Media initialization failed:', mediaError);
+                    this.isVideoEnabled = false;
+                    this.isAudioEnabled = false;
+                    this.showSpectatorMode();
+                }
+                
+                await this.registerParticipant();
+                this.listenToParticipants();
+                this.listenToMessages();
+                this.listenToReactions();
+                this.listenToRequests();
+                this.listenToStageParticipants();
+                
+                console.log('✅ Joined room:', this.roomId);
+            } catch (error) {
+                console.error('Error joining room:', error);
+                alert('Impossible de rejoindre la session');
+                this.leave();
+            }
+        },
+
+        showSpectatorMode() {
+            const mainVideo = document.getElementById('mainVideo');
+            mainVideo.style.display = 'none';
+            
+            const container = mainVideo.parentElement;
+            container.innerHTML = `
+                <div class="no-video" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div class="no-video-icon" style="font-size: 64px; margin-bottom: 20px;">👁️</div>
+                    <div class="no-video-text" style="font-size: 18px; font-weight: 700; color: white;">Mode Spectateur</div>
+                    <div style="font-size: 14px; margin-top: 10px; opacity: 0.7; color: white;">Caméra/micro non disponible</div>
+                </div>
+            `;
+        },
+
+        async initMedia() {
+            const mediaConfigs = [
+                { video: { facingMode: this.currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } },
+                  audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } },
+                { video: { facingMode: this.currentCamera, width: { ideal: 640 }, height: { ideal: 480 } }, audio: true },
+                { video: { facingMode: this.currentCamera }, audio: true },
+                { video: { facingMode: this.currentCamera }, audio: false },
+                { video: false, audio: true }
+            ];
+            
+            let lastError = null;
+            
+            for (let i = 0; i < mediaConfigs.length; i++) {
+                try {
+                    this.localStream = await navigator.mediaDevices.getUserMedia(mediaConfigs[i]);
+                    
+                    const mainVideo = document.getElementById('mainVideo');
+                    mainVideo.srcObject = this.localStream;
+                    document.getElementById('mainVideoLabel').textContent = app.userData.fullName;
+                    
+                    const hasVideo = this.localStream.getVideoTracks().length > 0;
+                    const hasAudio = this.localStream.getAudioTracks().length > 0;
+                    
+                    this.isVideoEnabled = hasVideo;
+                    this.isAudioEnabled = hasAudio;
+                    
+                    if (!hasVideo) {
+                        document.getElementById('toggleVideoBtn').classList.remove('active');
+                        document.getElementById('videoIcon').textContent = '🚫';
+                    }
+                    if (!hasAudio) {
+                        document.getElementById('toggleAudioBtn').classList.remove('active');
+                        document.getElementById('audioIcon').textContent = '🔇';
+                    }
+                    
+                    if (!hasVideo && !hasAudio) {
+                        throw new Error('No media tracks available');
+                    }
+                    
+                    return;
+                } catch (error) {
+                    lastError = error;
+                    continue;
+                }
+            }
+            
+            throw lastError || new Error('Impossible d\'accéder à la caméra/micro');
+        },
+
+        async registerParticipant() {
+            await setDoc(doc(db, `focusclass_rooms/${this.roomId}/participants`, app.userData.id), {
+                id: app.userData.id,
+                name: app.userData.fullName,
+                avatar: app.userData.avatar,
+                joinedAt: serverTimestamp(),
+                isVideoEnabled: this.isVideoEnabled,
+                isAudioEnabled: this.isAudioEnabled
+            });
+        },
+
+        listenToParticipants() {
+            const participantsRef = collection(db, `focusclass_rooms/${this.roomId}/participants`);
+            
+            const unsubscribe = onSnapshot(participantsRef, (snapshot) => {
+                const participants = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    participants.push(data);
+                });
+                
+                document.getElementById('liveParticipantsCount').textContent = participants.length;
+                document.getElementById('viewersCount').textContent = `${participants.length}`;
+                
+                const scroll = document.getElementById('participantsScroll');
+                scroll.innerHTML = participants.map(p => `
+                    <div class="live-participant-item">
+                        <div class="live-participant-avatar">${p.avatar}</div>
+                        <div class="live-participant-name">${p.name}</div>
+                    </div>
+                `).join('');
+            });
+            
+            this.unsubscribers.push(unsubscribe);
+        },
+
+        listenToMessages() {
+            const messagesRef = collection(db, `focusclass_rooms/${this.roomId}/messages`);
+            const q = query(messagesRef, orderBy('timestamp', 'desc'), limit(20));
+            
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('liveMessages');
+                const messages = [];
+                snapshot.forEach(doc => messages.unshift(doc.data()));
+                
+                container.innerHTML = messages.map(msg => `
+                    <div class="live-message">
+                        <span class="message-author">${msg.userName}:</span>
+                        <span class="message-text">${msg.text}</span>
+                    </div>
+                `).join('');
+                
+                container.scrollTop = container.scrollHeight;
+            });
+            
+            this.unsubscribers.push(unsubscribe);
+        },
+
+        listenToReactions() {
+            const reactionsRef = collection(db, `focusclass_rooms/${this.roomId}/reactions`);
+            
+            const unsubscribe = onSnapshot(reactionsRef, (snapshot) => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        const reaction = change.doc.data();
+                        if (reaction.userId !== app.userData.id) {
+                            this.showReactionAnimation(reaction.emoji);
+                        }
+                    }
+                });
+            });
+            
+            this.unsubscribers.push(unsubscribe);
+        },
+
+        showReactionAnimation(emoji) {
+            const container = document.getElementById('floatingReactions');
+            const reaction = document.createElement('div');
+            reaction.className = 'floating-reaction';
+            reaction.textContent = emoji;
+            reaction.style.left = Math.random() * 40 + 'px';
+            container.appendChild(reaction);
+            
+            setTimeout(() => reaction.remove(), 3000);
+        },
+
+        listenToRequests() {
+            if (!this.isHost) return;
+            
+            const requestsRef = collection(db, `focusclass_rooms/${this.roomId}/requests`);
+            
+            const unsubscribe = onSnapshot(requestsRef, (snapshot) => {
+                const requests = [];
+                snapshot.forEach(doc => requests.push(doc.data()));
+                
+                document.getElementById('requestsBadge').textContent = requests.length;
+                
+                if (requests.length > 0) {
+                    document.getElementById('liveRequests').style.display = 'block';
+                    document.getElementById('requestsList').innerHTML = requests.map(req => `
+                        <div class="request-item">
+                            <span class="request-name">${req.userName}</span>
+                            <div class="request-actions">
+                                <button class="request-accept" onclick="app.focusClass.acceptRequest('${req.userId}')">✓</button>
+                                <button class="request-reject" onclick="app.focusClass.rejectRequest('${req.userId}')">✕</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    document.getElementById('liveRequests').style.display = 'none';
+                }
+            });
+            
+            this.unsubscribers.push(unsubscribe);
+        },
+
+        listenToStageParticipants() {
+            const stageRef = collection(db, `focusclass_rooms/${this.roomId}/onStage`);
+            
+            const unsubscribe = onSnapshot(stageRef, (snapshot) => {
+                const stageParticipants = [];
+                snapshot.forEach(doc => stageParticipants.push(doc.data()));
+                
+                const container = document.getElementById('stageParticipants');
+                container.innerHTML = stageParticipants.map(p => `
+                    <div class="stage-participant-box">
+                        <video autoplay playsinline></video>
+                        <div class="stage-participant-name">${p.userName || 'Participant'}</div>
+                        ${this.isHost ? `<button class="kick-participant-btn" onclick="app.focusClass.kickFromStage('${p.userId}')">✕</button>` : ''}
+                    </div>
+                `).join('');
+            });
+            
+            this.unsubscribers.push(unsubscribe);
+        },
+
+        async requestStage() {
+            if (!this.roomId || !app.userData) return;
+            
+            try {
+                await setDoc(doc(db, `focusclass_rooms/${this.roomId}/requests`, app.userData.id), {
+                    userId: app.userData.id,
+                    userName: app.userData.fullName,
+                    userAvatar: app.userData.avatar,
+                    requestedAt: serverTimestamp()
+                });
+                
+                document.getElementById('requestStageBtn').textContent = '⏳ Demande envoyée';
+                document.getElementById('requestStageBtn').disabled = true;
+            } catch (error) {
+                console.error('Error requesting stage:', error);
+            }
+        },
+
+        async acceptRequest(userId) {
+            try {
+                await setDoc(doc(db, `focusclass_rooms/${this.roomId}/onStage`, userId), {
+                    userId,
+                    addedAt: serverTimestamp()
+                });
+                
+                await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/requests`, userId));
+            } catch (error) {
+                console.error('Error accepting request:', error);
+            }
+        },
+
+        async rejectRequest(userId) {
+            try {
+                await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/requests`, userId));
+            } catch (error) {
+                console.error('Error rejecting request:', error);
+            }
+        },
+
+        async kickFromStage(userId) {
+            try {
+                await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/onStage`, userId));
+            } catch (error) {
+                console.error('Error kicking participant:', error);
+            }
+        },
+
+        sendReaction(emoji) {
+            const container = document.getElementById('floatingReactions');
+            const reaction = document.createElement('div');
+            reaction.className = 'floating-reaction';
+            reaction.textContent = emoji;
+            reaction.style.left = Math.random() * 40 + 'px';
+            container.appendChild(reaction);
+            
+            setTimeout(() => reaction.remove(), 3000);
+            
+            if (this.roomId) {
+                addDoc(collection(db, `focusclass_rooms/${this.roomId}/reactions`), {
+                    emoji,
+                    userId: app.userData.id,
+                    userName: app.userData.fullName,
+                    timestamp: serverTimestamp()
+                });
+            }
+        },
+
+        sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message || !this.roomId) return;
+            
+            addDoc(collection(db, `focusclass_rooms/${this.roomId}/messages`), {
+                text: message,
+                userId: app.userData.id,
+                userName: app.userData.fullName,
+                timestamp: serverTimestamp()
+            });
+            
+            input.value = '';
+        },
+
+        toggleVideo() {
+            this.isVideoEnabled = !this.isVideoEnabled;
+            
+            const videoTrack = this.localStream?.getVideoTracks()[0];
+            if (videoTrack) {
+                videoTrack.enabled = this.isVideoEnabled;
+            }
+            
+            const btn = document.getElementById('toggleVideoBtn');
+            const icon = document.getElementById('videoIcon');
+            
+            if (this.isVideoEnabled) {
+                btn.classList.add('active');
+                icon.textContent = '📹';
+            } else {
+                btn.classList.remove('active');
+                icon.textContent = '🚫';
+            }
+        },
+
+        toggleAudio() {
+            this.isAudioEnabled = !this.isAudioEnabled;
+            
+            const audioTrack = this.localStream?.getAudioTracks()[0];
+            if (audioTrack) {
+                audioTrack.enabled = this.isAudioEnabled;
+            }
+            
+            const btn = document.getElementById('toggleAudioBtn');
+            const icon = document.getElementById('audioIcon');
+            
+            if (this.isAudioEnabled) {
+                btn.classList.add('active');
+                icon.textContent = '🎤';
+            } else {
+                btn.classList.remove('active');
+                icon.textContent = '🔇';
+            }
+        },
+
+        async switchCamera() {
+            try {
+                this.currentCamera = this.currentCamera === 'user' ? 'environment' : 'user';
+                
+                const videoTrack = this.localStream?.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.stop();
+                    this.localStream.removeTrack(videoTrack);
+                }
+                
+                const newStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: this.currentCamera }
+                });
+                
+                const newVideoTrack = newStream.getVideoTracks()[0];
+                this.localStream.addTrack(newVideoTrack);
+                
+                const mainVideo = document.getElementById('mainVideo');
+                mainVideo.srcObject = this.localStream;
+            } catch (error) {
+                console.error('Error switching camera:', error);
+                alert('Impossible de changer de caméra');
+            }
+        },
+
+        showPermissionsHelp() {
+            alert('📱 ACTIVER CAMÉRA & MICRO sur Android:\n\n1. Cliquez sur l\'icône 🔒 dans la barre d\'adresse\n2. Cherchez "Caméra" et "Microphone"\n3. Changez de "Bloqué" à "Autoriser"\n4. Rechargez la page');
+        },
+
+        copyRoomLink() {
+            const link = `${window.location.origin}${window.location.pathname}?room=${this.roomId}`;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('✅ Lien copié !');
+            }).catch(() => {
+                alert('❌ Impossible de copier le lien');
+            });
+        },
+
+        async leave() {
+            try {
+                if (this.localStream) {
+                    this.localStream.getTracks().forEach(track => track.stop());
+                }
+                
+                this.peerConnections.forEach(pc => pc.close());
+                this.peerConnections.clear();
+                
+                if (this.roomId && app.userData) {
+                    await deleteDoc(doc(db, `focusclass_rooms/${this.roomId}/participants`, app.userData.id));
+                }
+                
+                this.unsubscribers.forEach(unsubscribe => unsubscribe());
+                this.unsubscribers = [];
+                
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.delete('room');
+                window.history.pushState({}, '', newUrl);
+                
+                document.getElementById('focusClassSection').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                
+                this.roomId = null;
+                this.localStream = null;
+                this.isHost = false;
+            } catch (error) {
+                console.error('Error leaving room:', error);
             }
         }
-    });
+    },
 
-    window.app = app;
-    app.auth.init();
+    // ========================================
+    // UTILITAIRES
+    // ========================================
+    utils: {
+        formatTime(timestamp) {
+            if (!timestamp) return 'À l\'instant';
+            
+            let date;
+            if (timestamp.seconds) {
+                date = new Date(timestamp.seconds * 1000);
+            } else if (typeof timestamp === 'string') {
+                date = new Date(timestamp);
+            } else {
+                return 'À l\'instant';
+            }
+
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'À l\'instant';
+            if (diffMins < 60) return `${diffMins} min`;
+            if (diffHours < 24) return `${diffHours}h`;
+            if (diffDays < 7) return `${diffDays}j`;
+            
+            return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+        },
+
+        async uploadToCloudinary(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+            
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
+                { method: 'POST', body: formData }
+            );
+            
+            const data = await response.json();
+            return data.secure_url;
+        }
+    }
+};
+
+// ========================================
+// INITIALISATION DES EVENT LISTENERS
+// ========================================
+
+// Remplir les années
+const yearSelect = document.getElementById('subjectYear');
+const currentYear = new Date().getFullYear();
+for (let i = currentYear; i >= currentYear - 10; i--) {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = i;
+    yearSelect.appendChild(option);
+}
+
+// Formulaire d'inscription
+document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('.submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Connexion...';
+
+    try {
+        await app.auth.register({
+            nom: document.getElementById('nom').value.trim(),
+            prenom: document.getElementById('prenom').value.trim(),
+            filiere: document.getElementById('filiere').value,
+            contact: document.getElementById('contact').value.trim()
+        });
+    } catch (error) {
+        alert('Erreur lors de l\'inscription');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Commencer';
+    }
+});
+
+// Formulaire de publication
+document.getElementById('publishForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('.submit-btn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Publication...';
+
+    try {
+        const imageFile = document.getElementById('subjectImage').files[0];
+        const imageUrl = await app.utils.uploadToCloudinary(imageFile);
+
+        await app.subjects.create({
+            title: document.getElementById('subjectTitle').value,
+            filiere: document.getElementById('subjectFiliere').value,
+            year: parseInt(document.getElementById('subjectYear').value),
+            description: document.getElementById('subjectDescription').value,
+            imageUrl
+        });
+
+        app.modal.closePublish();
+        alert('✅ Sujet publié avec succès !');
+    } catch (error) {
+        console.error('Error publishing:', error);
+        alert('❌ Erreur lors de la publication');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Publier';
+    }
+});
+
+// Preview d'image principale
+document.getElementById('subjectImage').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Preview FocusClass
+document.getElementById('focusSubjectImage').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('focusImagePreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Recherche
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    clearTimeout(app.searchTimeout);
+    app.searchTimeout = setTimeout(() => {
+        app.search.perform(e.target.value);
+    }, 300);
+});
+
+// Clic en dehors de la recherche
+document.addEventListener('click', (e) => {
+    const searchContainer = document.querySelector('.search-container');
+    if (!searchContainer.contains(e.target)) {
+        document.getElementById('searchSuggestions').classList.remove('active');
+    }
+});
+
+// Filtres
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        app.currentFilter = this.dataset.filter;
+        app.subjects.render();
+    });
+});
+
+// Fermeture des modales
+document.getElementById('publishModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) app.modal.closePublish();
+});
+
+document.getElementById('imageFullscreenModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) app.modal.closeFullscreen();
+});
+
+document.getElementById('subjectUploadModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) app.modal.closeSubjectUpload();
+});
+
+// Touches clavier
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        if (document.getElementById('imageFullscreenModal').style.display === 'flex') {
+            app.modal.closeFullscreen();
+        } else if (document.getElementById('publishModal').style.display === 'flex') {
+            app.modal.closePublish();
+        } else if (document.getElementById('subjectUploadModal').style.display === 'flex') {
+            app.modal.closeSubjectUpload();
+        }
+    }
+});
+
+// Chat FocusClass - Envoi par Entrée
+document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        app.focusClass.sendMessage();
+    }
+});
+
+// Export global
+window.app = app;
+
+// Initialisation
+app.auth.init();
 </script>
 </body>
 </html>
