@@ -11,6 +11,18 @@
     <meta name="apple-mobile-web-app-title" content="StuDrive">
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRm9jdXMgJiBTdHVEcml2ZSIsInNob3J0X25hbWUiOiJTdHVEcml2ZSIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGYxNzJhIiwidGhlbWVfY29sb3IiOiIjMGYxNzJhIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0Nzdmcgd2lkdGg9JzUxMicgaGVpZ2h0PSc1MTInIHZpZXdCb3g9JzAgMCA1MTIgNTEyJyBmaWxsPSdub25lJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnJTNFJTNDcmVjdCB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgcng9JzgwJyBmaWxsPSclMjMzYjgyZjYnLyUzRSUzQ3RleHQgeD0nNTAlMjUnIHk9JzU1JTI1JyBmb250LXNpemU9JzI4MCcgdGV4dC1hbmNob3I9J21pZGRsZScgZmlsbD0nd2hpdGUnJTNF8J+TmiUzQy90ZXh0JTNFJTNDL3N2ZyUzRSIsInNpemVzIjoiNTEyeDUxMiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dLCJkZXNjcmlwdGlvbiI6IlBsYXRlZm9ybWUgw6l0dWRpYW50ZSBjb2xsYWJvcmF0aXZlIn0=">
     <title>Focus & StuDrive - Plateforme Étudiante</title>
+
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff4e00">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="STUDY DRIVE">
+    <link rel="apple-touch-icon" href="image/u.png">
+    
+    <!-- FCM Configuration -->
+<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-messaging-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -5698,4 +5710,7 @@ function renderPosts() {
             closeProfile();
         }
     });
+
+  
+
 </script>
