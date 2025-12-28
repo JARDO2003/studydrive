@@ -16,17 +16,9 @@
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             color: #2c3e50;
             min-height: 100vh;
-            padding: 2rem;
+            padding: 1rem;
             position: relative;
             overflow-x: hidden;
-        }
-        
-        @media (min-width: 1025px) {
-            body {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
         }
 
         body::before {
@@ -50,19 +42,14 @@
         .container {
             max-width: 1400px;
             width: 100%;
+            margin: 0 auto;
             background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
             border-radius: 4px;
             box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5),
                         0 0 0 1px rgba(212, 175, 55, 0.2);
-            padding: 3rem 2rem;
+            padding: 1.5rem;
             position: relative;
             z-index: 1;
-        }
-        
-        @media (min-width: 769px) {
-            .container {
-                padding: 5rem 4rem;
-            }
         }
 
         .container::before {
@@ -71,7 +58,7 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 8px;
+            height: 6px;
             background: linear-gradient(90deg, 
                 #d4af37 0%, 
                 #c5a028 25%, 
@@ -82,159 +69,43 @@
 
         .header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
             border-bottom: 2px solid #d4af37;
-            padding-bottom: 1.5rem;
-        }
-        
-        @media (min-width: 769px) {
-            .header {
-                margin-bottom: 4rem;
-                padding-bottom: 2rem;
-            }
         }
 
         .logo {
-            font-size: 4rem;
+            font-size: 2rem;
             font-weight: 400;
             color: #1a1a2e;
-            letter-spacing: 8px;
-            margin-bottom: 1rem;
+            letter-spacing: 4px;
+            margin-bottom: 0.5rem;
             text-transform: uppercase;
-            position: relative;
-            display: inline-block;
-        }
-
-        .logo::before,
-        .logo::after {
-            content: '◆';
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #d4af37;
-            font-size: 1.5rem;
-        }
-
-        .logo::before {
-            left: -50px;
-        }
-
-        .logo::after {
-            right: -50px;
         }
 
         .subtitle {
-            font-size: 1.4rem;
+            font-size: 0.9rem;
             color: #5a5a5a;
             font-style: italic;
             font-weight: 300;
-            letter-spacing: 2px;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            align-items: center;
-        }
-        
-        @media (min-width: 1025px) {
-            .main-content {
-                grid-template-columns: 1fr 1fr;
-                gap: 4rem;
-                margin-bottom: 3rem;
-            }
-        }
-
-        .text-section {
-            padding-right: 2rem;
-        }
-
-        .text-section h2 {
-            font-size: 2.5rem;
-            color: #1a1a2e;
-            margin-bottom: 1.5rem;
-            font-weight: 400;
-            line-height: 1.3;
-        }
-
-        .text-section p {
-            font-size: 1.2rem;
-            line-height: 1.9;
-            color: #4a4a4a;
-            margin-bottom: 2rem;
-            text-align: justify;
-        }
-
-        .illustration-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            border: 2px solid #d4af37;
-            border-radius: 2px;
-            padding: 2rem;
-            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 250px;
-        }
-        
-        @media (min-width: 769px) {
-            .illustration-section {
-                padding: 3rem;
-                min-height: 400px;
-            }
-        }
-
-        .icon-group {
-            display: flex;
-            gap: 3rem;
-            margin-bottom: 2rem;
-        }
-
-        .icon-wrapper {
-            text-align: center;
-        }
-
-        .icon {
-            font-size: 5rem;
-            color: #d4af37;
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        .icon-label {
-            font-size: 0.95rem;
-            color: #5a5a5a;
-            text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .cta-section {
             text-align: center;
             margin: 2rem 0;
-            padding: 2.5rem 0;
-            border-top: 1px solid #e0e0e0;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        @media (min-width: 769px) {
-            .cta-section {
-                margin: 3rem 0;
-                padding: 4rem 0;
-            }
+            padding: 1.5rem 0;
         }
 
         .start-button {
             display: inline-block;
-            padding: 1.5rem 6rem;
+            padding: 1.2rem 4rem;
             background: linear-gradient(to right, #1a1a2e 0%, #16213e 100%);
             color: #d4af37;
             text-decoration: none;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 400;
-            letter-spacing: 4px;
+            letter-spacing: 3px;
             text-transform: uppercase;
             border: 2px solid #d4af37;
             transition: all 0.4s ease;
@@ -264,16 +135,23 @@
             transform: translateY(-3px);
         }
 
+        .divider {
+            width: 100px;
+            height: 2px;
+            background: #d4af37;
+            margin: 2rem auto;
+        }
+
         .features {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 3rem;
-            margin-top: 4rem;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
         }
 
         .feature {
             text-align: center;
-            padding: 2.5rem 1.5rem;
+            padding: 1.5rem 1rem;
             background: #ffffff;
             border: 1px solid #e8e8e8;
             border-radius: 2px;
@@ -282,86 +160,188 @@
 
         .feature:hover {
             border-color: #d4af37;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
-            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transform: translateY(-3px);
         }
 
         .feature-icon {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
             display: block;
             color: #d4af37;
         }
 
         .feature h3 {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             color: #1a1a2e;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             font-weight: 400;
             letter-spacing: 1px;
         }
 
         .feature p {
-            font-size: 1rem;
-            line-height: 1.7;
+            font-size: 0.95rem;
+            line-height: 1.6;
             color: #6a6a6a;
         }
 
-        .decorative-line {
-            width: 100px;
-            height: 2px;
-            background: #d4af37;
-            margin: 0 auto 2rem;
+        .intro-text {
+            text-align: center;
+            padding: 0 1rem;
+            margin-bottom: 1.5rem;
         }
 
-        @media (max-width: 1024px) {
-            .text-section {
-                padding-right: 0;
+        .intro-text p {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #4a4a4a;
+            margin-bottom: 1rem;
+        }
+
+        /* Tablettes */
+        @media (min-width: 768px) {
+            .container {
+                padding: 2.5rem;
+            }
+
+            .header {
+                margin-bottom: 2rem;
+                padding-bottom: 1.5rem;
+            }
+
+            .logo {
+                font-size: 3rem;
+                letter-spacing: 6px;
+                margin-bottom: 1rem;
+            }
+
+            .subtitle {
+                font-size: 1.2rem;
+                letter-spacing: 2px;
+            }
+
+            .cta-section {
+                margin: 3rem 0;
+                padding: 2rem 0;
+            }
+
+            .start-button {
+                padding: 1.5rem 5rem;
+                font-size: 1.5rem;
+                letter-spacing: 4px;
+            }
+
+            .features {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2rem;
+                margin-top: 2rem;
+            }
+
+            .feature {
+                padding: 2rem 1.5rem;
+            }
+
+            .feature-icon {
+                font-size: 3rem;
+                margin-bottom: 1.2rem;
+            }
+
+            .feature h3 {
+                font-size: 1.4rem;
+            }
+
+            .feature p {
+                font-size: 1rem;
+            }
+
+            .intro-text p {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Desktop */
+        @media (min-width: 1024px) {
+            body {
+                padding: 2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 4rem;
+            }
+
+            .container::before {
+                height: 8px;
+            }
+
+            .header {
+                margin-bottom: 3rem;
+                padding-bottom: 2rem;
+            }
+
+            .logo {
+                font-size: 4rem;
+                letter-spacing: 8px;
+                position: relative;
+                display: inline-block;
             }
 
             .logo::before,
             .logo::after {
-                display: none;
+                content: '◆';
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #d4af37;
+                font-size: 1.5rem;
             }
-        }
 
-        @media (max-width: 768px) {
-            .logo {
-                font-size: 2rem;
-                letter-spacing: 4px;
+            .logo::before {
+                left: -50px;
+            }
+
+            .logo::after {
+                right: -50px;
             }
 
             .subtitle {
-                font-size: 1rem;
-                letter-spacing: 1px;
+                font-size: 1.4rem;
             }
 
-            .text-section h2 {
-                font-size: 1.8rem;
-            }
-
-            .text-section p {
-                font-size: 1rem;
-            }
-
-            .icon-group {
-                gap: 1.5rem;
-            }
-
-            .icon {
-                font-size: 3rem;
+            .cta-section {
+                margin: 4rem 0;
+                padding: 3rem 0;
+                border-top: 1px solid #e0e0e0;
+                border-bottom: 1px solid #e0e0e0;
             }
 
             .start-button {
-                padding: 1.2rem 3rem;
-                font-size: 1.2rem;
-                letter-spacing: 2px;
+                padding: 1.5rem 6rem;
+                font-size: 1.5rem;
             }
-            
+
             .features {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-                margin-top: 2rem;
+                gap: 3rem;
+                margin-top: 3rem;
+            }
+
+            .feature {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .feature-icon {
+                font-size: 3.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .feature h3 {
+                font-size: 1.5rem;
+            }
+
+            .intro-text p {
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -373,65 +353,36 @@
             <p class="subtitle">Excellence Académique & Réussite Garantie</p>
         </header>
 
-        <div class="main-content">
-            <div class="text-section">
-                <h2>Votre Partenaire d'Excellence Académique</h2>
-                <p>
-                    Depuis des décennies, l'excellence académique repose sur trois piliers fondamentaux : 
-                    la rigueur, la méthode et l'accès aux bonnes ressources. StudyDrive incarne cette 
-                    tradition en vous offrant un accès privilégié aux examens et corrigés qui ont façonné 
-                    la réussite de milliers d'étudiants.
-                </p>
-                <p>
-                    Notre plateforme se distingue par son approche méthodique et son engagement envers 
-                    votre réussite. Chaque document est soigneusement sélectionné et organisé pour 
-                    faciliter votre apprentissage et optimiser vos révisions.
-                </p>
-            </div>
-
-            <div class="illustration-section">
-                <div class="icon-group">
-                    <div class="icon-wrapper">
-                        <span class="icon">📚</span>
-                        <div class="icon-label">Bibliothèque</div>
-                    </div>
-                    <div class="icon-wrapper">
-                        <span class="icon">✒️</span>
-                        <div class="icon-label">Corrigés</div>
-                    </div>
-                    <div class="icon-wrapper">
-                        <span class="icon">🎓</span>
-                        <div class="icon-label">Réussite</div>
-                    </div>
-                </div>
-                <div class="decorative-line"></div>
-                <p style="color: #5a5a5a; font-style: italic; text-align: center; font-size: 1.1rem;">
-                    "Le savoir est le seul bien qui augmente quand on le partage"
-                </p>
-            </div>
+        <div class="intro-text">
+            <p>
+                Votre partenaire d'excellence académique. Accédez aux examens et corrigés 
+                qui ont façonné la réussite de milliers d'étudiants.
+            </p>
         </div>
 
         <div class="cta-section">
             <a href="ass.html" class="start-button">Commencer</a>
         </div>
 
+        <div class="divider"></div>
+
         <div class="features">
             <div class="feature">
                 <span class="feature-icon">📖</span>
                 <h3>Examens Authentiques</h3>
-                <p>Collection complète d'épreuves officielles des années antérieures, soigneusement archivées et classées par discipline.</p>
+                <p>Collection complète d'épreuves officielles des années antérieures, soigneusement classées par discipline.</p>
             </div>
 
             <div class="feature">
                 <span class="feature-icon">✍️</span>
                 <h3>Corrigés Détaillés</h3>
-                <p>Solutions complètes rédigées par des experts, accompagnées de méthodologies éprouvées et d'explications approfondies.</p>
+                <p>Solutions complètes rédigées par des experts, accompagnées de méthodologies éprouvées.</p>
             </div>
 
             <div class="feature">
                 <span class="feature-icon">⚡</span>
                 <h3>Accès Immédiat</h3>
-                <p>Navigation intuitive et recherche efficace pour accéder instantanément aux ressources dont vous avez besoin.</p>
+                <p>Navigation intuitive et recherche efficace pour accéder instantanément aux ressources.</p>
             </div>
         </div>
     </div>
