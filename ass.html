@@ -9,8 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="StuDrive">
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRm9jdXMgJiBTdHVEcml2ZSIsInNob3J0X25hbWUiOiJTdHVEcml2ZSIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMGYxNzJhIiwidGhlbWVfY29sb3IiOiIjMGYxNzJhIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0Nzdmcgd2lkdGg9JzUxMicgaGVpZ2h0PSc1MTInIHZpZXdCb3g9JzAgMCA1MTIgNTEyJyBmaWxsPSdub25lJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnJTNFJTNDcmVjdCB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgcng9JzgwJyBmaWxsPSclMjMzYjgyZjYnLyUzRSUzQ3RleHQgeD0nNTAlMjUnIHk9JzU1JTI1JyBmb250LXNpemU9JzI4MCcgdGV4dC1hbmNob3I9J21pZGRsZScgZmlsbD0nd2hpdGUnJTNF8J+TmiUzQy90ZXh0JTNFJTNDL3N2ZyUzRSIsInNpemVzIjoiNTEyeDUxMiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dLCJkZXNjcmlwdGlvbiI6IlBsYXRlZm9ybWUgw6l0dWRpYW50ZSBjb2xsYWJvcmF0aXZlIn0=">
-    <title>Focus & StuDrive - Plateforme Étudiante</title>
+ <link rel="manifest" href="manifest.json">
 
     <!-- PWA Configuration -->
     <link rel="manifest" href="manifest.json">
@@ -4305,42 +4304,7 @@
             return false;
         }
 
-        // Register Service Worker
-        async function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                try {
-                    const registration = await navigator.serviceWorker.register(
-                        'data:text/javascript;base64,' + btoa(`
-                            self.addEventListener('push', function(event) {
-                                const data = event.data.json();
-                                const options = {
-                                    body: data.body,
-                                    icon: data.icon || '/icon-192.png',
-                                    badge: '/badge-72.png',
-                                    vibrate: [200, 100, 200],
-                                    data: data.data || {},
-                                    actions: data.actions || []
-                                };
-                                event.waitUntil(
-                                    self.registration.showNotification(data.title, options)
-                                );
-                            });
-
-                            self.addEventListener('notificationclick', function(event) {
-                                event.notification.close();
-                                event.waitUntil(
-                                    clients.openWindow(event.notification.data.url || '/')
-                                );
-                            });
-                        `)
-                    );
-                    console.log('Service Worker registered:', registration);
-                } catch (error) {
-                    console.error('Service Worker registration failed:', error);
-                }
-            }
-        }
-
+       
         // Show browser notification
         function showBrowserNotification(title, options) {
             if ('Notification' in window && Notification.permission === 'granted') {
@@ -4360,6 +4324,17 @@
                 };
             }
         }
+
+async function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log('Service Worker registered:', registration);
+        } catch (error) {
+            console.error('Service Worker registration failed:', error);
+        }
+    }
+}
 
         // Create notification in Firebase
         async function createNotification(type, data) {
@@ -4954,7 +4929,7 @@
             }
         };
 
-        function updateUserAvatar() {
+   function updateUserAvatar() {
     if (!currentUser) return;
     
     const avatar = document.getElementById('userAvatar');
@@ -4966,7 +4941,7 @@
             profileAvatar.innerHTML = `<img src="${currentUser.avatar}" alt="Avatar">`;
         }
     } else {
-        // Vérifier que firstName existe avant d'utiliser charAt
+        // ✅ Vérifier que firstName existe avant d'utiliser charAt
         const initial = currentUser.firstName ? 
             currentUser.firstName.charAt(0).toUpperCase() : 
             (currentUser.email ? currentUser.email.charAt(0).toUpperCase() : 'U');
@@ -4977,7 +4952,6 @@
         }
     }
 }
-
         // Upload Subject Modal
         document.getElementById('fileUploadArea').addEventListener('click', () => {
             document.getElementById('subjectFile').click();
@@ -5116,8 +5090,7 @@
             `;
             selectedMedia = null;
         }
-
-       document.getElementById('submitPost').addEventListener('click', async () => {
+        document.getElementById('submitPost').addEventListener('click', async () => {
     if (!currentUser) return;
 
     const caption = document.getElementById('postCaption').value.trim();
@@ -5139,10 +5112,10 @@
         const postId = generateId();
         const post = {
             id: postId,
-            caption: caption || '',  // ✅ Toujours une chaîne
-            tags: tags || [],        // ✅ Toujours un tableau
-            mediaUrl: mediaUrl || null,     // ✅ null au lieu de undefined
-            mediaType: mediaType || null,   // ✅ null au lieu de undefined
+            caption: caption || '',           // ✅ Toujours une chaîne
+            tags: tags || [],                 // ✅ Toujours un tableau
+            mediaUrl: mediaUrl || null,       // ✅ null au lieu de undefined
+            mediaType: mediaType || null,     // ✅ null au lieu de undefined
             userId: currentUser.id,
             userName: `${currentUser.firstName} ${currentUser.lastName}`,
             userAvatar: currentUser.avatar || null,  // ✅ null au lieu de undefined
@@ -5172,7 +5145,7 @@
         document.getElementById('submitPost').textContent = 'Publier';
     }
 });
-        // Load Subjects
+    // Load Subjects
         function loadSubjects() {
             const subjectsRef = ref(rtdb, 'subjects');
             onValue(subjectsRef, (snapshot) => {
@@ -5379,51 +5352,52 @@ function renderPosts() {
         const isOwner = currentUser && post.userId === currentUser.id;
         const isCommentsOpen = openCommentsSections[post.id];
         
-        // Sécuriser l'accès aux propriétés
+        // ✅ Sécuriser l'accès aux propriétés
         const userName = post.userName || 'Utilisateur';
         const userInitial = userName.charAt(0).toUpperCase();
         
-        // Vérifier si userAvatar est une URL valide
+        // ✅ Vérifier si userAvatar est une URL valide
         const isValidAvatar = post.userAvatar && 
                              (post.userAvatar.startsWith('http://') || 
                               post.userAvatar.startsWith('https://'));
         
-        // Vérifier si mediaUrl est valide
+        // ✅ Vérifier si mediaUrl est valide
         const isValidMedia = post.mediaUrl && 
                             (post.mediaUrl.startsWith('http://') || 
                              post.mediaUrl.startsWith('https://'));
 
-        // Template pour avatar
+        // ✅ Template pour avatar avec gestion d'erreur
         let avatarHTML = '';
         if (isValidAvatar) {
-            avatarHTML = `<img src="${post.userAvatar}" alt="${userName}" onerror="this.style.display='none'; this.parentElement.textContent='${userInitial}';">`;
+            avatarHTML = `<img src="${post.userAvatar}" alt="${userName}" 
+                onerror="this.style.display='none'; this.parentElement.textContent='${userInitial}';">`;
         } else {
             avatarHTML = userInitial;
         }
 
-        // Template pour média
+        // ✅ Template pour média avec gestion d'erreur
         let mediaHTML = '';
         if (isValidMedia) {
             if (post.mediaType === 'image') {
                 mediaHTML = `
                     <div class="post-content">
                         <img src="${post.mediaUrl}" class="post-media" alt="Post" 
-                             onerror="this.parentElement.innerHTML='&lt;div style=padding:40px;text-align:center;color:var(--text-secondary)&gt;❌ Média indisponible&lt;/div&gt;';">
+                             onerror="this.parentElement.innerHTML='<div style=padding:40px;text-align:center;color:var(--text-secondary)>❌ Média indisponible</div>';">
                     </div>
                 `;
             } else if (post.mediaType === 'video') {
                 mediaHTML = `
                     <div class="post-content">
                         <video src="${post.mediaUrl}" class="post-media" controls 
-                               onerror="this.parentElement.innerHTML='&lt;div style=padding:40px;text-align:center;color:var(--text-secondary)&gt;❌ Vidéo indisponible&lt;/div&gt;';"></video>
+                               onerror="this.parentElement.innerHTML='<div style=padding:40px;text-align:center;color:var(--text-secondary)>❌ Vidéo indisponible</div>';"></video>
                     </div>
                 `;
             }
         }
 
-        // Template pour tags
+        // ✅ Template pour tags avec vérification
         let tagsHTML = '';
-        if (post.tags && post.tags.length > 0) {
+        if (post.tags && Array.isArray(post.tags) && post.tags.length > 0) {
             tagsHTML = `
                 <div class="post-tags">
                     ${post.tags.map(tag => `<span class="post-tag">${tag}</span>`).join('')}
