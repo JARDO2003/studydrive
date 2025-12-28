@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -30,9 +31,9 @@
         }
 
         :root {
-            --bg-primary: #000000;
-            --bg-secondary: #000000;
-            --bg-tertiary: #18191c;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
             --bg-card: rgba(30, 41, 59, 0.6);
             --text-primary: #f1f5f9;
             --text-secondary: #cbd5e1;
@@ -56,45 +57,27 @@
         }
 
         body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    line-height: 1.6;
-    overflow-x: hidden;
-    position: relative;
-}
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('image/messi.jpeg'); /* Remplacez par l'URL de votre image */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    opacity: 0.15; /* Ajustez l'opacité pour que l'image ne soit pas trop visible */
-    pointer-events: none;
-    z-index: 0;
-}
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
 
-/* Alternative avec dégradé par-dessus l'image pour un meilleur contraste */
-body::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
-}
         /* Glass Morphism Styles */
         .glass {
             background: var(--glass-bg);
@@ -754,83 +737,41 @@ body::after {
             }
         }
 
-  .subject-card {
-    background: rgba(30, 41, 59, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 2px solid rgba(59, 130, 246, 0.3);
-    border-radius: 20px;
-    padding: 28px;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: visible;  /* ✅ NOUVEAU : permet l'affichage */
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 
-                0 0 20px rgba(59, 130, 246, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
+        .subject-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+        }
 
-/* ✅ NOUVEAU : Styles pour l'aperçu des images */
-.subject-preview-image {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 12px;
-    margin-bottom: 16px;
-    background: rgba(51, 65, 85, 0.5);
-    display: block;
-}
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
 
-.subject-file-icon {
-    font-size: 48px;
-    text-align: center;
-    padding: 40px 0;
-    background: rgba(59, 130, 246, 0.1);
-    border-radius: 12px;
-    margin-bottom: 16px;
-}
-.subject-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5px;
-    background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.5);
-}
+        .subject-card:hover::before {
+            transform: scaleX(1);
+        }
 
-.subject-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 60%);
-    opacity: 0;
-    transition: opacity 0.4s;
-}
-
-.subject-card:hover::before {
-    transform: scaleX(1);
-}
-
-.subject-card:hover::after {
-    opacity: 1;
-}
-
-.subject-card:hover {
-    border-color: rgba(59, 130, 246, 0.6);
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6), 
-                0 0 40px rgba(59, 130, 246, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transform: translateY(-8px) scale(1.02);
-    background: rgba(30, 41, 59, 1);
-}
+        .subject-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-4px);
+        }
 
         .subject-delete-btn {
             position: absolute;
@@ -866,12 +807,35 @@ body::after {
             margin-bottom: 20px;
         }
 
+        .subject-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-accent);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
 
         .subject-info {
             flex: 1;
             min-width: 0;
         }
 
+        .subject-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            line-height: 1.4;
+        }
 
         .subject-meta {
             font-size: 13px;
@@ -1909,7 +1873,7 @@ body::after {
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(9, 9, 9, 0.6);
+            background: rgba(0,0,0,0.6);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -3162,7 +3126,7 @@ body::after {
             background: rgba(255,255,255,0.3);
             border: 1px solid rgba(255,255,255,0.4);
             border-radius: 10px;
-            color: rgb(218, 4, 51);
+            color: white;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
@@ -3181,7 +3145,7 @@ body::after {
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(246, 4, 4, 0.5);
+            background: rgba(0,0,0,0.5);
             z-index: 2000;
             display: none;
             align-items: center;
@@ -3870,87 +3834,6 @@ body::after {
                 width: 100%;
             }
         }
-
-        .subject-icon {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    flex-shrink: 0;
-    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-}
-
-.subject-title {
-    font-size: 18px;
-    font-weight: 800;
-    margin-bottom: 8px;
-    color: #f1f5f9;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-height: 1.4;
-    letter-spacing: -0.3px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.filiere-badge {
-    background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
-    color: white;
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
-}
-
-.subject-stat {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 15px;
-    color: #cbd5e1;
-    font-weight: 700;
-}
-
-.subject-stat span:first-child {
-    font-size: 20px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.search-section {
-    background: rgba(1, 10, 23, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    padding: 32px;
-    border-radius: 20px;
-    margin-bottom: 32px;
-    border: 2px solid rgba(0, 9, 26, 0.3);
-    box-shadow: 0 8px 32px rgba(246, 241, 241, 0.4),
-                0 0 20px rgba(2, 13, 34, 0.982);
-}
-
-.page-header {
-    background: rgba(18, 21, 29, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    padding: 40px;
-    border-radius: 20px;
-    margin-bottom: 32px;
-    border: 2px solid rgba(210, 212, 216, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-                0 0 20px rgba(59, 130, 246, 0.2);
-    position: relative;
-    overflow: hidden;
-}
     </style>
 </head>
 <body>
@@ -4060,8 +3943,8 @@ body::after {
         <!-- Focus Page -->
         <div class="page" id="focusPage">
             <div class="page-header">
-                <div class="page-title">🎓 Focus</div>
-                <div class="page-subtitle">Réseau social étudiant</div>
+                <div class="page-title">🎓 FocusClass</div>
+                <div class="page-subtitle">Welcome to FocusClass, découvrez ici notre fil d'actualité</div>
             </div>
 
             <div class="focus-feed" id="focusFeed">
@@ -4110,7 +3993,7 @@ body::after {
         </a>
         <a href="#" class="nav-item" data-page="focus">
             <span class="nav-icon">🎓</span>
-            <span>Focus</span>
+            <span>FocusClass</span>
         </a>
         <a href="#" class="nav-item" data-page="notifications">
             <span class="nav-icon">🔔</span>
@@ -5305,80 +5188,69 @@ body::after {
             });
         }
 
-      function renderSubjects() {
-    const container = document.getElementById('subjectsList');
-    
-    let filtered = allSubjects;
-    if (currentFiliere !== 'all') {
-        filtered = allSubjects.filter(s => s.filiere === currentFiliere);
-    }
+        // Render Subjects
+        function renderSubjects() {
+            const container = document.getElementById('subjectsList');
+            
+            let filtered = allSubjects;
+            if (currentFiliere !== 'all') {
+                filtered = allSubjects.filter(s => s.filiere === currentFiliere);
+            }
 
-    const searchTerm = document.getElementById('subjectSearch').value.toLowerCase();
-    if (searchTerm) {
-        filtered = filtered.filter(s => 
-            s.title.toLowerCase().includes(searchTerm) ||
-            s.filiere.toLowerCase().includes(searchTerm)
-        );
-    }
+            const searchTerm = document.getElementById('subjectSearch').value.toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(s => 
+                    s.title.toLowerCase().includes(searchTerm) ||
+                    s.filiere.toLowerCase().includes(searchTerm)
+                );
+            }
 
-    if (filtered.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">📚</div>
-                <div class="empty-title">Aucun sujet trouvé</div>
-                <div class="empty-text">Soyez le premier à partager un sujet !</div>
-            </div>
-        `;
-        return;
-    }
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <div class="empty-title">Aucun sujet trouvé</div>
+                        <div class="empty-text">Soyez le premier à partager un sujet !</div>
+                    </div>
+                `;
+                return;
+            }
 
-    container.innerHTML = filtered.map(subject => {
-        const isOwner = currentUser && subject.userId === currentUser.id;
-        const isImage = subject.fileType && subject.fileType.startsWith('image/'); // ✅ NOUVEAU
-        
-        return `
-            <div class="subject-card" onclick="viewSubject('${subject.id}')">
-                ${isOwner ? `
-                    <button class="subject-delete-btn" onclick="deleteSubject(event, '${subject.id}')">
-                        🗑️
-                    </button>
-                ` : ''}
+            container.innerHTML = filtered.map(subject => {
+                const isOwner = currentUser && subject.userId === currentUser.id;
                 
-                <!-- ✅ NOUVEAU : Affichage conditionnel de l'image -->
-                ${isImage ? `
-                    <img src="${subject.fileUrl}" class="subject-preview-image" 
-                         alt="${subject.title}"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                    <div class="subject-file-icon" style="display: none;">📄</div>
-                ` : `
-                    <div class="subject-file-icon">📄</div>
-                `}
-                
-                <div class="subject-header">
-                    <div class="subject-icon">📄</div>
-                    <div class="subject-info">
-                        <div class="subject-title">${subject.title}</div>
-                        <div class="subject-meta">
-                            <span class="filiere-badge">${subject.filiere}</span>
-                            <span>•</span>
-                            <span>${subject.userName}</span>
+                return `
+                    <div class="subject-card" onclick="viewSubject('${subject.id}')">
+                        ${isOwner ? `
+                            <button class="subject-delete-btn" onclick="deleteSubject(event, '${subject.id}')">
+                                🗑️
+                            </button>
+                        ` : ''}
+                        <div class="subject-header">
+                            <div class="subject-icon">📄</div>
+                            <div class="subject-info">
+                                <div class="subject-title">${subject.title}</div>
+                                <div class="subject-meta">
+                                    <span class="filiere-badge">${subject.filiere}</span>
+                                    <span>•</span>
+                                    <span>${subject.userName}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="subject-stats">
+                            <div class="subject-stat">
+                                <span>👁️</span>
+                                <span>${subject.views || 0}</span>
+                            </div>
+                            <div class="subject-stat">
+                                <span>⬇️</span>
+                                <span>${subject.downloads || 0}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="subject-stats">
-                    <div class="subject-stat">
-                        <span>👁️</span>
-                        <span>${subject.views || 0}</span>
-                    </div>
-                    <div class="subject-stat">
-                        <span>⬇️</span>
-                        <span>${subject.downloads || 0}</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
+                `;
+            }).join('');
+        }
 
         // View Subject
         window.viewSubject = async function(subjectId) {
