@@ -2,7 +2,8 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://votredomaine.com/sitemap.xml
+Sitemap: https://studydrive-jet.vercel.app/sitemap.xml
 
 # Délai entre les requêtes (optionnel)
+
 Crawl-delay: 10
