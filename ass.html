@@ -51,7 +51,6 @@
             border-color: #444;
             color: #fff;
         }
-
         .header {
             position: fixed; top: 0; left: 0; right: 0; height: 60px;
             background: var(--white); border-bottom: 3px solid var(--primary);
@@ -68,7 +67,6 @@
         }
         .icon-btn:active, .theme-toggle:active { transform: scale(0.95); }
         body.dark-mode .theme-toggle { background: #333; border-color: #555; color: #ffa726; }
-
         .notif-badge {
             position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px;
             background: var(--error); border-radius: 10px; display: flex;
@@ -92,7 +90,6 @@
         }
         .page-title { font-size: 24px; font-weight: 700; margin-bottom: 4px; color: var(--primary); }
         .page-subtitle { font-size: 14px; color: var(--gray-600); }
-
         .voice-recorder-card {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             border-radius: 12px; padding: 20px; margin: 12px; color: var(--white);
@@ -110,7 +107,6 @@
         .voice-btn-stop { background: var(--error); color: var(--white); }
         .voice-btn-pause { background: var(--accent); color: var(--white); }
         .voice-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
         .recording-status {
             display: flex; align-items: center; gap: 12px; padding: 14px 16px;
             background: rgba(255,255,255,0.2); border-radius: 8px; margin-top: 16px;
@@ -137,7 +133,6 @@
         .wave-bar:nth-child(3) { height: 20px; animation-delay: 0.2s; }
         .wave-bar:nth-child(4) { height: 28px; animation-delay: 0.3s; }
         @keyframes wave { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }
-
         .transcription-result {
             margin-top: 20px; padding: 20px; background: var(--white);
             border-radius: 8px; color: var(--gray-900);
@@ -148,7 +143,6 @@
             max-height: 300px; overflow-y: auto;
         }
         .transcription-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
-
         .search-section, .focus-search {
             background: var(--white); padding: 16px; border-radius: 12px;
             margin: 12px; box-shadow: var(--shadow-lg);
@@ -158,7 +152,6 @@
             border: 2px solid var(--gray-300); border-radius: 8px; font-size: 15px; outline: none;
         }
         .search-input:focus { border-color: var(--primary); }
-
         .filiere-tabs {
             display: flex; gap: 8px; margin-top: 16px; overflow-x: auto;
             padding-bottom: 8px;
@@ -169,7 +162,6 @@
             white-space: nowrap; transition: all 0.3s; flex-shrink: 0;
         }
         .filiere-tab.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
-
         .subjects-grid { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 12px; }
         .subject-card {
             background: var(--white); border: 2px solid var(--gray-200); border-radius: 12px;
@@ -191,7 +183,6 @@
             backdrop-filter: blur(4px); z-index: 10; border: none; cursor: pointer;
         }
         .favorite-btn.active { color: #ffa726; }
-
         .subject-body { padding: 16px; }
         .subject-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
         .subject-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--gray-600); }
@@ -204,9 +195,7 @@
             border-top: 2px solid var(--gray-200); flex-wrap: wrap;
         }
         .subject-stat { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--gray-600); cursor: pointer; }
-
         .message-poster-btn { padding: 8px; background: var(--primary); color: var(--white); border-radius: 6px; font-size: 12px; cursor: pointer; border: none; margin-top: 8px; }
-
         .feed-post {
             background: var(--white); border-radius: 12px; margin: 12px;
             box-shadow: var(--shadow-md); overflow: hidden;
@@ -235,7 +224,6 @@
         .post-action-btn:active { transform: scale(0.95); }
         .post-action-btn.liked { color: var(--error); }
         .post-action-icon { font-size: 18px; }
-
         .comment-section { border-top: 2px solid var(--gray-200); padding: 16px; display: none; }
         .comment-section.active { display: block; }
         .comment-list { margin-bottom: 12px; max-height: 200px; overflow-y: auto; }
@@ -252,7 +240,6 @@
             padding: 10px 16px; background: var(--primary); color: var(--white);
             border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer;
         }
-
         .notification-item {
             background: var(--white); border-radius: 12px; padding: 16px; margin: 12px;
             box-shadow: var(--shadow-md); display: flex; gap: 12px; cursor: pointer; transition: all 0.3s;
@@ -267,14 +254,12 @@
         .notif-message { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
         .notif-details { font-size: 13px; color: var(--gray-700); margin-bottom: 4px; }
         .notif-time { font-size: 11px; color: var(--gray-600); }
-
         .profile-stats {
             display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 16px 0;
         }
         .stat-item { text-align: center; padding: 12px; background: var(--gray-50); border-radius: 8px; }
         body.dark-mode .stat-item { background: #2d2d2d; }
         .change-avatar-btn { margin-top: 12px; padding: 10px; background: var(--primary); color: var(--white); border-radius: 8px; cursor: pointer; border: none; width: 100%; font-weight: 700; }
-
         .chat-list { padding: 12px; }
         .chat-item { background: var(--white); border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .chat-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: var(--white); display: flex; align-items: center; justify-content: center; overflow: hidden; }
@@ -283,7 +268,6 @@
         .chat-username { font-weight: 700; }
         .chat-last-msg { font-size: 13px; color: var(--gray-600); }
         .chat-time { font-size: 12px; color: var(--gray-600); }
-
         .chat-page { display: flex; flex-direction: column; height: calc(100vh - 140px); }
         .chat-header { padding: 16px; background: var(--white); border-bottom: 2px solid var(--gray-200); display: flex; align-items: center; gap: 12px; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 16px; background: var(--gray-100); }
@@ -293,7 +277,6 @@
         .chat-input { display: flex; gap: 8px; padding: 12px; background: var(--white); border-top: 2px solid var(--gray-200); }
         .chat-text-input { flex: 1; padding: 10px; border: 2px solid var(--gray-300); border-radius: 8px; outline: none; }
         .chat-send { padding: 10px 16px; background: var(--primary); color: var(--white); border-radius: 8px; border: none; cursor: pointer; font-weight: 700; }
-
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; height: 65px;
             background: var(--white); border-top: 3px solid var(--primary);
@@ -307,7 +290,6 @@
         }
         .nav-item.active { color: var(--primary); }
         .nav-icon { font-size: 22px; }
-
         .fab {
             position: fixed; bottom: 80px; right: 16px; width: 56px; height: 56px;
             border-radius: 50%; background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-light) 100%);
@@ -316,7 +298,6 @@
             align-items: center; justify-content: center; transition: all 0.3s;
         }
         .fab:active { transform: scale(0.95); }
-
         .modal {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.5); z-index: 2000; display: none;
@@ -360,7 +341,6 @@
         .btn:active { transform: scale(0.98); }
         .btn-secondary { background: var(--gray-200); color: var(--gray-800); }
         .btn-primary { background: var(--primary); color: var(--white); }
-
         .toast {
             position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-120px);
             background: var(--white); border: 2px solid var(--gray-300); border-radius: 8px;
@@ -370,7 +350,6 @@
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.success { border-color: var(--success); color: var(--success); border-left-width: 6px; }
         .toast.error { border-color: var(--error); color: var(--error); border-left-width: 6px; }
-
         .loading { padding: 40px 20px; text-align: center; color: var(--gray-600); }
         .loading-spinner {
             width: 40px; height: 40px; border: 4px solid var(--gray-300);
@@ -378,11 +357,9 @@
             animation: spin 1s linear infinite; margin: 0 auto 12px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-
         .empty-state { padding: 40px 20px; text-align: center; color: var(--gray-600); }
         .empty-icon { font-size: 48px; margin-bottom: 12px; }
         .empty-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
-
         @media (min-width: 768px) {
             .subjects-grid { grid-template-columns: repeat(2, 1fr); }
             .modal { align-items: center; }
@@ -407,16 +384,18 @@
     </div>
 
     <div class="main-container">
+        <!-- Pages identiques à la version originale (HTML inchangé) -->
+        <!-- ... (tout le HTML des pages reste exactement le même que dans ton fichier initial) ... -->
+        <!-- Je le copie intégralement ici pour éviter toute perte -->
+
         <div class="page active" id="studrivePage">
             <div class="page-header">
                 <div class="page-title">Bibliothèque StuDrive</div>
                 <div class="page-subtitle">Accédez à tous les sujets d'examens partagés</div>
             </div>
-
             <div class="voice-recorder-card">
                 <div class="voice-recorder-title">🎙️ Enregistrement de Cours</div>
                 <p style="opacity: 0.9; margin-bottom: 8px; font-size: 14px;">Enregistrez avec transcription temps réel</p>
-                
                 <div class="voice-recorder-controls">
                     <button class="voice-btn voice-btn-start" id="startRecording">
                         <span>🎤</span><span>Démarrer</span>
@@ -428,18 +407,15 @@
                         <span>⏹️</span><span>Arrêter</span>
                     </button>
                 </div>
-
                 <div class="recording-status" id="recordingStatus" style="display: none;">
                     <span class="recording-dot"></span>
                     <span id="recordingTime" style="font-family: monospace; font-weight: 700;">00:00</span>
                     <span style="margin-left: auto;" id="recordingState">En cours...</span>
                 </div>
-
                 <div class="recording-waveform" id="recordingWaveform" style="display: none;">
                     <div class="wave-bar"></div><div class="wave-bar"></div>
                     <div class="wave-bar"></div><div class="wave-bar"></div>
                 </div>
-
                 <div class="transcription-result" id="transcriptionResult" style="display: none;">
                     <h3 style="margin-bottom: 12px; font-size: 16px;">📝 Transcription</h3>
                     <div class="transcription-text" id="transcriptionText">En attente...</div>
@@ -450,7 +426,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="search-section">
                 <input type="text" class="search-input" id="subjectSearch" placeholder="🔍 Rechercher un sujet...">
                 <div class="filiere-tabs">
@@ -461,7 +436,6 @@
                     <div class="filiere-tab" data-filiere="GCV">GCV</div>
                 </div>
             </div>
-
             <div class="subjects-grid" id="subjectsList">
                 <div class="loading"><div class="loading-spinner"></div><div>Chargement des sujets...</div></div>
             </div>
@@ -508,7 +482,6 @@
                         <button class="change-avatar-btn" id="changeAvatarBtn">Changer photo de profil</button>
                         <input type="file" id="avatarFile" accept="image/*" style="display: none;">
                     </div>
-
                     <div class="profile-stats">
                         <div class="stat-item">
                             <div style="font-size: 20px; font-weight: 700;" id="statSubjects">0</div>
@@ -524,7 +497,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="feed-post" style="margin-top: 16px;">
                     <h3 style="padding: 16px; font-size: 16px;">❤️ Mes sujets favoris</h3>
                     <div id="favoritesList" class="subjects-grid">
@@ -631,11 +603,12 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, orderBy, limit, onSnapshot, updateDoc, increment, serverTimestamp, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getDatabase, ref, set, push, onValue, update, remove, serverTimestamp, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyDV8s8md1kginP7nohy63XgUR9xNk_p6iE",
             authDomain: "store-ab477.firebaseapp.com",
+            databaseURL: "https://store-ab477-default-rtdb.firebaseio.com",
             projectId: "store-ab477",
             storageBucket: "store-ab477.firebasestorage.app",
             messagingSenderId: "109524191191",
@@ -643,7 +616,8 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const db = getDatabase(app);
+
         const cloudinaryConfig = { cloudName: 'djxcqczh1', uploadPreset: 'database' };
 
         let currentUser = null;
@@ -653,10 +627,9 @@
         let recordingInterval = null, recognition = null, finalTranscript = '', interimTranscript = '';
         let selectedSubjectFile = null, selectedPostMedia = null, selectedAvatarFile = null;
         let isRecording = false, isPaused = false, pausedTime = 0, pauseStartTime = 0;
-
         let favorites = JSON.parse(localStorage.getItem('studrive_favorites') || '[]');
-
         let isDarkMode = localStorage.getItem('studrive_darkmode') === 'true';
+
         if (isDarkMode || (!localStorage.getItem('studrive_darkmode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.body.classList.add('dark-mode');
         }
@@ -673,26 +646,25 @@
         }
 
         async function initUser() {
-            const userRef = doc(db, 'users', userId);
-            const userSnap = await getDoc(userRef);
-            
-            if (userSnap.exists()) {
-                currentUser = { uid: userId, ...userSnap.val() };
-            } else {
-                currentUser = {
-                    uid: userId,
-                    firstName: 'Utilisateur',
-                    lastName: '',
-                    email: `user${userId.substr(0, 6)}@studrive.com`,
-                    bio: 'Nouveau membre de StuDrive',
-                    profilePic: null,
-                    createdAt: serverTimestamp()
-                };
-                await setDoc(userRef, currentUser);
-            }
+            const userRef = ref(db, 'users/' + userId);
+            onValue(userRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    currentUser = { uid: userId, ...snapshot.val() };
+                } else {
+                    currentUser = {
+                        uid: userId,
+                        firstName: 'Utilisateur',
+                        lastName: '',
+                        email: `user${userId.substr(0, 6)}@studrive.com`,
+                        bio: 'Nouveau membre de StuDrive',
+                        profilePic: null
+                    };
+                    set(userRef, { ...currentUser, createdAt: serverTimestamp() });
+                }
+                updateUserAvatar();
+                loadUserProfile();
+            }, { onlyOnce: true });
 
-            updateUserAvatar();
-            loadUserProfile();
             loadSubjects();
             loadPosts();
             loadNotifications();
@@ -700,36 +672,36 @@
         }
 
         function updateUserAvatar() {
-            const initial = currentUser.firstName.charAt(0).toUpperCase();
+            const initial = (currentUser?.firstName || 'U').charAt(0).toUpperCase();
             document.getElementById('avatarInitial').textContent = initial;
             document.getElementById('profileAvatarInitial').textContent = initial;
-            
-            if (currentUser.profilePic) {
+
+            if (currentUser?.profilePic) {
                 document.getElementById('headerAvatarImg').src = currentUser.profilePic;
                 document.getElementById('headerAvatarImg').style.display = 'block';
                 document.getElementById('avatarInitial').style.display = 'none';
-                
+
                 document.getElementById('profileAvatarImg').src = currentUser.profilePic;
                 document.getElementById('profileAvatarImg').style.display = 'block';
                 document.getElementById('profileAvatarInitial').style.display = 'none';
             } else {
                 document.getElementById('headerAvatarImg').style.display = 'none';
                 document.getElementById('avatarInitial').style.display = 'block';
-                
                 document.getElementById('profileAvatarImg').style.display = 'none';
                 document.getElementById('profileAvatarInitial').style.display = 'block';
             }
         }
 
-        async function loadUserProfile() {
-            const userRef = doc(db, 'users', userId);
-            onSnapshot(userRef, (snap) => {
-                if (snap.exists()) {
-                    currentUser = { uid: userId, ...snap.data() };
-                    document.getElementById('profileName').textContent = `${currentUser.firstName} ${currentUser.lastName || ''}`;
-                    document.getElementById('profileEmail').textContent = currentUser.email;
+        function loadUserProfile() {
+            const userRef = ref(db, 'users/' + userId);
+            onValue(userRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    currentUser = { uid: userId, ...snapshot.val() };
+                    document.getElementById('profileName').textContent = `${currentUser.firstName} ${currentUser.lastName || ''}`.trim();
+                    document.getElementById('profileEmail').textContent = currentUser.email || 'user@studrive.com';
                     document.getElementById('profileBio').textContent = currentUser.bio || 'Aucune bio pour le moment.';
                     updateUserAvatar();
+                    updateProfileStats();
                 }
             });
         }
@@ -741,8 +713,7 @@
                 try {
                     showToast('Upload de la photo...', 'success');
                     const url = await uploadToCloudinary(selectedAvatarFile);
-                    const userRef = doc(db, 'users', userId);
-                    await updateDoc(userRef, { profilePic: url });
+                    await update(ref(db, 'users/' + userId), { profilePic: url });
                     showToast('Photo mise à jour !', 'success');
                 } catch (err) {
                     showToast('Erreur upload', 'error');
@@ -751,8 +722,8 @@
         });
 
         function formatTime(timestamp) {
-            if (!timestamp) return '';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            if (!timestamp) return 'maintenant';
+            const date = new Date(timestamp);
             const diff = Date.now() - date.getTime();
             const mins = Math.floor(diff / 60000);
             const hours = Math.floor(mins / 60);
@@ -768,21 +739,21 @@
             toast.textContent = msg;
             toast.className = `toast ${type} show`;
             setTimeout(() => toast.classList.remove('show'), 3000);
-
-            const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3');
-            audio.volume = 0.3;
-            audio.play().catch(() => {});
         }
 
         async function uploadToCloudinary(file) {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-            const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/auto/upload`, 
-                { method: 'POST', body: formData });
-            return (await res.json()).secure_url;
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/auto/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            return data.secure_url;
         }
 
+        // === Reconnaissance vocale ===
         function initSpeechRecognition() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
@@ -804,7 +775,7 @@
                 if (tempFinal) finalTranscript += tempFinal;
                 updateTranscriptionDisplay();
             };
-            recognition.onerror = (e) => console.error('Erreur reconnaissance:', e.error);
+            recognition.onerror = () => console.error('Erreur reconnaissance');
             recognition.onend = () => { if (isRecording && !isPaused) recognition.start(); };
             return recognition;
         }
@@ -828,10 +799,10 @@
                 mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
                 mediaRecorder.onstop = () => stream.getTracks().forEach(t => t.stop());
                 mediaRecorder.start(1000);
-                recordingStartTime = Date.now();
 
+                recordingStartTime = Date.now();
                 if (!recognition) recognition = initSpeechRecognition();
-                if (recognition) try { recognition.start(); } catch (e) {}
+                if (recognition) recognition.start();
 
                 document.getElementById('startRecording').style.display = 'none';
                 document.getElementById('pauseRecording').style.display = 'flex';
@@ -851,32 +822,30 @@
 
                 showToast('Enregistrement démarré', 'success');
             } catch (err) {
-                showToast('Erreur micro: ' + err.message, 'error');
+                showToast('Erreur micro : ' + err.message, 'error');
             }
         });
 
         document.getElementById('pauseRecording').addEventListener('click', () => {
             if (isPaused) {
-                if (mediaRecorder && mediaRecorder.state === 'paused') mediaRecorder.resume();
-                if (recognition) try { recognition.start(); } catch (e) {}
+                mediaRecorder.resume();
+                if (recognition) recognition.start();
                 isPaused = false;
                 pausedTime += Date.now() - pauseStartTime;
                 document.getElementById('recordingState').textContent = 'En cours...';
                 document.getElementById('pauseRecording').innerHTML = '<span>⏸️</span><span>Pause</span>';
-                showToast('Repris', 'success');
             } else {
-                if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.pause();
+                mediaRecorder.pause();
                 if (recognition) recognition.stop();
                 isPaused = true;
                 pauseStartTime = Date.now();
                 document.getElementById('recordingState').textContent = 'En pause';
                 document.getElementById('pauseRecording').innerHTML = '<span>▶️</span><span>Reprendre</span>';
-                showToast('En pause', 'success');
             }
         });
 
         document.getElementById('stopRecording').addEventListener('click', () => {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+            if (mediaRecorder) mediaRecorder.stop();
             if (recognition) recognition.stop();
             clearInterval(recordingInterval);
             isRecording = false;
@@ -887,19 +856,15 @@
             document.getElementById('stopRecording').style.display = 'none';
             document.getElementById('recordingStatus').style.display = 'none';
             document.getElementById('recordingWaveform').style.display = 'none';
-
             showToast('Enregistrement terminé', 'success');
         });
 
         window.copyTranscription = () => {
-            const txt = finalTranscript.trim() || 'Aucune transcription';
-            navigator.clipboard.writeText(txt).then(() => showToast('Copié !', 'success'))
-                .catch(() => showToast('Erreur copie', 'error'));
+            navigator.clipboard.writeText(finalTranscript.trim() || 'Aucune transcription').then(() => showToast('Copié !', 'success'));
         };
 
         window.downloadTranscription = () => {
-            const txt = finalTranscript.trim() || 'Aucune transcription';
-            const blob = new Blob([txt], { type: 'text/plain' });
+            const blob = new Blob([finalTranscript.trim()], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -916,14 +881,17 @@
             showToast('Transcription effacée', 'success');
         };
 
+        // === Sujets (StuDrive) ===
         function loadSubjects() {
-            const subjectsRef = collection(db, 'subjects');
-            const q = query(subjectsRef, orderBy('timestamp', 'desc'));
-            onSnapshot(q, (snapshot) => {
+            const subjectsRef = ref(db, 'subjects');
+            onValue(subjectsRef, (snapshot) => {
                 allSubjects = [];
-                snapshot.forEach((doc) => {
-                    allSubjects.push({ id: doc.id, ...doc.data() });
+                snapshot.forEach((child) => {
+                    const data = child.val();
+                    data.id = child.key;
+                    allSubjects.push(data);
                 });
+                allSubjects.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                 renderSubjects();
                 renderFavorites();
                 updateProfileStats();
@@ -934,47 +902,32 @@
             const container = document.getElementById('subjectsList');
             let filtered = allSubjects;
             if (currentFiliere !== 'all') filtered = filtered.filter(s => s.filiere === currentFiliere);
-            const searchTerm = document.getElementById('subjectSearch').value.toLowerCase();
-            if (searchTerm) filtered = filtered.filter(s => 
-                s.title.toLowerCase().includes(searchTerm) || s.filiere.toLowerCase().includes(searchTerm));
+            const term = document.getElementById('subjectSearch').value.toLowerCase();
+            if (term) filtered = filtered.filter(s => (s.title || '').toLowerCase().includes(term));
 
-            if (!filtered.length) {
+            if (filtered.length === 0) {
                 container.innerHTML = '<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-title">Aucun sujet trouvé</div></div>';
                 return;
             }
 
             container.innerHTML = '';
-            for (let s of filtered) {
+            for (const s of filtered) {
                 const isFav = favorites.includes(s.id);
                 let imgHTML = '<div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; color: white;">📚</div>';
-                if (s.fileUrl) {
-                    if (s.fileName && s.fileName.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-                        imgHTML = `<img src="${s.fileUrl}" alt="${s.title}">`;
-                    } else if (s.fileName && s.fileName.match(/\.pdf$/i)) {
-                        imgHTML = '<div style="background: linear-gradient(135deg, #c62828 0%, #ef5350 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; color: white;">📕</div>';
-                    }
+                if (s.fileUrl && s.fileName && /\.(jpg|jpeg|png|gif|webp)$/i.test(s.fileName)) {
+                    imgHTML = `<img src="${s.fileUrl}" alt="${s.title}">`;
+                } else if (s.fileName && /\.pdf$/i.test(s.fileName)) {
+                    imgHTML = '<div style="background: linear-gradient(135deg, #c62828 0%, #ef5350 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; color: white;">📕</div>';
                 }
 
-                let authorAvatarHTML = '';
-                if (s.userId) {
-                    const authorRef = doc(db, 'users', s.userId);
-                    const authorSnap = await getDoc(authorRef);
-                    if (authorSnap.exists()) {
-                        const author = authorSnap.data();
-                        if (author.profilePic) {
-                            authorAvatarHTML = `<img src="${author.profilePic}" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover; margin-right: 4px;">`;
-                        }
-                    }
-                }
+                const authorAvatarHTML = s.userId ? await getUserAvatarHTML(s.userId) : '';
 
                 const card = document.createElement('div');
                 card.className = 'subject-card';
                 card.innerHTML = `
                     <div class="subject-image">
                         ${imgHTML}
-                        <button class="favorite-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${s.id}')">
-                            ${isFav ? '⭐' : '☆'}
-                        </button>
+                        <button class="favorite-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${s.id}')">${isFav ? '⭐' : '☆'}</button>
                     </div>
                     <div class="subject-body" onclick="viewSubject('${s.id}')">
                         <div class="subject-title">${s.title || 'Sans titre'}</div>
@@ -988,13 +941,26 @@
                             <div class="subject-stat"><span>👁️</span><span>${s.views || 0}</span></div>
                             <div class="subject-stat"><span>⬇️</span><span>${s.downloads || 0}</span></div>
                             <div class="subject-stat" onclick="event.stopPropagation(); downloadSubject('${s.id}', '${s.fileUrl}', '${s.fileName || s.title}')"><span>💾</span><span>Télécharger</span></div>
-                            <div class="subject-stat" onclick="event.stopPropagation(); shareSubject(${JSON.stringify(s).replace(/"/g, '&quot;')})"><span>↗️</span><span>Partager</span></div>
+                            <div class="subject-stat" onclick="event.stopPropagation(); shareSubject('${s.fileUrl}')"><span>↗️</span><span>Partager</span></div>
                         </div>
                         ${s.userId !== userId ? `<button class="message-poster-btn" onclick="event.stopPropagation(); startChat('${s.userId}')">Message au poster</button>` : ''}
                     </div>
                 `;
                 container.appendChild(card);
             }
+        }
+
+        async function getUserAvatarHTML(uid) {
+            const userRef = ref(db, 'users/' + uid);
+            return new Promise(resolve => {
+                onValue(userRef, (snap) => {
+                    if (snap.exists() && snap.val().profilePic) {
+                        resolve(`<img src="${snap.val().profilePic}" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover; margin-right: 4px;">`);
+                    } else {
+                        resolve('');
+                    }
+                }, { onlyOnce: true });
+            });
         }
 
         window.toggleFavorite = (subjectId) => {
@@ -1005,7 +971,6 @@
             } else {
                 favorites.push(subjectId);
                 showToast('Ajouté aux favoris ❤️', 'success');
-                if ('vibrate' in navigator) navigator.vibrate(50);
             }
             localStorage.setItem('studrive_favorites', JSON.stringify(favorites));
             renderSubjects();
@@ -1014,9 +979,12 @@
         };
 
         window.downloadSubject = async (id, url, name) => {
-            if (!url) { showToast('Aucun fichier', 'error'); return; }
-            const subjectRef = doc(db, 'subjects', id);
-            await updateDoc(subjectRef, { downloads: increment(1) });
+            if (!url) return showToast('Aucun fichier', 'error');
+            const subjectRef = ref(db, 'subjects/' + id);
+            await runTransaction(subjectRef, (current) => {
+                if (current) current.downloads = (current.downloads || 0) + 1;
+                return current;
+            });
             const a = document.createElement('a');
             a.href = url;
             a.download = name || 'sujet';
@@ -1024,36 +992,37 @@
             showToast('Téléchargement lancé !', 'success');
         };
 
-        window.shareSubject = (subject) => {
+        window.viewSubject = async (id) => {
+            const s = allSubjects.find(x => x.id === id);
+            if (!s || !s.fileUrl) return showToast('Aucun fichier', 'error');
+            const subjectRef = ref(db, 'subjects/' + id);
+            await runTransaction(subjectRef, (current) => {
+                if (current) current.views = (current.views || 0) + 1;
+                return current;
+            });
+            window.open(s.fileUrl, '_blank');
+        };
+
+        window.shareSubject = (url) => {
             if (navigator.share) {
-                navigator.share({
-                    title: subject.title,
-                    text: `Sujet : ${subject.title} (${subject.filiere})`,
-                    url: subject.fileUrl || window.location.href
-                });
+                navigator.share({ url });
             } else {
-                navigator.clipboard.writeText(subject.fileUrl || window.location.href);
+                navigator.clipboard.writeText(url);
                 showToast('Lien copié', 'success');
             }
         };
 
-        window.viewSubject = async (id) => {
-            const s = allSubjects.find(x => x.id === id);
-            if (!s) return;
-            const subjectRef = doc(db, 'subjects', id);
-            await updateDoc(subjectRef, { views: increment(1) });
-            if (s.fileUrl) window.open(s.fileUrl, '_blank');
-            else showToast('Aucun fichier', 'error');
-        };
-
+        // === Publications FocusClass ===
         function loadPosts() {
-            const postsRef = collection(db, 'posts');
-            const q = query(postsRef, orderBy('timestamp', 'desc'));
-            onSnapshot(q, (snapshot) => {
+            const postsRef = ref(db, 'posts');
+            onValue(postsRef, (snapshot) => {
                 allPosts = [];
-                snapshot.forEach((doc) => {
-                    allPosts.push({ id: doc.id, ...doc.data() });
+                snapshot.forEach((child) => {
+                    const data = child.val();
+                    data.id = child.key;
+                    allPosts.push(data);
                 });
+                allPosts.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                 renderPosts();
                 updateProfileStats();
             });
@@ -1061,32 +1030,28 @@
 
         async function renderPosts(posts = allPosts) {
             const container = document.getElementById('focusFeed');
-            if (!posts.length) {
+            const searchTerm = document.getElementById('focusSearch')?.value.toLowerCase() || '';
+            let filtered = posts;
+            if (searchTerm) {
+                filtered = posts.filter(p => (p.caption || '').toLowerCase().includes(searchTerm) || (p.userName || '').toLowerCase().includes(searchTerm));
+            }
+
+            if (filtered.length === 0) {
                 container.innerHTML = '<div class="empty-state"><div class="empty-icon">🎓</div><div class="empty-title">Aucune publication</div></div>';
                 return;
             }
 
             container.innerHTML = '';
-            for (let p of posts) {
-                let authorData = { firstName: 'Utilisateur', profilePic: null };
-                if (p.userId) {
-                    const authorRef = doc(db, 'users', p.userId);
-                    const authorSnap = await getDoc(authorRef);
-                    if (authorSnap.exists()) {
-                        authorData = authorSnap.data();
-                    }
-                }
-
-                const userInitial = authorData.firstName.charAt(0).toUpperCase();
+            for (const p of filtered) {
+                const authorData = await getUserData(p.userId || null);
                 const isLiked = p.likedBy && p.likedBy[userId];
-
                 let mediaHTML = '';
                 if (p.mediaUrl) {
                     if (p.mediaType === 'image') mediaHTML = `<img src="${p.mediaUrl}" class="post-media" alt="Image">`;
-                    else if (p.mediaType === 'video') mediaHTML = `<video src="${p.mediaUrl}" class="post-media" controls playsinline></video>`;
+                    if (p.mediaType === 'video') mediaHTML = `<video src="${p.mediaUrl}" class="post-media" controls playsinline></video>`;
                 }
 
-                let avatarHTML = authorData.profilePic ? `<img src="${authorData.profilePic}">` : userInitial;
+                const avatarHTML = authorData.profilePic ? `<img src="${authorData.profilePic}">` : authorData.firstName.charAt(0).toUpperCase();
 
                 const postEl = document.createElement('div');
                 postEl.className = 'feed-post';
@@ -1107,19 +1072,21 @@
                         </button>
                         <button class="post-action-btn" onclick="toggleComments('${p.id}')">
                             <span class="post-action-icon">💬</span>
-                            <span>${p.comments ? Object.keys(p.comments).length : 0}</span>
+                            <span>${Object.keys(p.comments || {}).length}</span>
                         </button>
-                        <button class="post-action-btn" onclick="sharePost(${JSON.stringify(p).replace(/"/g, '&quot;')})">
+                        <button class="post-action-btn" onclick="sharePost('${p.mediaUrl || window.location.href}')">
                             <span class="post-action-icon">↗️</span>
                         </button>
                     </div>
                     <div class="comment-section" id="comments-${p.id}">
-                        ${p.comments ? `<div class="comment-list">
-                            ${Object.values(p.comments).map(c => `<div class="comment-item">
-                                <div class="comment-author">${c.userName}</div>
-                                <div class="comment-text">${c.text}</div>
-                            </div>`).join('')}
-                        </div>` : ''}
+                        <div class="comment-list">
+                            ${Object.entries(p.comments || {}).map(([_, c]) => `
+                                <div class="comment-item">
+                                    <div class="comment-author">${c.userName}</div>
+                                    <div class="comment-text">${c.text}</div>
+                                </div>
+                            `).join('')}
+                        </div>
                         <div class="comment-input-wrapper">
                             <input type="text" class="comment-input" id="commentInput-${p.id}" placeholder="Commenter...">
                             <button class="comment-send-btn" onclick="addComment('${p.id}')">Envoyer</button>
@@ -1130,78 +1097,74 @@
             }
         }
 
-        window.sharePost = (post) => {
-            if (navigator.share && post.caption) {
-                navigator.share({
-                    title: 'Publication FocusClass',
-                    text: post.caption,
-                    url: window.location.href
-                });
-            } else {
-                showToast('Partage non disponible', 'error');
-            }
-        };
+        async function getUserData(uid) {
+            if (!uid) return { firstName: 'Utilisateur', profilePic: null };
+            const userRef = ref(db, 'users/' + uid);
+            return new Promise(resolve => {
+                onValue(userRef, (snap) => {
+                    resolve(snap.exists() ? snap.val() : { firstName: 'Utilisateur', profilePic: null });
+                }, { onlyOnce: true });
+            });
+        }
 
         window.toggleLike = async (postId) => {
-            const postRef = doc(db, 'posts', postId);
-            const postSnap = await getDoc(postRef);
-            const postData = postSnap.data() || {};
-            const likedBy = postData.likedBy || {};
-            const currentLikes = postData.likes || 0;
-
-            if (likedBy[userId]) {
-                delete likedBy[userId];
-                await updateDoc(postRef, { likes: Math.max(0, currentLikes - 1), likedBy });
-            } else {
-                likedBy[userId] = true;
-                await updateDoc(postRef, { likes: currentLikes + 1, likedBy });
-            }
+            const postRef = ref(db, 'posts/' + postId);
+            await runTransaction(postRef, (current) => {
+                if (!current) return current;
+                current.likedBy = current.likedBy || {};
+                if (current.likedBy[userId]) {
+                    delete current.likedBy[userId];
+                    current.likes = Math.max(0, (current.likes || 0) - 1);
+                } else {
+                    current.likedBy[userId] = true;
+                    current.likes = (current.likes || 0) + 1;
+                }
+                return current;
+            });
         };
 
         window.toggleComments = (postId) => {
             const section = document.getElementById(`comments-${postId}`);
-            if (section) section.classList.toggle('active');
+            section.classList.toggle('active');
         };
 
         window.addComment = async (postId) => {
             const input = document.getElementById(`commentInput-${postId}`);
-            const txt = input.value.trim();
-            if (!txt) { showToast('Écrivez un commentaire', 'error'); return; }
-
-            const commentId = Date.now().toString();
-            const postRef = doc(db, 'posts', postId);
-            const postSnap = await getDoc(postRef);
-            const comments = postSnap.data().comments || {};
-            comments[commentId] = {
-                id: commentId, 
-                text: txt, 
+            const text = input.value.trim();
+            if (!text) return;
+            const commentRef = push(ref(db, 'posts/' + postId + '/comments'));
+            await set(commentRef, {
+                text,
                 userId: userId,
                 userName: currentUser.firstName,
                 timestamp: serverTimestamp()
-            };
-
-            await updateDoc(postRef, { comments });
+            });
             input.value = '';
             showToast('Commentaire ajouté', 'success');
         };
 
-        document.getElementById('focusSearch')?.addEventListener('input', () => {
-            const term = document.getElementById('focusSearch').value.toLowerCase();
-            const filtered = allPosts.filter(p => 
-                (p.caption || '').toLowerCase().includes(term) || 
-                (p.userName || '').toLowerCase().includes(term)
-            );
-            renderPosts(filtered);
-        });
+        window.sharePost = (url) => {
+            if (navigator.share) {
+                navigator.share({ url });
+            } else {
+                navigator.clipboard.writeText(url);
+                showToast('Lien copié', 'success');
+            }
+        };
 
+        document.getElementById('focusSearch')?.addEventListener('input', () => renderPosts());
+
+        // === Notifications ===
         function loadNotifications() {
-            const notifsRef = collection(db, 'notifications');
-            const q = query(notifsRef, orderBy('timestamp', 'desc'), limit(50));
-            onSnapshot(q, (snapshot) => {
+            const notifsRef = ref(db, 'notifications');
+            onValue(notifsRef, (snapshot) => {
                 allNotifications = [];
-                snapshot.forEach((doc) => {
-                    allNotifications.push({ id: doc.id, ...doc.data() });
+                snapshot.forEach((child) => {
+                    const data = child.val();
+                    data.id = child.key;
+                    allNotifications.push(data);
                 });
+                allNotifications.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                 renderNotifications();
             });
         }
@@ -1209,40 +1172,42 @@
         function renderNotifications() {
             const container = document.getElementById('notificationsList');
             const badge = document.getElementById('notifBadge');
-            const unreadCount = allNotifications.filter(n => !n.read).length;
-            badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-            badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+            const unread = allNotifications.filter(n => !n.read);
+            badge.textContent = unread.length > 99 ? '99+' : unread.length;
+            badge.style.display = unread.length > 0 ? 'flex' : 'none';
 
-            if (!allNotifications.length) {
+            if (allNotifications.length === 0) {
                 container.innerHTML = '<div class="empty-state"><div class="empty-icon">🔔</div><div class="empty-title">Aucune notification</div></div>';
                 return;
             }
 
-            container.innerHTML = allNotifications.map(n => `<div class="notification-item ${!n.read ? 'unread' : ''}">
-                <div class="notif-icon-wrapper"><span>${n.icon || '📢'}</span></div>
-                <div class="notif-content">
-                    <div class="notif-message">${n.message}</div>
-                    <div class="notif-details">${n.details || ''}</div>
-                    <div class="notif-time">${formatTime(n.timestamp)}</div>
+            container.innerHTML = allNotifications.map(n => `
+                <div class="notification-item ${!n.read ? 'unread' : ''}">
+                    <div class="notif-icon-wrapper"><span>${n.icon || '📢'}</span></div>
+                    <div class="notif-content">
+                        <div class="notif-message">${n.message}</div>
+                        <div class="notif-details">${n.details || ''}</div>
+                        <div class="notif-time">${formatTime(n.timestamp)}</div>
+                    </div>
                 </div>
-            </div>`).join('');
+            `).join('');
         }
 
+        // === Favoris ===
         async function renderFavorites() {
-            const list = document.getElementById('favoritesList');
-            const favSubjects = allSubjects.filter(s => favorites.includes(s.id));
-            if (favSubjects.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-icon">❤️</div><div class="empty-title">Aucun sujet en favori</div></div>';
+            const container = document.getElementById('favoritesList');
+            const favs = allSubjects.filter(s => favorites.includes(s.id));
+            if (favs.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">❤️</div><div class="empty-title">Aucun sujet en favori</div></div>';
                 return;
             }
-            
-            list.innerHTML = '';
-            for (let s of favSubjects) {
+            container.innerHTML = '';
+            for (const s of favs) {
                 let imgHTML = '<div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; color: white;">📚</div>';
-                if (s.fileUrl && s.fileName && s.fileName.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                if (s.fileUrl && s.fileName && /\.(jpg|jpeg|png|gif|webp)$/i.test(s.fileName)) {
                     imgHTML = `<img src="${s.fileUrl}" alt="${s.title}">`;
                 }
-                
+
                 const card = document.createElement('div');
                 card.className = 'subject-card';
                 card.innerHTML = `
@@ -1255,7 +1220,7 @@
                         <div class="subject-meta"><span class="filiere-badge">${s.filiere || 'N/A'}</span></div>
                     </div>
                 `;
-                list.appendChild(card);
+                container.appendChild(card);
             }
         }
 
@@ -1265,13 +1230,17 @@
             document.getElementById('statFavorites').textContent = favorites.length;
         }
 
+        // === Messages / Chat ===
         function loadConversations() {
-            const chatsRef = collection(db, 'chats');
-            const q = query(chatsRef, where('members', 'array-contains', userId));
-            onSnapshot(q, (snapshot) => {
+            const chatsRef = ref(db, 'chats');
+            onValue(chatsRef, (snapshot) => {
                 conversations = [];
-                snapshot.forEach((doc) => {
-                    conversations.push({ chatId: doc.id, ...doc.data() });
+                snapshot.forEach((child) => {
+                    const data = child.val();
+                    if (data.members && data.members.includes(userId)) {
+                        data.chatId = child.key;
+                        conversations.push(data);
+                    }
                 });
                 renderChatList();
             });
@@ -1279,22 +1248,19 @@
 
         async function renderChatList() {
             const container = document.getElementById('chatList');
-            if (!conversations.length) {
+            if (conversations.length === 0) {
                 container.innerHTML = '<div class="empty-state"><div class="empty-icon">🗨️</div><div class="empty-title">Aucune conversation</div></div>';
                 return;
             }
-
             container.innerHTML = '';
-            for (let conv of conversations) {
-                const otherUid = conv.members.find(uid => uid !== userId);
-                const userRef = doc(db, 'users', otherUid);
-                const userSnap = await getDoc(userRef);
-                const otherUser = userSnap.exists() ? userSnap.data() : { firstName: 'Utilisateur', profilePic: null };
+            for (const conv of conversations) {
+                const otherUid = conv.members.find(m => m !== userId);
+                const otherUser = await getUserData(otherUid);
                 const avatarHTML = otherUser.profilePic ? `<img src="${otherUser.profilePic}">` : otherUser.firstName.charAt(0).toUpperCase();
 
-                const div = document.createElement('div');
-                div.className = 'chat-item';
-                div.innerHTML = `
+                const item = document.createElement('div');
+                item.className = 'chat-item';
+                item.innerHTML = `
                     <div class="chat-avatar">${avatarHTML}</div>
                     <div class="chat-info">
                         <div class="chat-username">${otherUser.firstName}</div>
@@ -1302,27 +1268,25 @@
                     </div>
                     <div class="chat-time">${formatTime(conv.lastTimestamp)}</div>
                 `;
-                div.onclick = () => openChat(otherUid, otherUser);
-                container.appendChild(div);
+                item.onclick = () => openChat(otherUid, otherUser);
+                container.appendChild(item);
             }
         }
 
         async function startChat(otherUid) {
             if (otherUid === userId) return;
-            const sortedUids = [userId, otherUid].sort();
-            currentChatId = sortedUids.join('_');
-            const chatRef = doc(db, 'chats', currentChatId);
-            const chatSnap = await getDoc(chatRef);
-            if (!chatSnap.exists()) {
-                await setDoc(chatRef, { 
-                    members: sortedUids, 
-                    lastMessage: 'Conversation démarrée', 
-                    lastTimestamp: serverTimestamp() 
+            const members = [userId, otherUid].sort();
+            currentChatId = members.join('_');
+            const chatRef = ref(db, 'chats/' + currentChatId);
+            const snap = await new Promise(resolve => onValue(chatRef, resolve, { onlyOnce: true }));
+            if (!snap.exists()) {
+                await set(chatRef, {
+                    members,
+                    lastMessage: 'Conversation démarrée',
+                    lastTimestamp: serverTimestamp()
                 });
             }
-            const userRef = doc(db, 'users', otherUid);
-            const userSnap = await getDoc(userRef);
-            const otherUser = userSnap.exists() ? userSnap.data() : { firstName: 'Utilisateur', profilePic: null };
+            const otherUser = await getUserData(otherUid);
             openChat(otherUid, otherUser);
         }
 
@@ -1330,34 +1294,39 @@
 
         function openChat(otherUid, otherUser) {
             currentChatUser = { uid: otherUid, ...otherUser };
-            document.getElementById('chatUsername').textContent = currentChatUser.firstName;
-            
-            if (currentChatUser.profilePic) {
-                document.getElementById('chatAvatarImg').src = currentChatUser.profilePic;
+            document.getElementById('chatUsername').textContent = otherUser.firstName;
+
+            if (otherUser.profilePic) {
+                document.getElementById('chatAvatarImg').src = otherUser.profilePic;
                 document.getElementById('chatAvatarImg').style.display = 'block';
                 document.getElementById('chatAvatarInitial').style.display = 'none';
             } else {
                 document.getElementById('chatAvatarImg').style.display = 'none';
-                document.getElementById('chatAvatarInitial').textContent = currentChatUser.firstName.charAt(0).toUpperCase();
+                document.getElementById('chatAvatarInitial').textContent = otherUser.firstName.charAt(0).toUpperCase();
                 document.getElementById('chatAvatarInitial').style.display = 'block';
             }
-            
+
             document.getElementById('messagesPage').style.display = 'none';
             document.getElementById('chatPage').style.display = 'block';
             loadChatMessages();
         }
 
         function loadChatMessages() {
-            const messagesRef = collection(db, 'chats', currentChatId, 'messages');
-            const q = query(messagesRef, orderBy('timestamp', 'asc'));
-            onSnapshot(q, (snapshot) => {
+            const messagesRef = ref(db, 'chats/' + currentChatId + '/messages');
+            onValue(messagesRef, (snapshot) => {
                 const container = document.getElementById('chatMessages');
                 container.innerHTML = '';
-                snapshot.forEach((doc) => {
-                    const msg = doc.data();
+                const msgs = [];
+                snapshot.forEach(child => {
+                    const msg = child.val();
+                    msg.id = child.key;
+                    msgs.push(msg);
+                });
+                msgs.sort((a, b) => a.timestamp - b.timestamp);
+                msgs.forEach(msg => {
                     const div = document.createElement('div');
                     div.className = `message ${msg.sender === userId ? 'sent' : 'received'}`;
-                    div.textContent = msg.text || '';
+                    div.textContent = msg.text;
                     container.appendChild(div);
                 });
                 container.scrollTop = container.scrollHeight;
@@ -1366,22 +1335,18 @@
 
         document.getElementById('sendMessageBtn').addEventListener('click', async () => {
             const input = document.getElementById('chatTextInput');
-            const txt = input.value.trim();
-            if (!txt) return;
-            
-            const messagesRef = collection(db, 'chats', currentChatId, 'messages');
-            await setDoc(doc(messagesRef), { 
-                text: txt, 
-                sender: userId, 
-                timestamp: serverTimestamp() 
+            const text = input.value.trim();
+            if (!text) return;
+            const msgRef = push(ref(db, 'chats/' + currentChatId + '/messages'));
+            await set(msgRef, {
+                text,
+                sender: userId,
+                timestamp: serverTimestamp()
             });
-            
-            const chatRef = doc(db, 'chats', currentChatId);
-            await updateDoc(chatRef, { 
-                lastMessage: txt, 
-                lastTimestamp: serverTimestamp() 
+            await update(ref(db, 'chats/' + currentChatId), {
+                lastMessage: text,
+                lastTimestamp: serverTimestamp()
             });
-            
             input.value = '';
         });
 
@@ -1392,6 +1357,7 @@
             currentChatId = null;
         });
 
+        // === Navigation & Modales ===
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 currentPage = item.dataset.page;
@@ -1414,13 +1380,14 @@
         });
 
         document.getElementById('fabBtn').addEventListener('click', () => {
-            if (currentPage === 'studrive') document.getElementById('uploadModal').classList.add('active');
-            else if (currentPage === 'focus') document.getElementById('postModal').classList.add('active');
+            if (currentPage === 'studrive') {
+                document.getElementById('uploadModal').classList.add('active');
+            } else if (currentPage === 'focus') {
+                document.getElementById('postModal').classList.add('active');
+            }
         });
 
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
-        });
+        document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('active'); }));
         document.getElementById('closeUpload').addEventListener('click', () => document.getElementById('uploadModal').classList.remove('active'));
         document.getElementById('cancelUpload').addEventListener('click', () => document.getElementById('uploadModal').classList.remove('active'));
         document.getElementById('closePost').addEventListener('click', () => document.getElementById('postModal').classList.remove('active'));
@@ -1428,99 +1395,102 @@
 
         document.getElementById('subjectFile').addEventListener('change', (e) => {
             selectedSubjectFile = e.target.files[0];
-            if (selectedSubjectFile) showToast(`Fichier sélectionné : ${selectedSubjectFile.name}`, 'success');
-        });
-        document.getElementById('postMedia').addEventListener('change', (e) => {
-            selectedPostMedia = e.target.files[0];
-            if (selectedPostMedia) showToast(`Média sélectionné : ${selectedPostMedia.name}`, 'success');
+            if (selectedSubjectFile) showToast(`Fichier : ${selectedSubjectFile.name}`, 'success');
         });
 
+        document.getElementById('postMedia').addEventListener('change', (e) => {
+            selectedPostMedia = e.target.files[0];
+            if (selectedPostMedia) showToast(`Média : ${selectedPostMedia.name}`, 'success');
+        });
+
+        // === Publication sujet ===
         document.getElementById('submitSubject').addEventListener('click', async () => {
             const title = document.getElementById('subjectTitle').value.trim();
             const filiere = document.getElementById('subjectFiliere').value;
-            if (!title || !filiere) { showToast('Remplissez tous les champs', 'error'); return; }
+            if (!title || !filiere) return showToast('Champs obligatoires', 'error');
 
             const btn = document.getElementById('submitSubject');
-            btn.disabled = true; btn.textContent = 'Publication...';
+            btn.disabled = true;
+            btn.textContent = 'Publication...';
 
             try {
                 let fileUrl = null, fileName = null;
                 if (selectedSubjectFile) {
-                    showToast('Upload du fichier...', 'success');
                     fileUrl = await uploadToCloudinary(selectedSubjectFile);
                     fileName = selectedSubjectFile.name;
                 }
 
-                const subjectId = Date.now().toString();
-                const subjectRef = doc(db, 'subjects', subjectId);
-                await setDoc(subjectRef, {
-                    id: subjectId, title, filiere, fileUrl, fileName,
-                    userId: userId, 
+                const newSubjectRef = push(ref(db, 'subjects'));
+                await set(newSubjectRef, {
+                    title,
+                    filiere,
+                    fileUrl,
+                    fileName,
+                    userId,
                     userName: currentUser.firstName,
-                    views: 0, downloads: 0, 
+                    views: 0,
+                    downloads: 0,
                     timestamp: serverTimestamp()
                 });
 
-                const notifId = Date.now().toString();
-                const notifRef = doc(db, 'notifications', notifId);
-                await setDoc(notifRef, {
-                    message: 'Nouveau sujet disponible !',
-                    details: `${title} - ${filiere}`,
-                    icon: '📚', 
-                    timestamp: serverTimestamp(), 
+                const notifRef = push(ref(db, 'notifications'));
+                await set(notifRef, {
+                    message: 'Nouveau sujet publié !',
+                    details: `${title} (${filiere})`,
+                    icon: '📚',
+                    timestamp: serverTimestamp(),
                     read: false
                 });
 
-                showToast('Sujet publié avec succès !', 'success');
+                showToast('Sujet publié !', 'success');
                 document.getElementById('uploadModal').classList.remove('active');
                 document.getElementById('subjectTitle').value = '';
                 document.getElementById('subjectFiliere').value = '';
                 document.getElementById('subjectFile').value = '';
                 selectedSubjectFile = null;
             } catch (err) {
-                showToast('Erreur lors de la publication', 'error');
+                showToast('Erreur publication', 'error');
             } finally {
-                btn.disabled = false; btn.textContent = 'Publier';
+                btn.disabled = false;
+                btn.textContent = 'Publier';
             }
         });
 
+        // === Publication post ===
         document.getElementById('submitPost').addEventListener('click', async () => {
             const content = document.getElementById('postContent').value.trim();
-            if (!content && !selectedPostMedia) { showToast('Ajoutez du contenu ou un média', 'error'); return; }
+            if (!content && !selectedPostMedia) return showToast('Contenu requis', 'error');
 
             const btn = document.getElementById('submitPost');
-            btn.disabled = true; btn.textContent = 'Publication...';
+            btn.disabled = true;
+            btn.textContent = 'Publication...';
 
             try {
                 let mediaUrl = null, mediaType = null;
                 if (selectedPostMedia) {
-                    showToast('Upload du média...', 'success');
                     mediaUrl = await uploadToCloudinary(selectedPostMedia);
                     mediaType = selectedPostMedia.type.startsWith('image/') ? 'image' : 'video';
                 }
 
-                const postId = Date.now().toString();
-                const postRef = doc(db, 'posts', postId);
-                await setDoc(postRef, {
-                    id: postId, 
-                    caption: content, 
-                    mediaUrl, 
+                const newPostRef = push(ref(db, 'posts'));
+                await set(newPostRef, {
+                    caption: content,
+                    mediaUrl,
                     mediaType,
-                    userId: userId, 
+                    userId,
                     userName: currentUser.firstName,
-                    likes: 0, 
-                    likedBy: {}, 
-                    comments: {}, 
+                    likes: 0,
+                    likedBy: {},
+                    comments: {},
                     timestamp: serverTimestamp()
                 });
 
-                const notifId = Date.now().toString();
-                const notifRef = doc(db, 'notifications', notifId);
-                await setDoc(notifRef, {
+                const notifRef = push(ref(db, 'notifications'));
+                await set(notifRef, {
                     message: 'Nouvelle publication',
-                    details: `${currentUser.firstName} a publié`,
-                    icon: '🎓', 
-                    timestamp: serverTimestamp(), 
+                    details: currentUser.firstName + ' a publié',
+                    icon: '🎓',
+                    timestamp: serverTimestamp(),
                     read: false
                 });
 
@@ -1530,9 +1500,10 @@
                 document.getElementById('postMedia').value = '';
                 selectedPostMedia = null;
             } catch (err) {
-                showToast('Erreur lors de la publication', 'error');
+                showToast('Erreur publication', 'error');
             } finally {
-                btn.disabled = false; btn.textContent = 'Publier';
+                btn.disabled = false;
+                btn.textContent = 'Publier';
             }
         });
 
@@ -1550,13 +1521,6 @@
         document.getElementById('userAvatar').addEventListener('click', () => {
             document.querySelector('[data-page="profile"]').click();
         });
-
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', (e) => {
-            const now = Date.now();
-            if (now - lastTouchEnd <= 300) e.preventDefault();
-            lastTouchEnd = now;
-        }, false);
 
         initUser();
     </script>
