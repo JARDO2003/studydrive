@@ -60,7 +60,8 @@
         body.dark-mode .form-input,
         body.dark-mode .form-textarea,
         body.dark-mode .comment-input,
-        body.dark-mode .chat-input-field {
+        body.dark-mode .chat-input-field,
+        body.dark-mode .form-select {
             background: #2d2d2d;
             border-color: #444;
             color: #fff;
@@ -252,7 +253,9 @@
         .subject-stat {
             display: flex; align-items: center; gap: 6px;
             font-size: 13px; color: var(--gray-600); cursor: pointer;
+            transition: color 0.3s;
         }
+        .subject-stat:hover { color: var(--primary); }
         .message-poster-btn {
             padding: 8px; background: var(--primary); color: var(--white);
             border-radius: 6px; font-size: 12px; cursor: pointer;
@@ -276,7 +279,16 @@
         .post-user-info { flex: 1; min-width: 0; }
         .post-username { font-weight: 700; font-size: 15px; cursor: pointer; }
         .post-userhandle { font-size: 12px; color: var(--gray-600); }
-        .post-media { width: 100%; max-height: 400px; object-fit: cover; }
+        .post-media { 
+            width: 100%; 
+            max-height: 400px; 
+            object-fit: cover; 
+        }
+        .post-video {
+            width: 100%;
+            max-height: 400px;
+            background: #000;
+        }
         .post-caption { padding: 16px; font-size: 14px; line-height: 1.6; word-wrap: break-word; }
         .post-actions {
             display: flex; gap: 16px; padding: 12px 16px;
@@ -701,18 +713,40 @@
             animation: slideUp 0.3s ease;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .modal-header { padding: 20px 16px; border-bottom: 2px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--white); z-index: 1; }
+        .modal-header { 
+            padding: 20px 16px; border-bottom: 2px solid var(--gray-200); 
+            display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; background: var(--white); z-index: 1; 
+        }
+        body.dark-mode .modal-header { background: #1e1e1e; }
         .modal-title { font-size: 18px; font-weight: 700; color: var(--primary); }
-        .modal-close { width: 32px; height: 32px; border-radius: 50%; background: var(--gray-100); border: none; font-size: 20px; cursor: pointer; transition: all 0.3s; }
+        .modal-close { 
+            width: 32px; height: 32px; border-radius: 50%; 
+            background: var(--gray-100); border: none; font-size: 20px; 
+            cursor: pointer; transition: all 0.3s; 
+        }
         .modal-close:active { background: var(--error); color: var(--white); }
         .modal-body { padding: 16px; }
         .form-group { margin-bottom: 16px; }
         .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
-        .form-input, .form-select, .form-textarea { width: 100%; padding: 12px 14px; background: var(--gray-50); border: 2px solid var(--gray-300); border-radius: 8px; font-size: 14px; outline: none; font-family: inherit; }
+        .form-input, .form-select, .form-textarea { 
+            width: 100%; padding: 12px 14px; background: var(--gray-50); 
+            border: 2px solid var(--gray-300); border-radius: 8px; 
+            font-size: 14px; outline: none; font-family: inherit; 
+        }
         .form-textarea { min-height: 100px; resize: vertical; }
         .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); }
-        .modal-footer { padding: 16px; border-top: 2px solid var(--gray-200); display: flex; gap: 12px; position: sticky; bottom: 0; background: var(--white); }
-        .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .modal-footer { 
+            padding: 16px; border-top: 2px solid var(--gray-200); 
+            display: flex; gap: 12px; position: sticky; bottom: 0; 
+            background: var(--white); 
+        }
+        body.dark-mode .modal-footer { background: #1e1e1e; }
+        .btn { 
+            flex: 1; padding: 12px; border: none; border-radius: 8px; 
+            font-size: 14px; font-weight: 700; cursor: pointer; 
+            transition: all 0.3s; 
+        }
         .btn:active { transform: scale(0.98); }
         .btn-secondary { background: var(--gray-200); color: var(--gray-800); }
         .btn-primary { background: var(--primary); color: var(--white); }
@@ -741,6 +775,78 @@
         .empty-icon { font-size: 48px; margin-bottom: 12px; }
         .empty-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
 
+        .onboarding-screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+        .onboarding-screen.hidden { display: none; }
+        .onboarding-logo {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .onboarding-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .onboarding-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .onboarding-form {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 400px;
+            color: var(--gray-900);
+        }
+        .avatar-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            border: 4px solid var(--primary);
+        }
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-btn {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
         @media (min-width: 768px) {
             .subjects-grid { grid-template-columns: repeat(2, 1fr); }
             .modal { align-items: center; }
@@ -749,6 +855,48 @@
     </style>
 </head>
 <body>
+    <!-- Écran d'inscription -->
+    <div class="onboarding-screen" id="onboardingScreen">
+        <div class="onboarding-logo">📚</div>
+        <h1 class="onboarding-title">Bienvenue sur StuDrive</h1>
+        <p class="onboarding-subtitle">Créez votre compte pour commencer</p>
+        
+        <div class="onboarding-form">
+            <div class="avatar-upload">
+                <div class="avatar-preview" id="onboardingAvatarPreview">
+                    📷
+                </div>
+                <button class="avatar-btn" id="onboardingSelectAvatar">Choisir une photo</button>
+                <input type="file" id="onboardingAvatarInput" accept="image/*" style="display: none;">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Prénom *</label>
+                <input type="text" class="form-input" id="onboardingFirstName" placeholder="Votre prénom" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Nom *</label>
+                <input type="text" class="form-input" id="onboardingLastName" placeholder="Votre nom" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Filière *</label>
+                <select class="form-select" id="onboardingFiliere" required>
+                    <option value="">Sélectionnez votre filière</option>
+                    <option value="SEG">SEG - Sciences Économiques et Gestion</option>
+                    <option value="ICRH">ICRH - Ingénierie Commerciale et RH</option>
+                    <option value="GMPE">GMPE - Gestion et Management des PME</option>
+                    <option value="GCV">GCV - Gestion et Comptabilité</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-primary" id="onboardingSubmit" style="width: 100%; margin-top: 16px;">
+                Créer mon compte
+            </button>
+        </div>
+    </div>
+
     <div class="header">
         <div class="logo">📚 StuDrive</div>
         <div class="header-actions">
@@ -767,9 +915,10 @@
                 <div class="page-title">Bibliothèque StuDrive</div>
                 <div class="page-subtitle">Accédez à tous les sujets d'examens partagés</div>
             </div>
+            
             <div class="voice-recorder-card">
                 <div class="voice-recorder-title">🎙️ Enregistrement de Cours</div>
-                <p style="opacity: 0.9; margin-bottom: 8px; font-size: 14px;">Enregistrez avec transcription temps réel</p>
+                <p style="opacity: 0.9; margin-bottom: 8px; font-size: 14px;">Enregistrez vos cours (fonctionnalité en développement sur mobile)</p>
                 <div class="voice-recorder-controls">
                     <button class="voice-btn voice-btn-start" id="startRecording"><span>🎤</span><span>Démarrer</span></button>
                     <button class="voice-btn voice-btn-pause" id="pauseRecording" style="display: none;"><span>⏸️</span><span>Pause</span></button>
@@ -793,6 +942,7 @@
                     </div>
                 </div>
             </div>
+            
             <div class="search-section">
                 <input type="text" class="search-input" id="subjectSearch" placeholder="🔍 Rechercher un sujet...">
                 <div class="filiere-tabs">
@@ -845,7 +995,7 @@
                         </div>
                         <h3 id="profileName">Utilisateur</h3>
                         <p style="color: var(--gray-600); margin: 8px 0;" id="profileEmail">user@studrive.com</p>
-                        <p style="font-size: 14px; opacity: 0.8;" id="profileBio">Aucune bio pour le moment.</p>
+                        <p style="font-size: 14px; opacity: 0.8;" id="profileFiliere">Filière non définie</p>
                         <button class="change-avatar-btn" id="changeAvatarBtn">Changer photo de profil</button>
                         <input type="file" id="avatarFile" accept="image/*" style="display: none;">
                     </div>
@@ -880,6 +1030,68 @@
             </div>
             <div id="chatList">
                 <div class="loading"><div class="loading-spinner"></div><div>Chargement des conversations...</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour publier un sujet -->
+    <div class="modal" id="addSubjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">📚 Publier un Sujet</div>
+                <button class="modal-close" onclick="closeModal('addSubjectModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Titre du sujet *</label>
+                    <input type="text" class="form-input" id="subjectTitle" placeholder="Ex: Examen Final Math 2024">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Filière *</label>
+                    <select class="form-select" id="subjectFiliere">
+                        <option value="">Sélectionnez une filière</option>
+                        <option value="SEG">SEG</option>
+                        <option value="ICRH">ICRH</option>
+                        <option value="GMPE">GMPE</option>
+                        <option value="GCV">GCV</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="subjectDescription" placeholder="Décrivez le sujet..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fichier (PDF, Image) *</label>
+                    <input type="file" class="form-input" id="subjectFileInput" accept=".pdf,image/*">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addSubjectModal')">Annuler</button>
+                <button class="btn btn-primary" id="submitSubject">Publier</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour publier un post -->
+    <div class="modal" id="addPostModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">✍️ Nouvelle Publication</div>
+                <button class="modal-close" onclick="closeModal('addPostModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Que voulez-vous partager?</label>
+                    <textarea class="form-textarea" id="postCaption" placeholder="Partagez vos pensées..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Image ou Vidéo (optionnel)</label>
+                    <input type="file" class="form-input" id="postMediaInput" accept="image/*,video/*">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('addPostModal')">Annuler</button>
+                <button class="btn btn-primary" id="submitPost">Publier</button>
             </div>
         </div>
     </div>
@@ -933,15 +1145,9 @@
             </div>
             
             <div class="call-controls">
-                <button class="call-btn call-btn-mute" id="muteMicBtn" title="Microphone">
-                    🎤
-                </button>
-                <button class="call-btn call-btn-video" id="toggleVideoBtn" title="Caméra" style="display: none;">
-                    📹
-                </button>
-                <button class="call-btn call-btn-end" id="endCallBtn" title="Raccrocher">
-                    📞
-                </button>
+                <button class="call-btn call-btn-mute" id="muteMicBtn" title="Microphone">🎤</button>
+                <button class="call-btn call-btn-video" id="toggleVideoBtn" title="Caméra" style="display: none;">📹</button>
+                <button class="call-btn call-btn-end" id="endCallBtn" title="Raccrocher">📞</button>
             </div>
         </div>
     </div>
@@ -951,12 +1157,8 @@
         <h3 id="incomingCallerName">Utilisateur</h3>
         <p id="incomingCallType">Appel audio entrant...</p>
         <div class="incoming-call-actions">
-            <button class="call-btn call-btn-end" id="rejectCallBtn" title="Refuser">
-                ✕
-            </button>
-            <button class="call-btn call-btn-answer" id="acceptCallBtn" title="Répondre">
-                ✓
-            </button>
+            <button class="call-btn call-btn-end" id="rejectCallBtn" title="Refuser">✕</button>
+            <button class="call-btn call-btn-answer" id="acceptCallBtn" title="Répondre">✓</button>
         </div>
     </div>
 
@@ -974,7 +1176,8 @@
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, set, push, onValue, update, serverTimestamp, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getDatabase, ref, set, push, onValue, update, remove, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getFirestore, collection, addDoc, doc, setDoc, getDoc, getDocs, query, where, orderBy, serverTimestamp as firestoreTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyDV8s8md1kginP7nohy63XgUR9xNk_p6iE",
@@ -988,17 +1191,21 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const firestore = getFirestore(app);
         const cloudinaryConfig = { cloudName: 'djxcqczh1', uploadPreset: 'database' };
 
         let currentUser = null;
         let allSubjects = [], allPosts = [], allNotifications = [], conversations = [];
         let currentFiliere = 'all', currentPage = 'studrive', currentChatUser = null, currentChatId = null;
         let mediaRecorder = null, audioChunks = [], recordingStartTime = null;
-        let recordingInterval = null, recognition = null, finalTranscript = '', interimTranscript = '';
-        let selectedSubjectFile = null, selectedPostMedia = null, selectedAvatarFile = null;
+        let recordingInterval = null, finalTranscript = '', interimTranscript = '';
+        let selectedSubjectFile = null, selectedPostMedia = null, selectedOnboardingAvatar = null;
         let isRecording = false, isPaused = false, pausedTime = 0, pauseStartTime = 0;
         let favorites = JSON.parse(localStorage.getItem('studrive_favorites') || '[]');
         let isDarkMode = localStorage.getItem('studrive_darkmode') === 'true';
+        let isAudioRecording = false;
+        let audioRecorder = null;
+        let audioRecordChunks = [];
 
         // WebRTC variables
         let localStream = null;
@@ -1010,9 +1217,6 @@
         let callTimerInterval = null;
         let isMuted = false;
         let isVideoEnabled = true;
-        let isAudioRecording = false;
-        let audioRecorder = null;
-        let audioRecordChunks = [];
 
         const configuration = {
             iceServers: [
@@ -1021,48 +1225,120 @@
             ]
         };
 
-        if (isDarkMode || (!localStorage.getItem('studrive_darkmode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        if (isDarkMode) {
             document.body.classList.add('dark-mode');
         }
         document.getElementById('themeToggle').textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
 
-        function generateUID() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-        }
+        // Vérifier si l'utilisateur existe déjà
+        async function checkUserRegistration() {
+            const userId = localStorage.getItem('studrive_uid');
+            
+            if (!userId) {
+                // Nouveau visiteur - afficher l'écran d'inscription
+                document.getElementById('onboardingScreen').classList.remove('hidden');
+                return;
+            }
 
-        let userId = localStorage.getItem('studrive_uid');
-        if (!userId) {
-            userId = generateUID();
-            localStorage.setItem('studrive_uid', userId);
-        }
+            // Vérifier dans Firestore
+            const userDoc = await getDoc(doc(firestore, 'users', userId));
+            
+            if (!userDoc.exists()) {
+                // L'utilisateur n'existe pas dans Firestore - afficher inscription
+                document.getElementById('onboardingScreen').classList.remove('hidden');
+                return;
+            }
 
-        async function initUser() {
-            const userRef = ref(db, 'users/' + userId);
-            onValue(userRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    currentUser = { uid: userId, ...snapshot.val() };
-                } else {
-                    currentUser = {
-                        uid: userId,
-                        firstName: 'Utilisateur',
-                        lastName: '',
-                        email: `user${userId.substr(0, 6)}@studrive.com`,
-                        bio: 'Nouveau membre de StuDrive',
-                        profilePic: null
-                    };
-                    set(userRef, { ...currentUser, createdAt: serverTimestamp() });
-                }
-                updateUserAvatar();
-                loadUserProfile();
-            }, { onlyOnce: true });
-
+            // L'utilisateur existe - cacher l'écran d'inscription et charger les données
+            document.getElementById('onboardingScreen').classList.add('hidden');
+            currentUser = { uid: userId, ...userDoc.data() };
+            updateUserAvatar();
+            loadUserProfile();
             loadSubjects();
             loadPosts();
             loadNotifications();
             loadConversations();
         }
 
+        // Gestion de l'inscription
+        document.getElementById('onboardingSelectAvatar').addEventListener('click', () => {
+            document.getElementById('onboardingAvatarInput').click();
+        });
+
+        document.getElementById('onboardingAvatarInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                selectedOnboardingAvatar = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('onboardingAvatarPreview').innerHTML = `<img src="${e.target.result}">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('onboardingSubmit').addEventListener('click', async () => {
+            const firstName = document.getElementById('onboardingFirstName').value.trim();
+            const lastName = document.getElementById('onboardingLastName').value.trim();
+            const filiere = document.getElementById('onboardingFiliere').value;
+
+            if (!firstName || !lastName || !filiere) {
+                showToast('Veuillez remplir tous les champs obligatoires', 'error');
+                return;
+            }
+
+            try {
+                showToast('Création de votre compte...', 'success');
+
+                // Générer un ID unique
+                const userId = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+                
+                // Upload avatar si sélectionné
+                let profilePicUrl = null;
+                if (selectedOnboardingAvatar) {
+                    profilePicUrl = await uploadToCloudinary(selectedOnboardingAvatar);
+                }
+
+                // Créer l'utilisateur dans Firestore
+                const userData = {
+                    firstName,
+                    lastName,
+                    filiere,
+                    profilePic: profilePicUrl,
+                    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@studrive.com`,
+                    createdAt: firestoreTimestamp()
+                };
+
+                await setDoc(doc(firestore, 'users', userId), userData);
+
+                // Sauvegarder localement
+                localStorage.setItem('studrive_uid', userId);
+                
+                // Initialiser l'utilisateur actuel
+                currentUser = { uid: userId, ...userData };
+                
+                // Masquer l'écran d'inscription
+                document.getElementById('onboardingScreen').classList.add('hidden');
+                
+                showToast('Compte créé avec succès ! Bienvenue 🎉', 'success');
+                
+                // Charger les données
+                updateUserAvatar();
+                loadUserProfile();
+                loadSubjects();
+                loadPosts();
+                loadNotifications();
+                loadConversations();
+                
+            } catch (err) {
+                console.error('Erreur lors de la création du compte:', err);
+                showToast('Erreur lors de la création du compte', 'error');
+            }
+        });
+
         function updateUserAvatar() {
+            if (!currentUser) return;
+            
             const initial = (currentUser?.firstName || 'U').charAt(0).toUpperCase();
             document.getElementById('avatarInitial').textContent = initial;
             document.getElementById('profileAvatarInitial').textContent = initial;
@@ -1083,33 +1359,34 @@
         }
 
         function loadUserProfile() {
-            const userRef = ref(db, 'users/' + userId);
-            onValue(userRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    currentUser = { uid: userId, ...snapshot.val() };
-                    document.getElementById('profileName').textContent = `${currentUser.firstName} ${currentUser.lastName || ''}`.trim();
-                    document.getElementById('profileEmail').textContent = currentUser.email || 'user@studrive.com';
-                    document.getElementById('profileBio').textContent = currentUser.bio || 'Aucune bio pour le moment.';
-                    updateUserAvatar();
-                    updateProfileStats();
-                }
-            });
+            if (!currentUser) return;
+            
+            document.getElementById('profileName').textContent = `${currentUser.firstName} ${currentUser.lastName || ''}`.trim();
+            document.getElementById('profileEmail').textContent = currentUser.email || 'user@studrive.com';
+            document.getElementById('profileFiliere').textContent = currentUser.filiere || 'Filière non définie';
+            updateUserAvatar();
+            updateProfileStats();
         }
 
         function updateProfileStats() {
-            document.getElementById('statSubjects').textContent = allSubjects.filter(s => s.userId === userId).length;
-            document.getElementById('statPosts').textContent = allPosts.filter(p => p.userId === userId).length;
+            document.getElementById('statSubjects').textContent = allSubjects.filter(s => s.userId === currentUser?.uid).length;
+            document.getElementById('statPosts').textContent = allPosts.filter(p => p.userId === currentUser?.uid).length;
             document.getElementById('statFavorites').textContent = favorites.length;
         }
 
-        document.getElementById('changeAvatarBtn').addEventListener('click', () => document.getElementById('avatarFile').click());
+        document.getElementById('changeAvatarBtn').addEventListener('click', () => {
+            document.getElementById('avatarFile').click();
+        });
+
         document.getElementById('avatarFile').addEventListener('change', async (e) => {
-            selectedAvatarFile = e.target.files[0];
-            if (selectedAvatarFile) {
+            const file = e.target.files[0];
+            if (file) {
                 try {
                     showToast('Upload de la photo...', 'success');
-                    const url = await uploadToCloudinary(selectedAvatarFile);
-                    await update(ref(db, 'users/' + userId), { profilePic: url });
+                    const url = await uploadToCloudinary(file);
+                    await setDoc(doc(firestore, 'users', currentUser.uid), { profilePic: url }, { merge: true });
+                    currentUser.profilePic = url;
+                    updateUserAvatar();
                     showToast('Photo mise à jour !', 'success');
                 } catch (err) {
                     showToast('Erreur upload', 'error');
@@ -1141,7 +1418,9 @@
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-            const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/auto/upload`, {
+            
+            const resourceType = file.type.startsWith('video/') ? 'video' : 'auto';
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/${resourceType}/upload`, {
                 method: 'POST',
                 body: formData
             });
@@ -1149,36 +1428,16 @@
             return data.secure_url;
         }
 
-        function initSpeechRecognition() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return null;
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = 'fr-FR';
-            recognition.onresult = (event) => {
-                interimTranscript = '';
-                let tempFinal = '';
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const transcript = event.results[i][0].transcript;
-                    if (event.results[i].isFinal) tempFinal += transcript + ' ';
-                    else interimTranscript += transcript;
-                }
-                if (tempFinal) finalTranscript += tempFinal;
-                updateTranscriptionDisplay();
-            };
-            recognition.onend = () => {
-                if (isRecording && !isPaused) recognition.start();
-            };
-            return recognition;
-        }
-
-        function updateTranscriptionDisplay() {
-            const display = finalTranscript + (interimTranscript ? `<span style="opacity: 0.5;">${interimTranscript}</span>` : '');
-            document.getElementById('transcriptionText').innerHTML = display || 'En attente de parole...';
-        }
-
+        // Enregistrement audio (désactivé sur mobile Android)
         document.getElementById('startRecording').addEventListener('click', async () => {
+            // Détecter si on est sur Android
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            
+            if (isAndroid) {
+                showToast('Fonctionnalité en développement pour Android. Utilisez un ordinateur.', 'error');
+                return;
+            }
+
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
@@ -1187,18 +1446,19 @@
                 interimTranscript = '';
                 isRecording = true;
                 isPaused = false;
+                
                 mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
                 mediaRecorder.onstop = () => stream.getTracks().forEach(t => t.stop());
                 mediaRecorder.start(1000);
                 recordingStartTime = Date.now();
-                if (!recognition) recognition = initSpeechRecognition();
-                if (recognition) recognition.start();
+                
                 document.getElementById('startRecording').style.display = 'none';
                 document.getElementById('pauseRecording').style.display = 'flex';
                 document.getElementById('stopRecording').style.display = 'flex';
                 document.getElementById('recordingStatus').style.display = 'flex';
                 document.getElementById('recordingWaveform').style.display = 'flex';
                 document.getElementById('transcriptionResult').style.display = 'block';
+                
                 recordingInterval = setInterval(() => {
                     if (!isPaused) {
                         const elapsed = Math.floor((Date.now() - recordingStartTime - pausedTime) / 1000);
@@ -1207,6 +1467,7 @@
                         document.getElementById('recordingTime').textContent = `${mins}:${secs}`;
                     }
                 }, 1000);
+                
                 showToast('Enregistrement démarré', 'success');
             } catch (err) {
                 showToast('Erreur micro : ' + err.message, 'error');
@@ -1216,14 +1477,12 @@
         document.getElementById('pauseRecording').addEventListener('click', () => {
             if (isPaused) {
                 mediaRecorder.resume();
-                if (recognition) recognition.start();
                 isPaused = false;
                 pausedTime += Date.now() - pauseStartTime;
                 document.getElementById('recordingState').textContent = 'En cours...';
                 document.getElementById('pauseRecording').innerHTML = '<span>⏸️</span><span>Pause</span>';
             } else {
                 mediaRecorder.pause();
-                if (recognition) recognition.stop();
                 isPaused = true;
                 pauseStartTime = Date.now();
                 document.getElementById('recordingState').textContent = 'En pause';
@@ -1233,7 +1492,6 @@
 
         document.getElementById('stopRecording').addEventListener('click', () => {
             if (mediaRecorder) mediaRecorder.stop();
-            if (recognition) recognition.stop();
             clearInterval(recordingInterval);
             isRecording = false;
             isPaused = false;
@@ -1344,12 +1602,12 @@
                             <span>•</span> <span>${s.userName || 'Anonyme'}</span>
                         </div>
                         <div class="subject-stats">
-                            <div class="subject-stat"><span>👁️</span><span>${s.views || 0}</span></div>
-                            <div class="subject-stat"><span>⬇️</span><span>${s.downloads || 0}</span></div>
-                            <div class="subject-stat"><span>💾</span><span>Télécharger</span></div>
-                            <div class="subject-stat"><span>↗️</span><span>Partager</span></div>
+                            <div class="subject-stat" onclick="viewSubject('${s.id}')"><span>👁️</span><span>${s.views || 0}</span></div>
+                            <div class="subject-stat" onclick="downloadSubject('${s.id}')"><span>⬇️</span><span>${s.downloads || 0}</span></div>
+                            <div class="subject-stat" onclick="downloadSubject('${s.id}')"><span>💾</span><span>Télécharger</span></div>
+                            <div class="subject-stat" onclick="shareSubject('${s.id}')"><span>↗️</span><span>Partager</span></div>
                         </div>
-                        ${s.userId !== userId ? `<button class="message-poster-btn" onclick="event.stopPropagation(); openFullscreenChat('${s.userId}')">Message au poster</button>` : ''}
+                        ${s.userId !== currentUser?.uid ? `<button class="message-poster-btn" onclick="event.stopPropagation(); openFullscreenChat('${s.userId}')">Message au poster</button>` : ''}
                     </div>
                 `;
                 container.appendChild(card);
@@ -1371,22 +1629,74 @@
             updateProfileStats();
         };
 
+        window.viewSubject = async function(subjectId) {
+            const subject = allSubjects.find(s => s.id === subjectId);
+            if (!subject || !subject.fileUrl) return;
+            
+            // Incrémenter le compteur de vues
+            const subjectRef = ref(db, `subjects/${subjectId}`);
+            const currentViews = subject.views || 0;
+            await update(subjectRef, { views: currentViews + 1 });
+            
+            // Ouvrir le fichier
+            window.open(subject.fileUrl, '_blank');
+        };
+
+        window.downloadSubject = async function(subjectId) {
+            const subject = allSubjects.find(s => s.id === subjectId);
+            if (!subject || !subject.fileUrl) return;
+            
+            // Incrémenter le compteur de téléchargements
+            const subjectRef = ref(db, `subjects/${subjectId}`);
+            const currentDownloads = subject.downloads || 0;
+            await update(subjectRef, { downloads: currentDownloads + 1 });
+            
+            showToast('Téléchargement en cours...', 'success');
+            
+            // Télécharger le fichier
+            const link = document.createElement('a');
+            link.href = subject.fileUrl;
+            link.download = subject.fileName || 'document';
+            link.target = '_blank';
+            link.click();
+        };
+
+        window.shareSubject = function(subjectId) {
+            const subject = allSubjects.find(s => s.id === subjectId);
+            if (!subject) return;
+            
+            const shareText = `Découvrez ce sujet: ${subject.title} - ${subject.filiere}`;
+            const shareUrl = subject.fileUrl || window.location.href;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: subject.title,
+                    text: shareText,
+                    url: shareUrl
+                }).then(() => {
+                    showToast('Partagé avec succès !', 'success');
+                }).catch(err => {
+                    console.log('Erreur de partage:', err);
+                });
+            } else {
+                // Fallback: copier le lien
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showToast('Lien copié dans le presse-papier !', 'success');
+                });
+            }
+        };
+
         async function getUserData(uid) {
-            const userRef = ref(db, 'users/' + uid);
-            return new Promise(resolve => {
-                onValue(userRef, (snap) => {
-                    if (snap.exists()) {
-                        resolve(snap.val());
-                    } else {
-                        resolve({ firstName: 'Utilisateur', lastName: '', profilePic: null });
-                    }
-                }, { onlyOnce: true });
-            });
+            const userDoc = await getDoc(doc(firestore, 'users', uid));
+            if (userDoc.exists()) {
+                return userDoc.data();
+            }
+            return { firstName: 'Utilisateur', lastName: '', profilePic: null };
         }
 
         window.openFullscreenChat = async function(otherUid) {
-            if (otherUid === userId) return;
-            const members = [userId, otherUid].sort();
+            if (otherUid === currentUser?.uid) return;
+            const members = [currentUser.uid, otherUid].sort();
             currentChatId = members.join('_');
             const chatRef = ref(db, 'chats/' + currentChatId);
             const snap = await new Promise(resolve => onValue(chatRef, resolve, { onlyOnce: true }));
@@ -1425,7 +1735,7 @@
                 msgs.sort((a, b) => a.timestamp - b.timestamp);
                 msgs.forEach(msg => {
                     const div = document.createElement('div');
-                    div.className = `chat-bubble ${msg.sender === userId ? 'sent' : 'received'}`;
+                    div.className = `chat-bubble ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
                     if (msg.type === 'image') {
                         div.innerHTML = `<img src="${msg.imageUrl}">`;
                     } else if (msg.type === 'audio') {
@@ -1444,7 +1754,7 @@
             const text = input.value.trim();
             if (!text) return;
             const msgRef = push(ref(db, 'chats/' + currentChatId + '/messages'));
-            await set(msgRef, { text, sender: userId, timestamp: serverTimestamp(), type: 'text' });
+            await set(msgRef, { text, sender: currentUser.uid, timestamp: serverTimestamp(), type: 'text' });
             await update(ref(db, 'chats/' + currentChatId), { lastMessage: text, lastTimestamp: serverTimestamp() });
             input.value = '';
         });
@@ -1472,7 +1782,7 @@
                     showToast('Envoi de l\'image...', 'success');
                     const url = await uploadToCloudinary(file);
                     const msgRef = push(ref(db, 'chats/' + currentChatId + '/messages'));
-                    await set(msgRef, { imageUrl: url, sender: userId, timestamp: serverTimestamp(), type: 'image' });
+                    await set(msgRef, { imageUrl: url, sender: currentUser.uid, timestamp: serverTimestamp(), type: 'image' });
                     await update(ref(db, 'chats/' + currentChatId), { lastMessage: '📷 Photo', lastTimestamp: serverTimestamp() });
                     showToast('Image envoyée !', 'success');
                 } catch (err) {
@@ -1512,7 +1822,16 @@
                 const post = document.createElement('div');
                 post.className = 'feed-post';
                 const avatarHTML = p.userProfilePic ? `<img src="${p.userProfilePic}">` : p.userName?.charAt(0).toUpperCase() || 'U';
-                const mediaHTML = p.mediaUrl ? `<img src="${p.mediaUrl}" class="post-media">` : '';
+                
+                let mediaHTML = '';
+                if (p.mediaUrl) {
+                    if (p.mediaType && p.mediaType.startsWith('video/')) {
+                        mediaHTML = `<video class="post-video" controls><source src="${p.mediaUrl}" type="${p.mediaType}">Votre navigateur ne supporte pas les vidéos.</video>`;
+                    } else {
+                        mediaHTML = `<img src="${p.mediaUrl}" class="post-media">`;
+                    }
+                }
+                
                 post.innerHTML = `
                     <div class="post-header">
                         <div class="post-avatar">${avatarHTML}</div>
@@ -1524,7 +1843,7 @@
                     ${mediaHTML}
                     <div class="post-caption">${p.caption || ''}</div>
                     <div class="post-actions">
-                        <button class="post-action-btn ${p.likes && p.likes[userId] ? 'liked' : ''}" onclick="toggleLike('${p.id}')">
+                        <button class="post-action-btn ${p.likes && p.likes[currentUser?.uid] ? 'liked' : ''}" onclick="toggleLike('${p.id}')">
                             <span class="post-action-icon">❤️</span>
                             <span>${Object.keys(p.likes || {}).length}</span>
                         </button>
@@ -1532,7 +1851,7 @@
                             <span class="post-action-icon">💬</span>
                             <span>${Object.keys(p.comments || {}).length}</span>
                         </button>
-                        <button class="post-action-btn">
+                        <button class="post-action-btn" onclick="sharePost('${p.id}')">
                             <span class="post-action-icon">↗️</span>
                             <span>Partager</span>
                         </button>
@@ -1543,17 +1862,40 @@
         }
 
         window.toggleLike = async function(postId) {
-            const postRef = ref(db, 'posts/' + postId + '/likes/' + userId);
+            if (!currentUser) return;
+            const postRef = ref(db, 'posts/' + postId + '/likes/' + currentUser.uid);
             const post = allPosts.find(p => p.id === postId);
-            if (post?.likes && post.likes[userId]) {
+            if (post?.likes && post.likes[currentUser.uid]) {
                 await set(postRef, null);
             } else {
                 await set(postRef, true);
             }
         };
 
+        window.sharePost = function(postId) {
+            const post = allPosts.find(p => p.id === postId);
+            if (!post) return;
+            
+            const shareText = `${post.caption || 'Publication de ' + post.userName}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'FocusClass',
+                    text: shareText,
+                    url: window.location.href
+                }).then(() => {
+                    showToast('Partagé avec succès !', 'success');
+                }).catch(err => console.log('Erreur:', err));
+            } else {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showToast('Texte copié !', 'success');
+                });
+            }
+        };
+
         function loadNotifications() {
-            const notifsRef = ref(db, 'notifications/' + userId);
+            if (!currentUser) return;
+            const notifsRef = ref(db, 'notifications/' + currentUser.uid);
             onValue(notifsRef, (snapshot) => {
                 allNotifications = [];
                 snapshot.forEach((child) => {
@@ -1588,7 +1930,7 @@
                 `;
                 notif.onclick = async () => {
                     if (!n.read) {
-                        await update(ref(db, 'notifications/' + userId + '/' + n.id), { read: true });
+                        await update(ref(db, 'notifications/' + currentUser.uid + '/' + n.id), { read: true });
                     }
                 };
                 container.appendChild(notif);
@@ -1607,12 +1949,13 @@
         }
 
         function loadConversations() {
+            if (!currentUser) return;
             const chatsRef = ref(db, 'chats');
             onValue(chatsRef, async (snapshot) => {
                 conversations = [];
                 for (const [key, val] of Object.entries(snapshot.val() || {})) {
-                    if (val.members && val.members.includes(userId)) {
-                        const otherUid = val.members.find(m => m !== userId);
+                    if (val.members && val.members.includes(currentUser.uid)) {
+                        const otherUid = val.members.find(m => m !== currentUser.uid);
                         const otherUser = await getUserData(otherUid);
                         conversations.push({
                             id: key,
@@ -1651,6 +1994,7 @@
             });
         }
 
+        // Navigation
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 currentPage = item.dataset.page;
@@ -1688,16 +2032,138 @@
             document.querySelector('[data-page="profile"]').click();
         });
 
+        // FAB Button - Ouvre le bon modal selon la page active
+        document.getElementById('fabBtn').addEventListener('click', () => {
+            if (currentPage === 'studrive') {
+                openModal('addSubjectModal');
+            } else if (currentPage === 'focus') {
+                openModal('addPostModal');
+            }
+        });
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        };
+
+        // Publier un sujet
+        document.getElementById('subjectFileInput').addEventListener('change', (e) => {
+            selectedSubjectFile = e.target.files[0];
+        });
+
+        document.getElementById('submitSubject').addEventListener('click', async () => {
+            const title = document.getElementById('subjectTitle').value.trim();
+            const filiere = document.getElementById('subjectFiliere').value;
+            const description = document.getElementById('subjectDescription').value.trim();
+
+            if (!title || !filiere || !selectedSubjectFile) {
+                showToast('Veuillez remplir tous les champs obligatoires', 'error');
+                return;
+            }
+
+            try {
+                showToast('Publication en cours...', 'success');
+
+                const fileUrl = await uploadToCloudinary(selectedSubjectFile);
+
+                const subjectData = {
+                    title,
+                    filiere,
+                    description,
+                    fileUrl,
+                    fileName: selectedSubjectFile.name,
+                    userId: currentUser.uid,
+                    userName: `${currentUser.firstName} ${currentUser.lastName}`,
+                    userProfilePic: currentUser.profilePic || null,
+                    timestamp: Date.now(),
+                    views: 0,
+                    downloads: 0
+                };
+
+                const subjectRef = push(ref(db, 'subjects'));
+                await set(subjectRef, subjectData);
+
+                showToast('Sujet publié avec succès !', 'success');
+                closeModal('addSubjectModal');
+
+                // Réinitialiser le formulaire
+                document.getElementById('subjectTitle').value = '';
+                document.getElementById('subjectFiliere').value = '';
+                document.getElementById('subjectDescription').value = '';
+                document.getElementById('subjectFileInput').value = '';
+                selectedSubjectFile = null;
+
+            } catch (err) {
+                console.error('Erreur:', err);
+                showToast('Erreur lors de la publication', 'error');
+            }
+        });
+
+        // Publier un post
+        document.getElementById('postMediaInput').addEventListener('change', (e) => {
+            selectedPostMedia = e.target.files[0];
+        });
+
+        document.getElementById('submitPost').addEventListener('click', async () => {
+            const caption = document.getElementById('postCaption').value.trim();
+
+            if (!caption && !selectedPostMedia) {
+                showToast('Veuillez écrire quelque chose ou ajouter une image/vidéo', 'error');
+                return;
+            }
+
+            try {
+                showToast('Publication en cours...', 'success');
+
+                let mediaUrl = null;
+                let mediaType = null;
+
+                if (selectedPostMedia) {
+                    mediaUrl = await uploadToCloudinary(selectedPostMedia);
+                    mediaType = selectedPostMedia.type;
+                }
+
+                const postData = {
+                    caption,
+                    mediaUrl,
+                    mediaType,
+                    userId: currentUser.uid,
+                    userName: `${currentUser.firstName} ${currentUser.lastName}`,
+                    userProfilePic: currentUser.profilePic || null,
+                    timestamp: Date.now(),
+                    likes: {},
+                    comments: {}
+                };
+
+                const postRef = push(ref(db, 'posts'));
+                await set(postRef, postData);
+
+                showToast('Publication réussie !', 'success');
+                closeModal('addPostModal');
+
+                // Réinitialiser le formulaire
+                document.getElementById('postCaption').value = '';
+                document.getElementById('postMediaInput').value = '';
+                selectedPostMedia = null;
+
+            } catch (err) {
+                console.error('Erreur:', err);
+                showToast('Erreur lors de la publication', 'error');
+            }
+        });
+
         // ===== WEBRTC CALLING FUNCTIONS =====
         
         async function startCall(isVideo) {
             if (!currentChatUser) return;
             
             isVideoCall = isVideo;
-            currentCallId = generateUID();
+            currentCallId = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
             
             try {
-                // Demander les permissions
                 const constraints = {
                     audio: true,
                     video: isVideo ? { 
@@ -1708,12 +2174,10 @@
                 
                 localStream = await navigator.mediaDevices.getUserMedia(constraints);
                 
-                // Afficher la vidéo locale
                 const localVideoEl = document.getElementById('localVideo');
                 localVideoEl.srcObject = localStream;
                 localVideoEl.style.display = 'block';
                 
-                // Configurer l'interface
                 document.getElementById('callUserName').textContent = currentChatUser.firstName || 'Utilisateur';
                 document.getElementById('callStatus').textContent = 'Appel en cours...';
                 document.getElementById('callTimer').textContent = '00:00';
@@ -1722,30 +2186,23 @@
                     document.getElementById('callVideos').style.display = 'block';
                     document.getElementById('audioOnlyIndicator').style.display = 'none';
                     document.getElementById('toggleVideoBtn').style.display = 'flex';
-                    console.log('Video call - showing video elements');
                 } else {
                     document.getElementById('callVideos').style.display = 'none';
                     document.getElementById('audioOnlyIndicator').style.display = 'flex';
                     document.getElementById('toggleVideoBtn').style.display = 'none';
                     const initial = currentChatUser.firstName?.charAt(0).toUpperCase() || '👤';
                     document.getElementById('audioAvatar').textContent = initial;
-                    console.log('Audio call - showing audio indicator');
                 }
                 
                 document.getElementById('callModal').classList.add('active');
                 
-                // Créer la connexion peer
                 peerConnection = new RTCPeerConnection(configuration);
                 
-                // Ajouter les tracks locaux
                 localStream.getTracks().forEach(track => {
-                    console.log('Adding local track:', track.kind);
                     peerConnection.addTrack(track, localStream);
                 });
                 
-                // Gérer les tracks distants
                 peerConnection.ontrack = (event) => {
-                    console.log('Received remote track:', event.track.kind);
                     remoteStream = event.streams[0];
                     const remoteVideoEl = document.getElementById('remoteVideo');
                     remoteVideoEl.srcObject = remoteStream;
@@ -1757,10 +2214,9 @@
                     }
                 };
                 
-                // Gérer les ICE candidates
                 peerConnection.onicecandidate = (event) => {
                     if (event.candidate) {
-                        const candidateRef = push(ref(db, `calls/${currentCallId}/candidates/${userId}`));
+                        const candidateRef = push(ref(db, `calls/${currentCallId}/candidates/${currentUser.uid}`));
                         set(candidateRef, {
                             candidate: event.candidate.toJSON(),
                             timestamp: serverTimestamp()
@@ -1768,12 +2224,11 @@
                     }
                 };
                 
-                // Créer l'offre
                 const offer = await peerConnection.createOffer();
                 await peerConnection.setLocalDescription(offer);
                 
                 const callData = {
-                    callerId: userId,
+                    callerId: currentUser.uid,
                     callerName: currentUser?.firstName || 'Utilisateur',
                     callerAvatar: currentUser?.profilePic || null,
                     receiverId: currentChatUser.uid,
@@ -1794,13 +2249,7 @@
                 
             } catch (err) {
                 console.error('Error starting call:', err);
-                if (err.name === 'NotAllowedError') {
-                    showToast('Permission caméra/micro refusée. Veuillez autoriser l\'accès dans les paramètres du navigateur.', 'error');
-                } else if (err.name === 'NotFoundError') {
-                    showToast('Aucune caméra ou micro détecté', 'error');
-                } else {
-                    showToast('Erreur lors du démarrage de l\'appel: ' + err.message, 'error');
-                }
+                showToast('Erreur lors du démarrage de l\'appel: ' + err.message, 'error');
                 endCall();
             }
         }
@@ -1813,14 +2262,12 @@
                 
                 if (data.status === 'answered' && data.answer && peerConnection) {
                     try {
-                        // Vérifier l'état de la connexion
                         if (peerConnection.signalingState === 'have-local-offer') {
                             const answer = new RTCSessionDescription(data.answer);
                             await peerConnection.setRemoteDescription(answer);
                             document.getElementById('callStatus').textContent = 'Connecté';
                             startCallTimer();
                             listenForCandidates(data.receiverId);
-                            // Arrêter l'écoute après avoir traité la réponse
                             unsubscribe();
                         }
                     } catch (err) {
@@ -1838,11 +2285,12 @@
         }
         
         function listenForIncomingCalls() {
+            if (!currentUser) return;
             const callsRef = ref(db, 'calls');
             onValue(callsRef, (snapshot) => {
                 snapshot.forEach((child) => {
                     const call = child.val();
-                    if (call.receiverId === userId && call.status === 'ringing') {
+                    if (call.receiverId === currentUser.uid && call.status === 'ringing') {
                         currentCallId = child.key;
                         showIncomingCallModal(call);
                     }
@@ -1865,61 +2313,12 @@
             modal.classList.add('active');
             isVideoCall = call.isVideo;
             
-            // Créer un contexte audio pour la sonnerie
-            let audioContext = null;
-            let oscillator = null;
-            let gainNode = null;
-            
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                oscillator = audioContext.createOscillator();
-                gainNode = audioContext.createGain();
-                
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                // Jouer la sonnerie
-                oscillator.start();
-                
-                // Arrêter après 5 secondes
-                setTimeout(() => {
-                    if (oscillator) {
-                        oscillator.stop();
-                        audioContext.close();
-                    }
-                }, 5000);
-            } catch (err) {
-                console.error('Error creating ringtone:', err);
-            }
-            
             document.getElementById('acceptCallBtn').onclick = async () => {
-                // Arrêter la sonnerie
-                if (oscillator) {
-                    try {
-                        oscillator.stop();
-                        audioContext.close();
-                    } catch (e) {
-                        console.error('Error stopping ringtone:', e);
-                    }
-                }
                 modal.classList.remove('active');
                 await answerCall(call);
             };
             
             document.getElementById('rejectCallBtn').onclick = () => {
-                // Arrêter la sonnerie
-                if (oscillator) {
-                    try {
-                        oscillator.stop();
-                        audioContext.close();
-                    } catch (e) {
-                        console.error('Error stopping ringtone:', e);
-                    }
-                }
                 modal.classList.remove('active');
                 rejectCall();
             };
@@ -1949,13 +2348,11 @@
                     document.getElementById('callVideos').style.display = 'block';
                     document.getElementById('audioOnlyIndicator').style.display = 'none';
                     document.getElementById('toggleVideoBtn').style.display = 'flex';
-                    console.log('Answering video call - showing video elements');
                 } else {
                     document.getElementById('callVideos').style.display = 'none';
                     document.getElementById('audioOnlyIndicator').style.display = 'flex';
                     document.getElementById('toggleVideoBtn').style.display = 'none';
                     document.getElementById('audioAvatar').textContent = call.callerName?.charAt(0).toUpperCase() || '👤';
-                    console.log('Answering audio call - showing audio indicator');
                 }
                 
                 document.getElementById('callModal').classList.add('active');
@@ -1963,12 +2360,10 @@
                 peerConnection = new RTCPeerConnection(configuration);
                 
                 localStream.getTracks().forEach(track => {
-                    console.log('Adding local track (answer):', track.kind);
                     peerConnection.addTrack(track, localStream);
                 });
                 
                 peerConnection.ontrack = (event) => {
-                    console.log('Received remote track (answer):', event.track.kind);
                     remoteStream = event.streams[0];
                     const remoteVideoEl = document.getElementById('remoteVideo');
                     remoteVideoEl.srcObject = remoteStream;
@@ -1977,13 +2372,12 @@
                     if (call.isVideo) {
                         document.getElementById('callVideos').style.display = 'block';
                         document.getElementById('audioOnlyIndicator').style.display = 'none';
-                        console.log('Remote video track received, showing video');
                     }
                 };
                 
                 peerConnection.onicecandidate = (event) => {
                     if (event.candidate) {
-                        const candidateRef = push(ref(db, `calls/${currentCallId}/candidates/${userId}`));
+                        const candidateRef = push(ref(db, `calls/${currentCallId}/candidates/${currentUser.uid}`));
                         set(candidateRef, {
                             candidate: event.candidate.toJSON(),
                             timestamp: serverTimestamp()
@@ -2013,13 +2407,7 @@
                 
             } catch (err) {
                 console.error('Error answering call:', err);
-                if (err.name === 'NotAllowedError') {
-                    showToast('Permission caméra/micro refusée. Veuillez autoriser l\'accès dans les paramètres du navigateur.', 'error');
-                } else if (err.name === 'NotFoundError') {
-                    showToast('Aucune caméra ou micro détecté', 'error');
-                } else {
-                    showToast('Erreur lors de la réponse: ' + err.message, 'error');
-                }
+                showToast('Erreur lors de la réponse: ' + err.message, 'error');
                 rejectCall();
             }
         }
@@ -2043,7 +2431,6 @@
                 });
             });
             
-            // Stocker pour pouvoir unsubscribe plus tard
             if (!window.callUnsubscribers) window.callUnsubscribers = [];
             window.callUnsubscribers.push(unsubscribe);
         }
@@ -2072,9 +2459,6 @@
         }
         
         function endCall() {
-            console.log('Ending call...');
-            
-            // Arrêter tous les listeners Firebase
             if (window.callUnsubscribers) {
                 window.callUnsubscribers.forEach(unsub => {
                     try {
@@ -2086,11 +2470,9 @@
                 window.callUnsubscribers = [];
             }
             
-            // Arrêter et libérer les streams
             if (localStream) {
                 localStream.getTracks().forEach(track => {
                     track.stop();
-                    console.log('Stopped local track:', track.kind);
                 });
                 localStream = null;
             }
@@ -2098,25 +2480,20 @@
             if (remoteStream) {
                 remoteStream.getTracks().forEach(track => {
                     track.stop();
-                    console.log('Stopped remote track:', track.kind);
                 });
                 remoteStream = null;
             }
             
-            // Fermer la connexion peer
             if (peerConnection) {
                 peerConnection.close();
                 peerConnection = null;
-                console.log('Closed peer connection');
             }
             
-            // Arrêter le timer
             if (callTimerInterval) {
                 clearInterval(callTimerInterval);
                 callTimerInterval = null;
             }
             
-            // Nettoyer les éléments vidéo
             const localVideoEl = document.getElementById('localVideo');
             const remoteVideoEl = document.getElementById('remoteVideo');
             if (localVideoEl) {
@@ -2128,7 +2505,6 @@
                 remoteVideoEl.style.display = 'none';
             }
             
-            // Mettre à jour Firebase
             if (currentCallId) {
                 update(ref(db, `calls/${currentCallId}`), {
                     status: 'ended',
@@ -2136,17 +2512,14 @@
                 }).catch(err => console.error('Error updating call status:', err));
             }
             
-            // Masquer les modals
             document.getElementById('callModal').classList.remove('active');
             document.getElementById('incomingCallModal').classList.remove('active');
             
-            // Réinitialiser les états
             currentCallId = null;
             isMuted = false;
             isVideoEnabled = true;
             callStartTime = null;
             
-            // Réinitialiser les boutons
             document.getElementById('muteMicBtn').classList.remove('muted');
             document.getElementById('muteMicBtn').textContent = '🎤';
             const toggleVideoBtn = document.getElementById('toggleVideoBtn');
@@ -2154,8 +2527,6 @@
                 toggleVideoBtn.classList.remove('disabled');
                 toggleVideoBtn.textContent = '📹';
             }
-            
-            console.log('Call ended successfully');
         }
         
         function toggleMute() {
@@ -2186,7 +2557,6 @@
             }
         }
 
-        // Audio recording in chat
         async function startAudioRecording() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -2207,7 +2577,7 @@
                         const msgRef = push(ref(db, 'chats/' + currentChatId + '/messages'));
                         await set(msgRef, {
                             audioUrl: url,
-                            sender: userId,
+                            sender: currentUser.uid,
                             timestamp: serverTimestamp(),
                             type: 'audio'
                         });
@@ -2241,7 +2611,6 @@
             }
         }
 
-        // Event listeners for calls
         document.getElementById('audioCallBtn').addEventListener('click', () => startCall(false));
         document.getElementById('videoCallBtn').addEventListener('click', () => startCall(true));
         document.getElementById('endCallBtn').addEventListener('click', endCall);
@@ -2256,8 +2625,9 @@
             }
         });
 
+        // Initialiser l'application
+        checkUserRegistration();
         listenForIncomingCalls();
-        initUser();
     </script>
 </body>
 </html>
