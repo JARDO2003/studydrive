@@ -756,11 +756,113 @@
             font-weight: 600; z-index: 3000; transition: transform 0.4s;
             box-shadow: var(--shadow-xl); max-width: 90%;
         }
-        .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.success { border-color: var(--success); color: var(--success); border-left-width: 6px; }
-        .toast.error { border-color: var(--error); color: var(--error); border-left-width: 6px; }
+.toast.error { border-color: var(--error); color: var(--error); border-left-width: 6px; }
 
-        .loading { padding: 40px 20px; text-align: center; color: var(--gray-600); }
+.image-viewer-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.98);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
+}
+.image-viewer-modal.active { display: flex; }
+.image-viewer-modal::before {
+    content: '🔒 Image protégée - Capture d\'écran désactivée';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(198, 40, 40, 0.9);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    z-index: 10001;
+    pointer-events: none;
+}
+.image-viewer-modal::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255,255,255,0.02) 10px,
+        rgba(255,255,255,0.02) 20px
+    );
+    pointer-events: none;
+    z-index: 10000;
+}
+.image-viewer-content {
+    max-width: 90%;
+    max-height: 90%;
+    position: relative;
+    z-index: 10002;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none;
+    filter: blur(0px);
+    -webkit-touch-callout: none;
+}
+.image-viewer-content img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    pointer-events: none;
+}
+.image-viewer-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    border-radius: 50%;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 10003;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+}
+.image-viewer-close:hover {
+    background: rgba(198, 40, 40, 0.8);
+    transform: scale(1.1);
+}
+.image-viewer-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 48px;
+    color: rgba(255, 255, 255, 0.15);
+    font-weight: 900;
+    pointer-events: none;
+    z-index: 10002;
+    white-space: nowrap;
+    user-select: none;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.loading { padding: 40px 20px; text-align: center; color: var(--gray-600); }
+        .toast.succe
         .loading-spinner {
             width: 40px; height: 40px; border: 4px solid var(--gray-300);
             border-top-color: var(--primary); border-radius: 50%;
@@ -1182,6 +1284,16 @@
     <button class="fab" id="fabBtn">➕</button>
 
     <div class="toast" id="toast"></div>
+
+<!-- Visualiseur d'image protégé -->
+<div class="image-viewer-modal" id="imageViewerModal">
+    <div class="image-viewer-watermark" id="imageWatermark">STUDRIVE - PROTÉGÉ</div>
+    <div class="image-viewer-content" id="imageViewerContent">
+        <img id="imageViewerImg" src="" alt="Image">
+    </div>
+    <button class="image-viewer-close" id="closeImageViewer">×</button>
+</div>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getDatabase, ref, set, push, onValue, update, remove, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
@@ -1629,11 +1741,16 @@ document.getElementById('stopRecording').addEventListener('click', () => {
                         <button class="favorite-btn active" onclick="event.stopPropagation(); toggleFavorite('${s.id}')">⭐</button>
                     </div>
                     <div class="subject-body">
-                        <div class="subject-title">${s.title || 'Sans titre'}</div>
-                        <div class="subject-meta">
-                            <span class="filiere-badge">${s.filiere || 'N/A'}</span>
-                        </div>
-                    </div>
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+        <div class="subject-title" style="flex: 1;">${s.title || 'Sans titre'}</div>
+        ${s.userId === currentUser?.uid ? `
+            <button class="icon-btn" onclick="event.stopPropagation(); deleteSubject('${s.id}')" style="width: 32px; height: 32px; font-size: 16px; margin-left: 8px;" title="Supprimer">🗑️</button>
+        ` : ''}
+    </div>
+    <div class="subject-meta">
+        <span class="filiere-badge">${s.filiere || 'N/A'}</span>
+        <span>•</span> <span>${s.userName || 'Anonyme'}</span>
+    </div>
                 `;
                 container.appendChild(card);
             });
@@ -1654,12 +1771,12 @@ document.getElementById('stopRecording').addEventListener('click', () => {
             container.innerHTML = '';
             for (const s of filtered) {
                 const isFav = favorites.includes(s.id);
-                let imgHTML = '<div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; color: white;">📚</div>';
-                if (s.fileUrl && s.fileName && /\.(jpg|jpeg|png|gif|webp)$/i.test(s.fileName)) {
-                    imgHTML = `<img src="${s.fileUrl}" alt="${s.title}">`;
-                } else if (s.fileName && /\.pdf$/i.test(s.fileName)) {
-                    imgHTML = '<div style="background: linear-gradient(135deg, #c62828 0%, #ef5350 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; color: white;">📕</div>';
-                }
+              let imgHTML = '<div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; color: white;">📚</div>';
+if (s.fileUrl && s.fileName && /\.(jpg|jpeg|png|gif|webp)$/i.test(s.fileName)) {
+    imgHTML = `<img src="${s.fileUrl}" alt="${s.title}" onclick="event.stopPropagation(); openImageViewer('${s.fileUrl}', '${s.userName || 'Anonyme'}')" style="cursor: pointer;">`;
+} else if (s.fileName && /\.pdf$/i.test(s.fileName)) {
+    imgHTML = '<div style="background: linear-gradient(135deg, #c62828 0%, #ef5350 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; color: white;">📕</div>';
+}
 
                 const card = document.createElement('div');
                 card.className = 'subject-card';
@@ -1896,40 +2013,42 @@ document.getElementById('stopRecording').addEventListener('click', () => {
                 post.className = 'feed-post';
                 const avatarHTML = p.userProfilePic ? `<img src="${p.userProfilePic}">` : p.userName?.charAt(0).toUpperCase() || 'U';
                 
-                let mediaHTML = '';
-                if (p.mediaUrl) {
-                    if (p.mediaType && p.mediaType.startsWith('video/')) {
-                        mediaHTML = `<video class="post-video" controls><source src="${p.mediaUrl}" type="${p.mediaType}">Votre navigateur ne supporte pas les vidéos.</video>`;
-                    } else {
-                        mediaHTML = `<img src="${p.mediaUrl}" class="post-media">`;
-                    }
-                }
-                
+               let mediaHTML = '';
+if (p.mediaUrl) {
+    if (p.mediaType && p.mediaType.startsWith('video/')) {
+        mediaHTML = `<video class="post-video" controls><source src="${p.mediaUrl}" type="${p.mediaType}">Votre navigateur ne supporte pas les vidéos.</video>`;
+    } else {
+        mediaHTML = `<img src="${p.mediaUrl}" class="post-media" onclick="openImageViewer('${p.mediaUrl}', '${p.userName || 'Utilisateur'}')" style="cursor: pointer;">`;
+    }
+}
                 post.innerHTML = `
-                    <div class="post-header">
-                        <div class="post-avatar">${avatarHTML}</div>
-                        <div class="post-user-info">
-                            <div class="post-username">${p.userName || 'Utilisateur'}</div>
-                            <div class="post-userhandle">${formatTime(p.timestamp)}</div>
-                        </div>
-                    </div>
-                    ${mediaHTML}
-                    <div class="post-caption">${p.caption || ''}</div>
-                    <div class="post-actions">
-                        <button class="post-action-btn ${p.likes && p.likes[currentUser?.uid] ? 'liked' : ''}" onclick="toggleLike('${p.id}')">
-                            <span class="post-action-icon">❤️</span>
-                            <span>${Object.keys(p.likes || {}).length}</span>
-                        </button>
-                        <button class="post-action-btn">
-                            <span class="post-action-icon">💬</span>
-                            <span>${Object.keys(p.comments || {}).length}</span>
-                        </button>
-                        <button class="post-action-btn" onclick="sharePost('${p.id}')">
-                            <span class="post-action-icon">↗️</span>
-                            <span>Partager</span>
-                        </button>
-                    </div>
-                `;
+    <div class="post-header">
+        <div class="post-avatar">${avatarHTML}</div>
+        <div class="post-user-info">
+            <div class="post-username">${p.userName || 'Utilisateur'}</div>
+            <div class="post-userhandle">${formatTime(p.timestamp)}</div>
+        </div>
+        ${p.userId === currentUser?.uid ? `
+            <button class="icon-btn" onclick="deletePost('${p.id}')" style="margin-left: auto; width: 36px; height: 36px; font-size: 18px;" title="Supprimer">🗑️</button>
+        ` : ''}
+    </div>
+    ${mediaHTML}
+    <div class="post-caption">${p.caption || ''}</div>
+    <div class="post-actions">
+        <button class="post-action-btn ${p.likes && p.likes[currentUser?.uid] ? 'liked' : ''}" onclick="toggleLike('${p.id}')">
+            <span class="post-action-icon">❤️</span>
+            <span>${Object.keys(p.likes || {}).length}</span>
+        </button>
+        <button class="post-action-btn">
+            <span class="post-action-icon">💬</span>
+            <span>${Object.keys(p.comments || {}).length}</span>
+        </button>
+        <button class="post-action-btn" onclick="sharePost('${p.id}')">
+            <span class="post-action-icon">↗️</span>
+            <span>Partager</span>
+        </button>
+    </div>
+`;
                 container.appendChild(post);
             });
         }
@@ -2067,6 +2186,149 @@ document.getElementById('stopRecording').addEventListener('click', () => {
             });
         }
 
+
+
+        window.deleteSubject = async function(subjectId) {
+    const subject = allSubjects.find(s => s.id === subjectId);
+    
+    // Vérifier que l'utilisateur est bien le propriétaire
+    if (!subject || subject.userId !== currentUser?.uid) {
+        showToast('Vous ne pouvez pas supprimer ce sujet', 'error');
+        return;
+    }
+    
+    // Demander confirmation
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce sujet ?')) {
+        return;
+    }
+    
+    try {
+        showToast('Suppression en cours...', 'success');
+        
+        // Supprimer le sujet de Firebase
+        const subjectRef = ref(db, 'subjects/' + subjectId);
+        await remove(subjectRef);
+        
+        // Retirer des favoris si présent
+        const favIndex = favorites.indexOf(subjectId);
+        if (favIndex > -1) {
+            favorites.splice(favIndex, 1);
+            localStorage.setItem('studrive_favorites', JSON.stringify(favorites));
+        }
+        
+        showToast('Sujet supprimé avec succès !', 'success');
+        
+    } catch (err) {
+        console.error('Erreur lors de la suppression:', err);
+        showToast('Erreur lors de la suppression', 'error');
+    }
+};
+
+
+
+// Protection contre les captures d'écran
+let screenshotAttempts = 0;
+
+window.openImageViewer = function(imageUrl, userName) {
+    const modal = document.getElementById('imageViewerModal');
+    const img = document.getElementById('imageViewerImg');
+    const watermark = document.getElementById('imageWatermark');
+    
+    img.src = imageUrl;
+    watermark.textContent = `STUDRIVE - ${userName.toUpperCase()} - ${new Date().toLocaleDateString()}`;
+    modal.classList.add('active');
+    
+    // Désactiver le clic droit
+    modal.oncontextmenu = (e) => {
+        e.preventDefault();
+        showToast('📸 Action bloquée - Image protégée', 'error');
+        return false;
+    };
+    
+    // Bloquer les raccourcis clavier de capture
+    const blockScreenshot = (e) => {
+        // Print Screen, Cmd+Shift+3/4/5 (Mac), Win+Shift+S, etc.
+        if (
+            e.key === 'PrintScreen' ||
+            (e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key)) ||
+            (e.key === 's' && e.metaKey && e.shiftKey) ||
+            (e.key === 's' && e.ctrlKey && e.shiftKey)
+        ) {
+            e.preventDefault();
+            screenshotAttempts++;
+            showToast(`🚫 Capture bloquée (${screenshotAttempts}) - Image protégée`, 'error');
+            
+            // Flouter temporairement l'image
+            const content = document.getElementById('imageViewerContent');
+            content.style.filter = 'blur(20px)';
+            setTimeout(() => {
+                content.style.filter = 'blur(0px)';
+            }, 2000);
+            
+            return false;
+        }
+    };
+    
+    document.addEventListener('keyup', blockScreenshot);
+    document.addEventListener('keydown', blockScreenshot);
+    
+    // Détecter si l'utilisateur change d'onglet (possible capture)
+    const handleVisibilityChange = () => {
+        if (document.hidden) {
+            const content = document.getElementById('imageViewerContent');
+            content.style.filter = 'blur(30px)';
+            showToast('⚠️ Image masquée pour protection', 'error');
+        } else {
+            setTimeout(() => {
+                const content = document.getElementById('imageViewerContent');
+                content.style.filter = 'blur(0px)';
+            }, 500);
+        }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Nettoyer les écouteurs à la fermeture
+    modal.dataset.cleanup = 'true';
+};
+
+document.getElementById('closeImageViewer').addEventListener('click', closeImageViewer);
+
+document.getElementById('imageViewerModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeImageViewer();
+    }
+});
+
+function closeImageViewer() {
+    const modal = document.getElementById('imageViewerModal');
+    modal.classList.remove('active');
+    
+    // Supprimer tous les écouteurs
+    document.removeEventListener('keyup', blockScreenshot);
+    document.removeEventListener('keydown', blockScreenshot);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Réinitialiser
+    screenshotAttempts = 0;
+}
+
+// Bloquer les outils de développeur lors de la visualisation
+document.addEventListener('keydown', function(e) {
+    const modal = document.getElementById('imageViewerModal');
+    if (modal.classList.contains('active')) {
+        // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+        if (
+            e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+            (e.ctrlKey && e.key === 'U')
+        ) {
+            e.preventDefault();
+            showToast('🔒 Outils de développement bloqués', 'error');
+            return false;
+        }
+    }
+});
         // Navigation
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
@@ -2697,6 +2959,36 @@ document.getElementById('stopRecording').addEventListener('click', () => {
                 startAudioRecording();
             }
         });
+
+
+        window.deletePost = async function(postId) {
+    const post = allPosts.find(p => p.id === postId);
+    
+    // Vérifier que l'utilisateur est bien le propriétaire
+    if (!post || post.userId !== currentUser?.uid) {
+        showToast('Vous ne pouvez pas supprimer ce post', 'error');
+        return;
+    }
+    
+    // Demander confirmation
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette publication ?')) {
+        return;
+    }
+    
+    try {
+        showToast('Suppression en cours...', 'success');
+        
+        // Supprimer le post de Firebase
+        const postRef = ref(db, 'posts/' + postId);
+        await remove(postRef);
+        
+        showToast('Publication supprimée avec succès !', 'success');
+        
+    } catch (err) {
+        console.error('Erreur lors de la suppression:', err);
+        showToast('Erreur lors de la suppression', 'error');
+    }
+};
 
         // Initialiser l'application
         checkUserRegistration();
