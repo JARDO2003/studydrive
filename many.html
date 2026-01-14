@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Éditeur Word Professionnel</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+        
+        .word-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .title-bar {
+            background: linear-gradient(135deg, #2b5797 0%, #1e3a5f 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .title-bar h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .menu-bar {
+            background: #f3f3f3;
+            border-bottom: 1px solid #d1d1d1;
+            display: flex;
+            padding: 0 10px;
+            position: relative;
+        }
+        
+        .menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+            position: relative;
+        }
+        
+        .menu-item:hover {
+            background: #e1e1e1;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #d1d1d1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            min-width: 220px;
+            z-index: 1000;
+        }
+
+        .menu-item:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-item:hover {
+            background: #f5f5f5;
+        }
+
+        .dropdown-item .shortcut {
+            font-size: 11px;
+            color: #666;
+            margin-left: 20px;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 5px 0;
+        }
+        
+        .toolbar {
+            background: #ffffff;
+            border-bottom: 1px solid #d1d1d1;
+            padding: 10px;
+        }
+        
+        .toolbar-section {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        
+        .toolbar-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .toolbar-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .toolbar-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .tool-btn {
+            background: white;
+            border: 1px solid #d1d1d1;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .tool-btn:hover {
+            background: #2b5797;
+            color: white;
+            border-color: #2b5797;
+        }
+        
+        .tool-btn.active {
+            background: #2b5797;
+            color: white;
+            border-color: #2b5797;
+        }
+        
+        .tool-btn.large {
+            font-size: 16px;
+            padding: 8px 14px;
+        }
+        
+        .editor-workspace {
+            display: flex;
+            height: calc(100vh - 220px);
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #fafafa;
+            border-right: 1px solid #d1d1d1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
+        .sidebar h3 {
+            font-size: 13px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+        
+        .template-btn {
+            width: 100%;
+            padding: 10px;
+            background: white;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+        
+        .template-btn:hover {
+            background: #2b5797;
+            color: white;
+        }
+        
+        .editor-main {
+            flex: 1;
+            padding: 40px;
+            background: #e8e8e8;
+            overflow-y: auto;
+        }
+        
+        .page {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 25mm;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .editor-content {
+            width: 100%;
+            min-height: 247mm;
+            border: none;
+            font-size: 12pt;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            outline: none;
+            white-space: pre-wrap;
+        }
+        
+        .editor-content:empty:before {
+            content: attr(data-placeholder);
+            color: #999;
+            font-style: italic;
+        }
+        
+        .fraction-builder {
+            background: #f9f9f9;
+            border: 2px solid #2b5797;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .fraction-builder h4 {
+            color: #2b5797;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .fraction-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .fraction-input {
+            padding: 8px;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .fraction-preview {
+            text-align: center;
+            font-size: 24px;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 4px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .fraction-display {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 20px;
+        }
+        
+        .fraction-num {
+            padding-bottom: 3px;
+            border-bottom: 2px solid #000;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .fraction-den {
+            padding-top: 3px;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .insert-fraction-btn {
+            width: 100%;
+            padding: 10px;
+            background: #2b5797;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .insert-fraction-btn:hover {
+            background: #1e3a5f;
+        }
+        
+        .status-bar {
+            background: #2b5797;
+            color: white;
+            padding: 8px 20px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .color-picker {
+            width: 40px;
+            height: 30px;
+            border: 1px solid #d1d1d1;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .fraction-inline {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 4px;
+            font-size: 16px;
+        }
+
+        .fraction-inline .num {
+            border-bottom: 1.5px solid #000;
+            padding: 0 6px 2px 6px;
+        }
+
+        .fraction-inline .den {
+            padding: 2px 6px 0 6px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #2b5797;
+        }
+
+        .modal-content input, .modal-content textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .modal-btn.primary {
+            background: #2b5797;
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: #1e3a5f;
+        }
+
+        .modal-btn.secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .modal-btn.secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .image-wrapper {
+            display: inline-block;
+            position: relative;
+            margin: 10px;
+            border: 2px dashed transparent;
+        }
+
+        .image-wrapper:hover {
+            border-color: #2b5797;
+        }
+
+        .image-wrapper img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .image-controls {
+            position: absolute;
+            top: -35px;
+            right: 0;
+            background: #2b5797;
+            padding: 5px;
+            border-radius: 4px;
+            display: none;
+            gap: 5px;
+        }
+
+        .image-wrapper:hover .image-controls {
+            display: flex;
+        }
+
+        .image-control-btn {
+            background: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 11px;
+            border-radius: 3px;
+        }
+
+        .image-control-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .resize-handle {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            background: #2b5797;
+            cursor: nwse-resize;
+            display: none;
+        }
+
+        .image-wrapper:hover .resize-handle {
+            display: block;
+        }
+
+        /* Responsive Design pour petits écrans */
+        @media screen and (max-width: 1024px) {
+            .word-container {
+                max-width: 100%;
+            }
+
+            .toolbar {
+                overflow-x: auto;
+            }
+
+            .toolbar-section {
+                min-width: fit-content;
+            }
+
+            .editor-workspace {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #d1d1d1;
+                max-height: 300px;
+            }
+
+            .page {
+                width: 100%;
+                min-height: auto;
+                padding: 15mm;
+            }
+
+            .editor-main {
+                padding: 20px;
+            }
+
+            .title-bar h1 {
+                font-size: 14px;
+            }
+
+            .menu-bar {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .dropdown-menu {
+                position: fixed;
+                left: 10px;
+                right: 10px;
+                top: auto;
+                max-height: 70vh;
+                overflow-y: auto;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .title-bar {
+                padding: 10px;
+            }
+
+            .title-bar h1 {
+                font-size: 12px;
+            }
+
+            .toolbar {
+                padding: 5px;
+            }
+
+            .toolbar-label {
+                font-size: 10px;
+            }
+
+            .tool-btn {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+
+            .tool-btn.large {
+                padding: 6px 10px;
+                font-size: 14px;
+            }
+
+            .sidebar {
+                max-height: 200px;
+                padding: 10px;
+            }
+
+            .sidebar h3 {
+                font-size: 12px;
+            }
+
+            .template-btn {
+                padding: 8px;
+                font-size: 11px;
+            }
+
+            .fraction-builder {
+                padding: 15px;
+            }
+
+            .page {
+                padding: 10mm;
+            }
+
+            .editor-main {
+                padding: 10px;
+            }
+
+            .editor-content {
+                font-size: 11pt;
+            }
+
+            .status-bar {
+                font-size: 10px;
+                padding: 6px 10px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .modal-content {
+                padding: 20px;
+                width: 95%;
+                max-width: none;
+            }
+
+            .modal-content h2 {
+                font-size: 18px;
+            }
+
+            .dropdown-item {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+
+            .dropdown-item .shortcut {
+                display: none;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .title-bar h1 {
+                font-size: 11px;
+            }
+
+            .menu-item {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+
+            .toolbar-buttons {
+                gap: 3px;
+            }
+
+            .tool-btn {
+                padding: 3px 6px;
+                font-size: 11px;
+            }
+
+            .tool-btn.large {
+                padding: 5px 8px;
+                font-size: 13px;
+            }
+
+            select.tool-btn {
+                max-width: 120px;
+            }
+
+            .color-picker {
+                width: 30px;
+                height: 25px;
+            }
+
+            .sidebar {
+                padding: 8px;
+            }
+
+            .fraction-builder {
+                padding: 10px;
+            }
+
+            .fraction-builder h4 {
+                font-size: 13px;
+            }
+
+            .fraction-input {
+                padding: 6px;
+                font-size: 13px;
+            }
+
+            .insert-fraction-btn {
+                padding: 8px;
+                font-size: 13px;
+            }
+
+            .template-btn {
+                padding: 6px;
+                font-size: 10px;
+            }
+
+            .page {
+                padding: 5mm;
+            }
+
+            .editor-content {
+                font-size: 10pt;
+            }
+
+            .modal-content {
+                padding: 15px;
+            }
+
+            .modal-content input,
+            .modal-content textarea,
+            .modal-content select {
+                padding: 8px;
+                font-size: 13px;
+            }
+
+            .modal-btn {
+                padding: 8px 15px;
+                font-size: 13px;
+            }
+        }
+
+        /* Menu burger pour mobile */
+        .mobile-menu-toggle {
+            display: none;
+            background: #2b5797;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 18px;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            z-index: 1001;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        @media screen and (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: 100vh;
+                max-height: 100vh;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                overflow-y: auto;
+                background: #fafafa;
+            }
+
+            .sidebar.active {
+                left: 0;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+
+        @media print {
+            .toolbar, .menu-bar, .title-bar, .sidebar, .status-bar {
+                display: none;
+            }
+            .editor-workspace {
+                height: auto;
+            }
+            .editor-main {
+                padding: 0;
+                background: white;
+            }
+            .page {
+                box-shadow: none;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="word-container">
+        <div class="title-bar">
+            <h1>📄 Éditeur Word Professionnel - Mathématiques & Bureautique</h1>
+        </div>
+
+        <!-- Overlay pour mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+        
+        <!-- Bouton menu burger pour mobile -->
+        <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰</button>
+        
+        <div class="menu-bar">
+            <div class="menu-item">
+                Fichier
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" onclick="newDocument()">
+                        <span>📄 Nouveau</span>
+                        <span class="shortcut">Ctrl+N</span>
+                    </div>
+                    <div class="dropdown-item" onclick="openDocument()">
+                        <span>📂 Ouvrir</span>
+                        <span class="shortcut">Ctrl+O</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="saveDocument()">
+                        <span>💾 Sauvegarder HTML</span>
+                        <span class="shortcut">Ctrl+S</span>
+                    </div>
+                    <div class="dropdown-item" onclick="saveAsPDF()">
+                        <span>📄 Sauvegarder PDF</span>
+                        <span class="shortcut">Ctrl+Shift+S</span>
+                    </div>
+                    <div class="dropdown-item" onclick="saveAsText()">
+                        <span>📄 Sauvegarder Texte</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="printDocument()">
+                        <span>🖨️ Imprimer</span>
+                        <span class="shortcut">Ctrl+P</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                Édition
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" onclick="document.execCommand('undo')">
+                        <span>↶ Annuler</span>
+                        <span class="shortcut">Ctrl+Z</span>
+                    </div>
+                    <div class="dropdown-item" onclick="document.execCommand('redo')">
+                        <span>↷ Rétablir</span>
+                        <span class="shortcut">Ctrl+Y</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="document.execCommand('cut')">
+                        <span>✂️ Couper</span>
+                        <span class="shortcut">Ctrl+X</span>
+                    </div>
+                    <div class="dropdown-item" onclick="document.execCommand('copy')">
+                        <span>📋 Copier</span>
+                        <span class="shortcut">Ctrl+C</span>
+                    </div>
+                    <div class="dropdown-item" onclick="document.execCommand('paste')">
+                        <span>📌 Coller</span>
+                        <span class="shortcut">Ctrl+V</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="document.execCommand('selectAll')">
+                        <span>🔲 Tout sélectionner</span>
+                        <span class="shortcut">Ctrl+A</span>
+                    </div>
+                    <div class="dropdown-item" onclick="openFindReplace()">
+                        <span>🔍 Rechercher et remplacer</span>
+                        <span class="shortcut">Ctrl+F</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                Insertion
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" onclick="insertDate()">
+                        <span>📅 Date et heure</span>
+                    </div>
+                    <div class="dropdown-item" onclick="insertImage()">
+                        <span>🖼️ Image</span>
+                    </div>
+                    <div class="dropdown-item" onclick="insertBackgroundImage()">
+                        <span>🎨 Image d'arrière-plan</span>
+                    </div>
+                    <div class="dropdown-item" onclick="removeBackgroundImage()">
+                        <span>🚫 Supprimer arrière-plan</span>
+                    </div>
+                    <div class="dropdown-item" onclick="insertTable()">
+                        <span>📊 Tableau</span>
+                    </div>
+                    <div class="dropdown-item" onclick="insertLink()">
+                        <span>🔗 Lien hypertexte</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="insertHorizontalLine()">
+                        <span>➖ Ligne horizontale</span>
+                    </div>
+                    <div class="dropdown-item" onclick="insertPageBreak()">
+                        <span>📄 Saut de page</span>
+                    </div>
+                    <div class="dropdown-item" onclick="showFractionBuilder()">
+                        <span>➗ Fraction</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                Format
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" onclick="applyFormat('bold')">
+                        <span><strong>Gras</strong></span>
+                        <span class="shortcut">Ctrl+B</span>
+                    </div>
+                    <div class="dropdown-item" onclick="applyFormat('italic')">
+                        <span><em>Italique</em></span>
+                        <span class="shortcut">Ctrl+I</span>
+                    </div>
+                    <div class="dropdown-item" onclick="applyFormat('underline')">
+                        <span><u>Souligné</u></span>
+                        <span class="shortcut">Ctrl+U</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="applyFormat('justifyLeft')">
+                        <span>Aligner à gauche</span>
+                    </div>
+                    <div class="dropdown-item" onclick="applyFormat('justifyCenter')">
+                        <span>Centrer</span>
+                    </div>
+                    <div class="dropdown-item" onclick="applyFormat('justifyRight')">
+                        <span>Aligner à droite</span>
+                    </div>
+                    <div class="dropdown-item" onclick="applyFormat('justifyFull')">
+                        <span>Justifier</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="increaseFontSize()">
+                        <span>Augmenter la taille</span>
+                    </div>
+                    <div class="dropdown-item" onclick="decreaseFontSize()">
+                        <span>Diminuer la taille</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                Outils
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" onclick="wordCount()">
+                        <span>📊 Statistiques du document</span>
+                    </div>
+                    <div class="dropdown-item" onclick="spellCheck()">
+                        <span>✓ Vérifier l'orthographe</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="convertToUpperCase()">
+                        <span>MAJUSCULES</span>
+                    </div>
+                    <div class="dropdown-item" onclick="convertToLowerCase()">
+                        <span>minuscules</span>
+                    </div>
+                    <div class="dropdown-item" onclick="convertToTitleCase()">
+                        <span>Première Lettre En Majuscule</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item">
+                Affichage
+                <div class="dropdown-menu">
+                    <div class="dropdown-item" onclick="toggleToolbar()">
+                        <span>🔧 Afficher/Masquer barre d'outils</span>
+                    </div>
+                    <div class="dropdown-item" onclick="toggleSidebar()">
+                        <span>📋 Afficher/Masquer panneau latéral</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="zoomIn()">
+                        <span>🔍 Zoom avant</span>
+                        <span class="shortcut">Ctrl++</span>
+                    </div>
+                    <div class="dropdown-item" onclick="zoomOut()">
+                        <span>🔍 Zoom arrière</span>
+                        <span class="shortcut">Ctrl+-</span>
+                    </div>
+                    <div class="dropdown-item" onclick="resetZoom()">
+                        <span>↺ Réinitialiser le zoom</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="toolbar" id="toolbar">
+            <div class="toolbar-section">
+                <div class="toolbar-label">📝 Mise en forme du texte</div>
+                <div class="toolbar-buttons">
+                    <button class="tool-btn" id="boldBtn" onclick="applyFormat('bold')"><strong>G</strong></button>
+                    <button class="tool-btn" id="italicBtn" onclick="applyFormat('italic')"><em>I</em></button>
+                    <button class="tool-btn" id="underlineBtn" onclick="applyFormat('underline')"><u>S</u></button>
+                    <select class="tool-btn" id="fontSelect" onchange="applyFormat('fontName', this.value)">
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Calibri">Calibri</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Verdana">Verdana</option>
+                    </select>
+                    <select class="tool-btn" id="sizeSelect" onchange="applyFormat('fontSize', this.value)">
+                        <option value="3">12pt</option>
+                        <option value="4">14pt</option>
+                        <option value="5">16pt</option>
+                        <option value="6">18pt</option>
+                        <option value="7">24pt</option>
+                    </select>
+                    <input type="color" class="color-picker" id="colorPicker" onchange="applyFormat('foreColor', this.value)" value="#000000">
+                    <button class="tool-btn" onclick="applyFormat('justifyLeft')">←</button>
+                    <button class="tool-btn" onclick="applyFormat('justifyCenter')">↔</button>
+                    <button class="tool-btn" onclick="applyFormat('justifyRight')">→</button>
+                    <button class="tool-btn" onclick="applyFormat('insertUnorderedList')">• Liste</button>
+                    <button class="tool-btn" onclick="applyFormat('insertOrderedList')">1. Liste</button>
+                </div>
+            </div>
+            
+            <div class="toolbar-section">
+                <div class="toolbar-label">🔢 Mathématiques - Opérations de base</div>
+                <div class="toolbar-buttons">
+                    <button class="tool-btn large" onclick="insertText('+')">+</button>
+                    <button class="tool-btn large" onclick="insertText('−')">−</button>
+                    <button class="tool-btn large" onclick="insertText('×')">×</button>
+                    <button class="tool-btn large" onclick="insertText('÷')">÷</button>
+                    <button class="tool-btn large" onclick="insertText(' = ')"> =</button>
+                    <button class="tool-btn large" onclick="insertText('≠')">≠</button>
+                    <button class="tool-btn large" onclick="insertText('±')">±</button>
+                    <button class="tool-btn large" onclick="insertText('<')"><</button>
+                    <button class="tool-btn large" onclick="insertText('>')">></button>
+                    <button class="tool-btn large" onclick="insertText('≤')">≤</button>
+                    <button class="tool-btn large" onclick="insertText('≥')">≥</button>
+                    <button class="tool-btn large" onclick="insertText('≈')">≈</button>
+                </div>
+            </div>
+            
+            <div class="toolbar-section">
+                <div class="toolbar-label">📊 Racines, Puissances & Symboles avancés</div>
+                <div class="toolbar-buttons">
+                    <button class="tool-btn large" onclick="insertText('√')">√</button>
+                    <button class="tool-btn large" onclick="insertText('∛')">∛</button>
+                    <button class="tool-btn large" onclick="insertText('²')">x²</button>
+                    <button class="tool-btn large" onclick="insertText('³')">x³</button>
+                    <button class="tool-btn large" onclick="insertText('ⁿ')">xⁿ</button>
+                    <button class="tool-btn large" onclick="insertText('∞')">∞</button>
+                    <button class="tool-btn large" onclick="insertText('∑')">∑</button>
+                    <button class="tool-btn large" onclick="insertText('∏')">∏</button>
+                    <button class="tool-btn large" onclick="insertText('∫')">∫</button>
+                    <button class="tool-btn large" onclick="insertText('∂')">∂</button>
+                    <button class="tool-btn large" onclick="insertText('∆')">∆</button>
+                </div>
+            </div>
+            
+            <div class="toolbar-section">
+                <div class="toolbar-label">🔤 Lettres grecques & Ensembles</div>
+                <div class="toolbar-buttons">
+                    <button class="tool-btn" onclick="insertText('α')">α</button>
+                    <button class="tool-btn" onclick="insertText('β')">β</button>
+                    <button class="tool-btn" onclick="insertText('γ')">γ</button>
+                    <button class="tool-btn" onclick="insertText('δ')">δ</button>
+                    <button class="tool-btn" onclick="insertText('θ')">θ</button>
+                    <button class="tool-btn" onclick="insertText('λ')">λ</button>
+                    <button class="tool-btn" onclick="insertText('π')">π</button>
+                    <button class="tool-btn" onclick="insertText('σ')">σ</button>
+                    <button class="tool-btn" onclick="insertText('φ')">φ</button>
+                    <button class="tool-btn" onclick="insertText('ω')">ω</button>
+                    <button class="tool-btn" onclick="insertText('∈')">∈</button>
+                    <button class="tool-btn" onclick="insertText('∉')">∉</button>
+                    <button class="tool-btn" onclick="insertText('⊂')">⊂</button>
+                    <button class="tool-btn" onclick="insertText('∪')">∪</button>
+                    <button class="tool-btn" onclick="insertText('∩')">∩</button>
+                    <button class="tool-btn" onclick="insertText('∅')">∅</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="editor-workspace">
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-section">
+                    <div class="fraction-builder">
+                        <h4>➗ Créateur de Fractions</h4>
+                        <div class="fraction-inputs">
+                            <input type="text" id="numerator" class="fraction-input" placeholder="Numérateur" oninput="updateFractionPreview()">
+                            <input type="text" id="denominator" class="fraction-input" placeholder="Dénominateur" oninput="updateFractionPreview()">
+                        </div>
+                        <div class="fraction-preview" id="fractionPreview">
+                            <span style="color: #999;">Aperçu de la fraction</span>
+                        </div>
+                        <button class="insert-fraction-btn" onclick="insertFraction()">📌 Insérer la fraction</button>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>📋 Modèles rapides</h3>
+                    <button class="template-btn" onclick="insertTemplate('equation')">Équation du second degré</button>
+                    <button class="template-btn" onclick="insertTemplate('theorem')">Théorème de Pythagore</button>
+                    <button class="template-btn" onclick="insertTemplate('limit')">Limite mathématique</button>
+                    <button class="template-btn" onclick="insertTemplate('matrix')">Matrice 2×2</button>
+                    <button class="template-btn" onclick="insertTemplate('business')">En-tête professionnel</button>
+                    <button class="template-btn" onclick="insertTemplate('letter')">Lettre formelle</button>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>🎨 Arrière-plan</h3>
+                    <button class="template-btn" onclick="insertBackgroundImage()">🖼️ Ajouter image</button>
+                    <button class="template-btn" onclick="removeBackgroundImage()">🚫 Supprimer image</button>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>⚡ Actions rapides</h3>
+                    <button class="template-btn" onclick="printDocument()">🖨️ Imprimer</button>
+                    <button class="template-btn" onclick="saveAsPDF()">📄 Télécharger PDF</button>
+                    <button class="template-btn" onclick="saveDocument()">💾 Sauvegarder (HTML)</button>
+                    <button class="template-btn" onclick="saveAsText()">📝 Sauvegarder (Texte)</button>
+                    <button class="template-btn" onclick="newDocument()">🗑️ Nouveau document</button>
+                </div>
+            </div>
+            
+            <div class="editor-main">
+                <div class="page" id="page">
+                    <div id="editor" class="editor-content" contenteditable="true" data-placeholder="Commencez à écrire votre document ici...
+
+Utilisez les boutons de la barre d'outils pour insérer des symboles mathématiques.
+Utilisez le créateur de fractions dans la barre latérale pour créer des fractions personnalisées.
+
+Exemple de formules :
+• Équation : ax² + bx + c = 0
+• Fraction : utilisez le créateur de fractions
+• Racine carrée : √x
+• Somme : ∑(i=1 à n) xi"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div>Mots : <span id="wordCount">0</span> | Caractères : <span id="charCount">0</span></div>
+            <div>Page 1 sur 1</div>
+            <div>Langue : Français</div>
+        </div>
+    </div>
+
+    <!-- Modal pour insertion de lien -->
+    <div class="modal" id="linkModal">
+        <div class="modal-content">
+            <h2>🔗 Insérer un lien hypertexte</h2>
+            <input type="text" id="linkText" placeholder="Texte à afficher">
+            <input type="url" id="linkUrl" placeholder="https://example.com">
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal('linkModal')">Annuler</button>
+                <button class="modal-btn primary" onclick="confirmInsertLink()">Insérer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour redimensionner image -->
+    <div class="modal" id="imageResizeModal">
+        <div class="modal-content">
+            <h2>🖼️ Redimensionner l'image</h2>
+            <label>Largeur (px ou %):</label>
+            <input type="text" id="imageWidth" placeholder="ex: 500px ou 50%">
+            <label>Hauteur (px ou %):</label>
+            <input type="text" id="imageHeight" placeholder="ex: 300px ou auto">
+            <div style="margin: 15px 0;">
+                <label>
+                    <input type="checkbox" id="keepAspectRatio" checked> Conserver les proportions
+                </label>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal('imageResizeModal')">Annuler</button>
+                <button class="modal-btn primary" onclick="applyImageResize()">Appliquer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour arrière-plan -->
+    <div class="modal" id="backgroundModal">
+        <div class="modal-content">
+            <h2>🎨 Paramètres de l'arrière-plan</h2>
+            <label>Opacité de l'image:</label>
+            <input type="range" id="bgOpacity" min="0" max="100" value="20" 
+                   oninput="document.getElementById('opacityValue').textContent = this.value + '%'">
+            <div style="text-align: center; margin: 10px 0;">
+                <span id="opacityValue">20%</span>
+            </div>
+            <label>Position:</label>
+            <select id="bgPosition" class="fraction-input">
+                <option value="center">Centre</option>
+                <option value="top">Haut</option>
+                <option value="bottom">Bas</option>
+                <option value="left">Gauche</option>
+                <option value="right">Droite</option>
+            </select>
+            <label>Taille:</label>
+            <select id="bgSize" class="fraction-input">
+                <option value="cover">Couvrir (cover)</option>
+                <option value="contain">Contenir (contain)</option>
+                <option value="auto">Automatique</option>
+                <option value="100% 100%">Étirer</option>
+            </select>
+            <label>Répétition:</label>
+            <select id="bgRepeat" class="fraction-input">
+                <option value="no-repeat">Aucune</option>
+                <option value="repeat">Répéter</option>
+                <option value="repeat-x">Répéter horizontalement</option>
+                <option value="repeat-y">Répéter verticalement</option>
+            </select>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal('backgroundModal')">Annuler</button>
+                <button class="modal-btn primary" onclick="applyBackgroundSettings()">Appliquer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour rechercher/remplacer -->
+    <div class="modal" id="findModal">
+        <div class="modal-content">
+            <h2>🔍 Rechercher et remplacer</h2>
+            <input type="text" id="findText" placeholder="Rechercher...">
+            <input type="text" id="replaceText" placeholder="Remplacer par...">
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal('findModal')">Annuler</button>
+                <button class="modal-btn primary" onclick="performReplace()">Remplacer tout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour insertion de tableau -->
+    <div class="modal" id="tableModal">
+        <div class="modal-content">
+            <h2>📊 Insérer un tableau</h2>
+            <input type="number" id="tableRows" placeholder="Nombre de lignes" min="1" max="20" value="3">
+            <input type="number" id="tableCols" placeholder="Nombre de colonnes" min="1" max="10" value="3">
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal('tableModal')">Annuler</button>
+                <button class="modal-btn primary" onclick="confirmInsertTable()">Insérer</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const editor = document.getElementById('editor');
+        let currentZoom = 1;
+        
+        // Fonction pour insérer du texte à la position du curseur
+        function insertText(text) {
+            editor.focus();
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                range.deleteContents();
+                const textNode = document.createTextNode(text);
+                range.insertNode(textNode);
+                range.setStartAfter(textNode);
+                range.setEndAfter(textNode);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+            updateStats();
+        }
+        
+        // Fonction pour appliquer le formatage
+        function applyFormat(command, value = null) {
+            editor.focus();
+            document.execCommand(command, false, value);
+            updateFormatButtons();
+        }
+        
+        function updateFormatButtons() {
+            try {
+                document.getElementById('boldBtn').classList.toggle('active', document.queryCommandState('bold'));
+                document.getElementById('italicBtn').classList.toggle('active', document.queryCommandState('italic'));
+                document.getElementById('underlineBtn').classList.toggle('active', document.queryCommandState('underline'));
+            } catch(e) {}
+        }
+        
+        function updateFractionPreview() {
+            const num = document.getElementById('numerator').value;
+            const den = document.getElementById('denominator').value;
+            const preview = document.getElementById('fractionPreview');
+            
+            if (num && den) {
+                preview.innerHTML = `
+                    <div class="fraction-display">
+                        <div class="fraction-num">${num}</div>
+                        <div class="fraction-den">${den}</div>
+                    </div>
+                `;
+            } else {
+                preview.innerHTML = '<span style="color: #999;">Aperçu de la fraction</span>';
+            }
+        }
+        
+        function insertFraction() {
+            const num = document.getElementById('numerator').value;
+            const den = document.getElementById('denominator').value;
+            
+            if (!num || !den) {
+                alert('Veuillez remplir le numérateur et le dénominateur');
+                return;
+            }
+            
+            editor.focus();
+            const sel = window.getSelection();
+            
+            if (sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                range.deleteContents();
+                
+                const fractionSpan = document.createElement('span');
+                fractionSpan.className = 'fraction-inline';
+                fractionSpan.contentEditable = 'false';
+                
+                const numSpan = document.createElement('span');
+                numSpan.className = 'num';
+                numSpan.textContent = num;
+                
+                const denSpan = document.createElement('span');
+                denSpan.className = 'den';
+                denSpan.textContent = den;
+                
+                fractionSpan.appendChild(numSpan);
+                fractionSpan.appendChild(denSpan);
+                
+                range.insertNode(fractionSpan);
+                
+                const spaceNode = document.createTextNode(' ');
+                range.setStartAfter(fractionSpan);
+                range.insertNode(spaceNode);
+                range.setStartAfter(spaceNode);
+                range.setEndAfter(spaceNode);
+                
+                sel.removeAllRanges();
+                sel.addRange(range);
+                
+                document.getElementById('numerator').value = '';
+                document.getElementById('denominator').value = '';
+                updateFractionPreview();
+                updateStats();
+            }
+        }
+        
+        function insertTemplate(type) {
+            const templates = {
+                equation: '\n\n═══ Équation du second degré ═══\n\nax² + bx + c = 0\n\nSolutions :\nx₁ = (-b + √(b² - 4ac)) / 2a\nx₂ = (-b - √(b² - 4ac)) / 2a\n\n',
+                theorem: '\n\n═══ Théorème de Pythagore ═══\n\nDans un triangle rectangle :\na² + b² = c²\n\noù c est l\'hypoténuse\n\n',
+                limit: '\n\n═══ Limite ═══\n\nlim (x → ∞) f(x) = L\n\n',
+                matrix: '\n\n═══ Matrice 2×2 ═══\n\n[ a  b ]\n[ c  d ]\n\n',
+                business: '\n\nNom de l\'Entreprise\nAdresse complète\nTél : +XXX XX XX XX XX\nEmail : contact@entreprise.com\n\n' + new Date().toLocaleDateString('fr-FR') + '\n\n',
+                letter: '\n\nExpéditeur\nAdresse\nCode postal, Ville\n\nDestinataire\nAdresse\nCode postal, Ville\n\n' + new Date().toLocaleDateString('fr-FR') + '\n\nObjet : [Objet de la lettre]\n\nMadame, Monsieur,\n\n[Votre message ici]\n\nCordialement,\n[Votre nom]\n\n'
+            };
+            
+            if (templates[type]) {
+                insertText(templates[type]);
+            }
+        }
+        
+        function updateStats() {
+            const text = editor.innerText || editor.textContent;
+            const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+            const chars = text.length;
+            
+            document.getElementById('wordCount').textContent = words || 0;
+            document.getElementById('charCount').textContent = chars || 0;
+        }
+
+        // Menu Fichier
+        function newDocument() {
+            if (confirm('Créer un nouveau document ? Le contenu actuel sera perdu.')) {
+                editor.innerHTML = '';
+                updateStats();
+                editor.focus();
+            }
+        }
+
+        function openDocument() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.html,.txt';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = event => {
+                    if (file.name.endsWith('.html')) {
+                        editor.innerHTML = event.target.result;
+                    } else {
+                        editor.innerText = event.target.result;
+                    }
+                    updateStats();
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+        
+        function printDocument() {
+            window.print();
+        }
+        
+        function saveDocument() {
+            const content = editor.innerHTML;
+            const html = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; padding: 25mm; }
+        .fraction-inline { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 4px; font-size: 16px; }
+        .fraction-inline .num { border-bottom: 1.5px solid #000; padding: 0 6px 2px 6px; }
+        .fraction-inline .den { padding: 2px 6px 0 6px; }
+    </style>
+</head>
+<body>${content}</body>
+</html>`;
+            
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'document_' + new Date().getTime() + '.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function saveAsText() {
+            const text = editor.innerText || editor.textContent;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'document_' + new Date().getTime() + '.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function saveAsPDF() {
+            // Afficher un message de chargement
+            const originalContent = editor.innerHTML;
+            const loadingMsg = document.createElement('div');
+            loadingMsg.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #2b5797;
+                color: white;
+                padding: 20px 40px;
+                border-radius: 8px;
+                font-size: 16px;
+                z-index: 9999;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            `;
+            loadingMsg.textContent = '📄 Génération du PDF en cours...';
+            document.body.appendChild(loadingMsg);
+
+            // Configuration pour html2pdf
+            const opt = {
+                margin: [25, 25, 25, 25], // en mm (haut, droite, bas, gauche)
+                filename: 'document_' + new Date().getTime() + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                }
+            };
+
+            // Créer un clone de la page pour le PDF
+            const pageClone = document.getElementById('page').cloneNode(true);
+            const editorClone = pageClone.querySelector('#editor');
+            
+            // Appliquer les styles inline pour le PDF
+            if (editorClone) {
+                editorClone.style.minHeight = 'auto';
+                editorClone.style.padding = '0';
+            }
+
+            // Générer le PDF
+            html2pdf().set(opt).from(pageClone).save().then(() => {
+                document.body.removeChild(loadingMsg);
+                
+                // Message de succès
+                const successMsg = document.createElement('div');
+                successMsg.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #28a745;
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    z-index: 9999;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                `;
+                successMsg.textContent = '✅ PDF téléchargé avec succès !';
+                document.body.appendChild(successMsg);
+                
+                setTimeout(() => {
+                    document.body.removeChild(successMsg);
+                }, 3000);
+            }).catch(err => {
+                document.body.removeChild(loadingMsg);
+                alert('❌ Erreur lors de la génération du PDF. Veuillez réessayer.');
+                console.error(err);
+            });
+        }
+
+        // Menu Insertion
+        function insertDate() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            insertText(dateStr);
+        }
+
+        function insertImage() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = event => {
+                    editor.focus();
+                    
+                    // Créer le wrapper pour l'image
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'image-wrapper';
+                    wrapper.contentEditable = 'false';
+                    wrapper.style.width = '300px'; // Taille par défaut
+                    
+                    // Créer l'image
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.width = '100%';
+                    img.style.height = 'auto';
+                    
+                    // Créer les contrôles
+                    const controls = document.createElement('div');
+                    controls.className = 'image-controls';
+                    
+                    const resizeBtn = document.createElement('button');
+                    resizeBtn.className = 'image-control-btn';
+                    resizeBtn.textContent = '📏 Taille';
+                    resizeBtn.onclick = () => openImageResizeModal(wrapper);
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'image-control-btn';
+                    deleteBtn.textContent = '🗑️';
+                    deleteBtn.onclick = () => wrapper.remove();
+                    
+                    controls.appendChild(resizeBtn);
+                    controls.appendChild(deleteBtn);
+                    
+                    // Créer la poignée de redimensionnement
+                    const resizeHandle = document.createElement('div');
+                    resizeHandle.className = 'resize-handle';
+                    
+                    let isResizing = false;
+                    let startX, startY, startWidth, startHeight;
+                    
+                    resizeHandle.onmousedown = (e) => {
+                        isResizing = true;
+                        startX = e.clientX;
+                        startY = e.clientY;
+                        startWidth = wrapper.offsetWidth;
+                        startHeight = wrapper.offsetHeight;
+                        e.preventDefault();
+                    };
+                    
+                    document.addEventListener('mousemove', (e) => {
+                        if (!isResizing) return;
+                        const width = startWidth + (e.clientX - startX);
+                        wrapper.style.width = Math.max(50, width) + 'px';
+                    });
+                    
+                    document.addEventListener('mouseup', () => {
+                        isResizing = false;
+                    });
+                    
+                    wrapper.appendChild(img);
+                    wrapper.appendChild(controls);
+                    wrapper.appendChild(resizeHandle);
+                    
+                    const sel = window.getSelection();
+                    if (sel.rangeCount > 0) {
+                        const range = sel.getRangeAt(0);
+                        range.insertNode(wrapper);
+                        range.setStartAfter(wrapper);
+                        range.collapse(true);
+                    }
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        let currentImageWrapper = null;
+
+        function openImageResizeModal(wrapper) {
+            currentImageWrapper = wrapper;
+            const currentWidth = wrapper.style.width || '300px';
+            const img = wrapper.querySelector('img');
+            const currentHeight = img.style.height || 'auto';
+            
+            document.getElementById('imageWidth').value = currentWidth;
+            document.getElementById('imageHeight').value = currentHeight;
+            document.getElementById('imageResizeModal').classList.add('active');
+        }
+
+        function applyImageResize() {
+            if (!currentImageWrapper) return;
+            
+            const width = document.getElementById('imageWidth').value;
+            const height = document.getElementById('imageHeight').value;
+            const keepRatio = document.getElementById('keepAspectRatio').checked;
+            
+            const img = currentImageWrapper.querySelector('img');
+            
+            if (width) {
+                currentImageWrapper.style.width = width.includes('px') || width.includes('%') ? width : width + 'px';
+            }
+            
+            if (keepRatio) {
+                img.style.height = 'auto';
+            } else if (height) {
+                img.style.height = height.includes('px') || height.includes('%') ? height : height + 'px';
+            }
+            
+            closeModal('imageResizeModal');
+            currentImageWrapper = null;
+        }
+
+        function insertTable() {
+            document.getElementById('tableModal').classList.add('active');
+        }
+
+        function confirmInsertTable() {
+            const rows = parseInt(document.getElementById('tableRows').value) || 3;
+            const cols = parseInt(document.getElementById('tableCols').value) || 3;
+            
+            let tableHTML = '<table border="1" style="border-collapse: collapse; width: 100%; margin: 10px 0;">';
+            for (let i = 0; i < rows; i++) {
+                tableHTML += '<tr>';
+                for (let j = 0; j < cols; j++) {
+                    tableHTML += '<td style="padding: 8px; border: 1px solid #000;">Cellule</td>';
+                }
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</table>';
+            
+            editor.focus();
+            document.execCommand('insertHTML', false, tableHTML);
+            closeModal('tableModal');
+        }
+
+        function insertLink() {
+            document.getElementById('linkModal').classList.add('active');
+            const sel = window.getSelection();
+            if (sel.toString()) {
+                document.getElementById('linkText').value = sel.toString();
+            }
+        }
+
+        function confirmInsertLink() {
+            const text = document.getElementById('linkText').value;
+            const url = document.getElementById('linkUrl').value;
+            
+            if (text && url) {
+                editor.focus();
+                const linkHTML = `<a href="${url}" target="_blank">${text}</a>`;
+                document.execCommand('insertHTML', false, linkHTML);
+                document.getElementById('linkText').value = '';
+                document.getElementById('linkUrl').value = '';
+                closeModal('linkModal');
+            } else {
+                alert('Veuillez remplir le texte et l\'URL');
+            }
+        }
+
+        function insertHorizontalLine() {
+            editor.focus();
+            document.execCommand('insertHTML', false, '<hr style="margin: 20px 0;">');
+        }
+
+        function insertPageBreak() {
+            insertText('\n\n━━━━━━━━━━ Saut de page ━━━━━━━━━━\n\n');
+        }
+
+        function showFractionBuilder() {
+            document.getElementById('numerator').focus();
+        }
+
+        // Fonctions pour l'arrière-plan
+        let backgroundImageData = null;
+
+        function insertBackgroundImage() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = event => {
+                    backgroundImageData = event.target.result;
+                    document.getElementById('backgroundModal').classList.add('active');
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
+
+        function applyBackgroundSettings() {
+            if (!backgroundImageData) return;
+            
+            const page = document.getElementById('page');
+            const opacity = document.getElementById('bgOpacity').value / 100;
+            const position = document.getElementById('bgPosition').value;
+            const size = document.getElementById('bgSize').value;
+            const repeat = document.getElementById('bgRepeat').value;
+            
+            // Créer un pseudo-élément pour l'arrière-plan avec opacité
+            page.style.position = 'relative';
+            
+            // Supprimer l'ancien arrière-plan s'il existe
+            const oldBg = page.querySelector('.page-background');
+            if (oldBg) oldBg.remove();
+            
+            // Créer le nouveau fond
+            const bgDiv = document.createElement('div');
+            bgDiv.className = 'page-background';
+            bgDiv.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-image: url('${backgroundImageData}');
+                background-position: ${position};
+                background-size: ${size};
+                background-repeat: ${repeat};
+                opacity: ${opacity};
+                pointer-events: none;
+                z-index: 0;
+            `;
+            
+            page.insertBefore(bgDiv, page.firstChild);
+            
+            // S'assurer que l'éditeur est au-dessus
+            editor.style.position = 'relative';
+            editor.style.zIndex = '1';
+            
+            closeModal('backgroundModal');
+            alert('✅ Arrière-plan appliqué avec succès!');
+        }
+
+        function removeBackgroundImage() {
+            const page = document.getElementById('page');
+            const bgDiv = page.querySelector('.page-background');
+            if (bgDiv) {
+                bgDiv.remove();
+                backgroundImageData = null;
+                alert('✅ Arrière-plan supprimé!');
+            } else {
+                alert('❌ Aucun arrière-plan à supprimer');
+            }
+        }
+
+        // Menu Format
+        function increaseFontSize() {
+            const currentSize = parseInt(document.getElementById('sizeSelect').value);
+            if (currentSize < 7) {
+                document.getElementById('sizeSelect').value = currentSize + 1;
+                applyFormat('fontSize', currentSize + 1);
+            }
+        }
+
+        function decreaseFontSize() {
+            const currentSize = parseInt(document.getElementById('sizeSelect').value);
+            if (currentSize > 1) {
+                document.getElementById('sizeSelect').value = currentSize - 1;
+                applyFormat('fontSize', currentSize - 1);
+            }
+        }
+
+        // Menu Outils
+        function wordCount() {
+            const text = editor.innerText || editor.textContent;
+            const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+            const chars = text.length;
+            const lines = text.split('\n').length;
+            
+            alert(`📊 Statistiques du document\n\n` +
+                  `Mots : ${words}\n` +
+                  `Caractères : ${chars}\n` +
+                  `Lignes : ${lines}`);
+        }
+
+        function spellCheck() {
+            alert('✓ Vérification orthographique lancée!\n\nNote: Cette fonctionnalité utilise le correcteur de votre navigateur.');
+            editor.setAttribute('spellcheck', 'true');
+        }
+
+        function convertToUpperCase() {
+            const sel = window.getSelection();
+            if (sel.toString()) {
+                const upper = sel.toString().toUpperCase();
+                document.execCommand('insertText', false, upper);
+            }
+        }
+
+        function convertToLowerCase() {
+            const sel = window.getSelection();
+            if (sel.toString()) {
+                const lower = sel.toString().toLowerCase();
+                document.execCommand('insertText', false, lower);
+            }
+        }
+
+        function convertToTitleCase() {
+            const sel = window.getSelection();
+            if (sel.toString()) {
+                const title = sel.toString().replace(/\w\S*/g, txt => 
+                    txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+                );
+                document.execCommand('insertText', false, title);
+            }
+        }
+
+        function openFindReplace() {
+            document.getElementById('findModal').classList.add('active');
+        }
+
+        function performReplace() {
+            const findText = document.getElementById('findText').value;
+            const replaceText = document.getElementById('replaceText').value;
+            
+            if (findText) {
+                const content = editor.innerHTML;
+                const newContent = content.replaceAll(findText, replaceText);
+                editor.innerHTML = newContent;
+                closeModal('findModal');
+                alert(`Remplacement effectué !`);
+            }
+        }
+
+        // Menu Affichage
+        function toggleToolbar() {
+            const toolbar = document.getElementById('toolbar');
+            toolbar.style.display = toolbar.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function zoomIn() {
+            currentZoom += 0.1;
+            document.getElementById('page').style.transform = `scale(${currentZoom})`;
+        }
+
+        function zoomOut() {
+            if (currentZoom > 0.5) {
+                currentZoom -= 0.1;
+                document.getElementById('page').style.transform = `scale(${currentZoom})`;
+            }
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            document.getElementById('page').style.transform = `scale(1)`;
+        }
+
+        // Gestion des modals
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Fermer les modals en cliquant à l'extérieur
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', e => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Raccourcis clavier
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key.toLowerCase()) {
+                    case 's':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            saveAsPDF();
+                        } else {
+                            saveDocument();
+                        }
+                        break;
+                    case 'p':
+                        e.preventDefault();
+                        printDocument();
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        newDocument();
+                        break;
+                    case 'o':
+                        e.preventDefault();
+                        openDocument();
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        openFindReplace();
+                        break;
+                }
+            }
+        });
+        
+        // Événements
+        editor.addEventListener('input', updateStats);
+        editor.addEventListener('keyup', updateFormatButtons);
+        editor.addEventListener('mouseup', updateFormatButtons);
+        
+        // Menu burger mobile
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Fermer le menu mobile en cliquant sur un bouton
+        document.getElementById('sidebar').addEventListener('click', (e) => {
+            if (e.target.classList.contains('template-btn')) {
+                if (window.innerWidth <= 768) {
+                    toggleMobileSidebar();
+                }
+            }
+        });
+
+        // Adapter le zoom initial sur mobile
+        function adjustForMobile() {
+            if (window.innerWidth <= 768) {
+                const page = document.getElementById('page');
+                const scale = window.innerWidth / 800;
+                if (scale < 1) {
+                    page.style.transform = `scale(${scale})`;
+                    page.style.transformOrigin = 'top left';
+                }
+            }
+        }
+
+        // Initialisation
+        updateStats();
+        adjustForMobile();
+
+        // Réajuster lors du redimensionnement
+        window.addEventListener('resize', adjustForMobile);
+    </script>
+</body>
+</html>
