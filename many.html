@@ -489,6 +489,7 @@
 
             .toolbar {
                 overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
             }
 
             .toolbar-section {
@@ -498,23 +499,35 @@
             .editor-workspace {
                 flex-direction: column;
                 height: auto;
+                min-height: calc(100vh - 200px);
             }
 
             .sidebar {
                 width: 100%;
                 border-right: none;
                 border-bottom: 1px solid #d1d1d1;
-                max-height: 300px;
+                max-height: none;
+                display: none;
+            }
+
+            .sidebar.active {
+                display: block;
             }
 
             .page {
                 width: 100%;
-                min-height: auto;
+                min-height: 60vh;
                 padding: 15mm;
+                margin: 0;
             }
 
             .editor-main {
-                padding: 20px;
+                padding: 15px;
+                width: 100%;
+            }
+
+            .editor-content {
+                width: 100%;
             }
 
             .title-bar h1 {
@@ -523,6 +536,7 @@
 
             .menu-bar {
                 overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
                 white-space: nowrap;
             }
 
@@ -531,83 +545,164 @@
                 left: 10px;
                 right: 10px;
                 top: auto;
-                max-height: 70vh;
+                max-height: 60vh;
                 overflow-y: auto;
             }
         }
 
         @media screen and (max-width: 768px) {
             .title-bar {
-                padding: 10px;
+                padding: 8px 10px;
             }
 
             .title-bar h1 {
+                font-size: 11px;
+                line-height: 1.3;
+            }
+
+            .menu-bar {
+                padding: 0 5px;
+            }
+
+            .menu-item {
+                padding: 6px 10px;
                 font-size: 12px;
             }
 
             .toolbar {
-                padding: 5px;
+                padding: 8px 5px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .toolbar-section {
+                margin-bottom: 8px;
+                padding-bottom: 8px;
             }
 
             .toolbar-label {
-                font-size: 10px;
+                font-size: 9px;
+                margin-bottom: 5px;
+            }
+
+            .toolbar-buttons {
+                gap: 3px;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 3px;
             }
 
             .tool-btn {
-                padding: 4px 8px;
-                font-size: 12px;
+                padding: 5px 8px;
+                font-size: 13px;
+                white-space: nowrap;
+                flex-shrink: 0;
             }
 
             .tool-btn.large {
                 padding: 6px 10px;
-                font-size: 14px;
+                font-size: 15px;
+            }
+
+            select.tool-btn {
+                max-width: 140px;
+                min-width: 100px;
+            }
+
+            .color-picker {
+                width: 35px;
+                height: 28px;
             }
 
             .sidebar {
-                max-height: 200px;
                 padding: 10px;
+                max-height: 50vh;
+                overflow-y: auto;
             }
 
             .sidebar h3 {
                 font-size: 12px;
+                margin-bottom: 8px;
+            }
+
+            .sidebar-section {
+                margin-bottom: 15px;
             }
 
             .template-btn {
                 padding: 8px;
-                font-size: 11px;
+                font-size: 12px;
+                margin-bottom: 6px;
             }
 
             .fraction-builder {
-                padding: 15px;
+                padding: 12px;
+            }
+
+            .fraction-builder h4 {
+                font-size: 13px;
+                margin-bottom: 10px;
+            }
+
+            .fraction-input {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .fraction-preview {
+                min-height: 50px;
+                font-size: 20px;
+                padding: 10px;
+            }
+
+            .insert-fraction-btn {
+                padding: 10px;
+                font-size: 13px;
             }
 
             .page {
                 padding: 10mm;
+                box-shadow: none;
+                min-height: 50vh;
             }
 
             .editor-main {
                 padding: 10px;
+                background: white;
             }
 
             .editor-content {
-                font-size: 11pt;
+                font-size: 14px;
+                min-height: 50vh;
+                line-height: 1.8;
             }
 
             .status-bar {
                 font-size: 10px;
                 padding: 6px 10px;
                 flex-wrap: wrap;
-                gap: 10px;
+                gap: 8px;
+                justify-content: center;
             }
 
             .modal-content {
-                padding: 20px;
+                padding: 20px 15px;
                 width: 95%;
                 max-width: none;
             }
 
             .modal-content h2 {
-                font-size: 18px;
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+
+            .modal-content input,
+            .modal-content textarea,
+            .modal-content select {
+                padding: 10px;
+                font-size: 14px;
+                margin-bottom: 12px;
             }
 
             .dropdown-item {
@@ -618,34 +713,58 @@
             .dropdown-item .shortcut {
                 display: none;
             }
+
+            .image-controls {
+                top: -30px;
+            }
+
+            .image-control-btn {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
         }
 
         @media screen and (max-width: 480px) {
+            .title-bar {
+                padding: 6px 8px;
+            }
+
             .title-bar h1 {
-                font-size: 11px;
+                font-size: 10px;
             }
 
             .menu-item {
-                padding: 6px 10px;
+                padding: 5px 8px;
                 font-size: 11px;
+            }
+
+            .toolbar {
+                padding: 6px 3px;
+            }
+
+            .toolbar-label {
+                font-size: 8px;
             }
 
             .toolbar-buttons {
-                gap: 3px;
+                gap: 2px;
             }
 
             .tool-btn {
-                padding: 3px 6px;
-                font-size: 11px;
+                padding: 4px 6px;
+                font-size: 12px;
+                border-radius: 2px;
             }
 
             .tool-btn.large {
                 padding: 5px 8px;
-                font-size: 13px;
+                font-size: 14px;
             }
 
             select.tool-btn {
-                max-width: 120px;
+                max-width: 110px;
+                min-width: 90px;
+                font-size: 11px;
             }
 
             .color-picker {
@@ -657,39 +776,52 @@
                 padding: 8px;
             }
 
+            .sidebar h3 {
+                font-size: 11px;
+            }
+
+            .template-btn {
+                padding: 7px;
+                font-size: 11px;
+            }
+
             .fraction-builder {
                 padding: 10px;
             }
 
             .fraction-builder h4 {
-                font-size: 13px;
+                font-size: 12px;
             }
 
             .fraction-input {
-                padding: 6px;
+                padding: 7px;
                 font-size: 13px;
             }
 
             .insert-fraction-btn {
                 padding: 8px;
-                font-size: 13px;
-            }
-
-            .template-btn {
-                padding: 6px;
-                font-size: 10px;
+                font-size: 12px;
             }
 
             .page {
-                padding: 5mm;
+                padding: 8mm;
+            }
+
+            .editor-main {
+                padding: 8px;
             }
 
             .editor-content {
-                font-size: 10pt;
+                font-size: 13px;
+                line-height: 1.7;
             }
 
             .modal-content {
-                padding: 15px;
+                padding: 15px 12px;
+            }
+
+            .modal-content h2 {
+                font-size: 15px;
             }
 
             .modal-content input,
@@ -700,8 +832,13 @@
             }
 
             .modal-btn {
-                padding: 8px 15px;
+                padding: 8px 12px;
                 font-size: 13px;
+            }
+
+            .status-bar {
+                font-size: 9px;
+                padding: 5px 8px;
             }
         }
 
@@ -711,41 +848,50 @@
             background: #2b5797;
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 0;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 20px;
             position: fixed;
             bottom: 20px;
             right: 20px;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 55px;
+            height: 55px;
             z-index: 1001;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-menu-toggle:active {
+            transform: scale(0.95);
         }
 
         @media screen and (max-width: 768px) {
             .mobile-menu-toggle {
-                display: block;
+                display: flex;
             }
 
             .sidebar {
                 position: fixed;
                 top: 0;
-                left: -100%;
-                width: 80%;
-                max-width: 300px;
-                height: 100vh;
-                max-height: 100vh;
+                left: 0;
+                width: 100%;
+                height: auto;
+                max-height: 80vh;
                 z-index: 1000;
-                transition: left 0.3s ease;
+                transition: transform 0.3s ease;
+                transform: translateY(-100%);
                 overflow-y: auto;
                 background: #fafafa;
+                border-bottom: 2px solid #2b5797;
             }
 
             .sidebar.active {
-                left: 0;
-                box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+                transform: translateY(0);
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             }
 
             .sidebar-overlay {
@@ -755,12 +901,40 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: rgba(0,0,0,0.5);
+                background: rgba(0,0,0,0.6);
                 z-index: 999;
+                opacity: 0;
+                transition: opacity 0.3s ease;
             }
 
             .sidebar-overlay.active {
                 display: block;
+                opacity: 1;
+            }
+
+            /* Bouton de fermeture dans la sidebar */
+            .sidebar::before {
+                content: '✕ Fermer';
+                display: block;
+                background: #2b5797;
+                color: white;
+                padding: 12px;
+                text-align: center;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                margin: -10px -10px 10px -10px;
+                border-radius: 0;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .mobile-menu-toggle {
+                width: 50px;
+                height: 50px;
+                bottom: 15px;
+                right: 15px;
+                font-size: 18px;
             }
         }
 
@@ -1937,26 +2111,40 @@ Exemple de formules :
             const overlay = document.getElementById('sidebarOverlay');
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
+            
+            // Changer l'icône du bouton
+            const toggleBtn = document.querySelector('.mobile-menu-toggle');
+            if (sidebar.classList.contains('active')) {
+                toggleBtn.textContent = '✕';
+            } else {
+                toggleBtn.textContent = '☰';
+            }
         }
 
         // Fermer le menu mobile en cliquant sur un bouton
         document.getElementById('sidebar').addEventListener('click', (e) => {
-            if (e.target.classList.contains('template-btn')) {
+            if (e.target.classList.contains('template-btn') || e.target.classList.contains('insert-fraction-btn')) {
                 if (window.innerWidth <= 768) {
-                    toggleMobileSidebar();
+                    setTimeout(() => toggleMobileSidebar(), 300);
                 }
             }
         });
 
+        // Fermer avec le bouton de fermeture dans la sidebar
+        if (window.innerWidth <= 768) {
+            document.getElementById('sidebar').addEventListener('click', (e) => {
+                const rect = e.target.getBoundingClientRect();
+                if (rect.top < 50 && e.offsetY < 50) {
+                    toggleMobileSidebar();
+                }
+            });
+        }
+
         // Adapter le zoom initial sur mobile
         function adjustForMobile() {
             if (window.innerWidth <= 768) {
-                const page = document.getElementById('page');
-                const scale = window.innerWidth / 800;
-                if (scale < 1) {
-                    page.style.transform = `scale(${scale})`;
-                    page.style.transformOrigin = 'top left';
-                }
+                const editorMain = document.querySelector('.editor-main');
+                editorMain.style.padding = '5px';
             }
         }
 
