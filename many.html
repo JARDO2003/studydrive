@@ -208,6 +208,13 @@
             background: #e8e8e8;
             overflow-y: auto;
         }
+
+        .pages-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+        }
         
         .page {
             background: white;
@@ -216,6 +223,121 @@
             margin: 0 auto;
             padding: 25mm;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .page-number {
+            position: absolute;
+            bottom: 15mm;
+            right: 25mm;
+            font-size: 11pt;
+            color: #666;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .page-controls {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 900;
+        }
+
+        .page-control-btn {
+            background: #2b5797;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page-control-btn:hover {
+            background: #1e3a5f;
+            transform: scale(1.1);
+        }
+
+        .page-control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .page-info {
+            background: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            font-size: 12px;
+            font-weight: 600;
+            color: #2b5797;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        /* Styles de page */
+        .page.style-classique {
+            font-family: 'Times New Roman', serif;
+            background: white;
+            border: none;
+        }
+
+        .page.style-moderne {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
+            border-left: 5px solid #2b5797;
+        }
+
+        .page.style-elegant {
+            font-family: 'Georgia', serif;
+            background: #fefef8;
+            border: 1px solid #d4af37;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .page.style-minimaliste {
+            font-family: 'Arial', sans-serif;
+            background: white;
+            border-top: 3px solid #333;
+            border-bottom: 3px solid #333;
+        }
+
+        .page.style-corporate {
+            font-family: 'Verdana', sans-serif;
+            background: white;
+            border: 2px solid #2b5797;
+            box-shadow: 0 0 0 8px #f0f4f8;
+        }
+
+        .page.style-moderne .editor-content {
+            font-family: 'Calibri', 'Arial', sans-serif;
+            color: #2c3e50;
+        }
+
+        .page.style-elegant .editor-content {
+            font-family: 'Georgia', serif;
+            color: #3e2723;
+            line-height: 1.8;
+        }
+
+        .page.style-minimaliste .editor-content {
+            font-family: 'Arial', sans-serif;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .page.style-corporate .editor-content {
+            font-family: 'Verdana', sans-serif;
+            color: #1e3a5f;
         }
         
         .editor-content {
@@ -722,6 +844,24 @@
                 padding: 4px 8px;
                 font-size: 10px;
             }
+            .page-controls {
+                bottom: 80px;
+                right: 15px;
+                gap: 8px;
+            }
+
+            .page-control-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 16px;
+                padding: 0;
+            }
+
+            .page-info {
+                padding: 6px 10px;
+                font-size: 11px;
+                min-width: 45px;
+            }
         }
 
         @media screen and (max-width: 480px) {
@@ -1140,6 +1280,10 @@
                         <span>📋 Afficher/Masquer panneau latéral</span>
                     </div>
                     <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" onclick="openStyleSelector()">
+                        <span>🎨 Style de la page</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
                     <div class="dropdown-item" onclick="zoomIn()">
                         <span>🔍 Zoom avant</span>
                         <span class="shortcut">Ctrl++</span>
@@ -1275,6 +1419,11 @@
                     <button class="template-btn" onclick="insertBackgroundImage()">🖼️ Ajouter image</button>
                     <button class="template-btn" onclick="removeBackgroundImage()">🚫 Supprimer image</button>
                 </div>
+
+                <div class="sidebar-section">
+                    <h3>✨ Style de page</h3>
+                    <button class="template-btn" onclick="openStyleSelector()">🎨 Choisir un style</button>
+                </div>
                 
                 <div class="sidebar-section">
                     <h3>⚡ Actions rapides</h3>
@@ -1287,8 +1436,9 @@
             </div>
             
             <div class="editor-main">
-                <div class="page" id="page">
-                    <div id="editor" class="editor-content" contenteditable="true" data-placeholder="Commencez à écrire votre document ici...
+                <div class="pages-container" id="pagesContainer">
+                    <div class="page style-classique" data-page-number="1">
+                        <div id="editor" class="editor-content" contenteditable="true" data-placeholder="Commencez à écrire votre document ici...
 
 Utilisez les boutons de la barre d'outils pour insérer des symboles mathématiques.
 Utilisez le créateur de fractions dans la barre latérale pour créer des fractions personnalisées.
@@ -1298,13 +1448,24 @@ Exemple de formules :
 • Fraction : utilisez le créateur de fractions
 • Racine carrée : √x
 • Somme : ∑(i=1 à n) xi"></div>
+                        <div class="page-number">Page 1</div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Contrôles de pagination -->
+            <div class="page-controls">
+                <button class="page-control-btn" onclick="addNewPage()" title="Ajouter une page">+</button>
+                <div class="page-info" id="pageInfo">1/1</div>
+                <button class="page-control-btn" onclick="goToPreviousPage()" title="Page précédente">↑</button>
+                <button class="page-control-btn" onclick="goToNextPage()" title="Page suivante">↓</button>
+                <button class="page-control-btn" onclick="deleteCurrentPage()" title="Supprimer la page" style="background: #dc3545;">🗑️</button>
             </div>
         </div>
         
         <div class="status-bar">
             <div>Mots : <span id="wordCount">0</span> | Caractères : <span id="charCount">0</span></div>
-            <div>Page 1 sur 1</div>
+            <div>Pages : <span id="totalPages">1</span></div>
             <div>Langue : Français</div>
         </div>
     </div>
@@ -1381,6 +1542,67 @@ Exemple de formules :
         </div>
     </div>
 
+    <!-- Modal pour sélection de style -->
+    <div class="modal" id="styleModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2>✨ Choisir un style de page</h2>
+            <div style="display: grid; gap: 15px; margin: 20px 0;">
+                <div class="style-option" onclick="applyPageStyle('classique')">
+                    <div style="display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #d1d1d1; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#2b5797'; this.style.background='#f8f9fa'" onmouseout="this.style.borderColor='#d1d1d1'; this.style.background='white'">
+                        <div style="width: 60px; height: 80px; background: white; border: 1px solid #ccc; flex-shrink: 0;"></div>
+                        <div>
+                            <h3 style="margin: 0 0 5px 0; font-size: 16px; color: #2b5797;">📄 Classique</h3>
+                            <p style="margin: 0; font-size: 13px; color: #666;">Times New Roman, fond blanc, style traditionnel</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="style-option" onclick="applyPageStyle('moderne')">
+                    <div style="display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #d1d1d1; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#2b5797'; this.style.background='#f8f9fa'" onmouseout="this.style.borderColor='#d1d1d1'; this.style.background='white'">
+                        <div style="width: 60px; height: 80px; background: linear-gradient(to bottom, white, #f8f9fa); border-left: 4px solid #2b5797; flex-shrink: 0;"></div>
+                        <div>
+                            <h3 style="margin: 0 0 5px 0; font-size: 16px; color: #2b5797;">🎯 Moderne</h3>
+                            <p style="margin: 0; font-size: 13px; color: #666;">Calibri, dégradé subtil, bordure bleue</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="style-option" onclick="applyPageStyle('elegant')">
+                    <div style="display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #d1d1d1; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#2b5797'; this.style.background='#f8f9fa'" onmouseout="this.style.borderColor='#d1d1d1'; this.style.background='white'">
+                        <div style="width: 60px; height: 80px; background: #fefef8; border: 2px solid #d4af37; flex-shrink: 0;"></div>
+                        <div>
+                            <h3 style="margin: 0 0 5px 0; font-size: 16px; color: #2b5797;">👔 Élégant</h3>
+                            <p style="margin: 0; font-size: 13px; color: #666;">Georgia, ton crème, bordure dorée</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="style-option" onclick="applyPageStyle('minimaliste')">
+                    <div style="display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #d1d1d1; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#2b5797'; this.style.background='#f8f9fa'" onmouseout="this.style.borderColor='#d1d1d1'; this.style.background='white'">
+                        <div style="width: 60px; height: 80px; background: white; border-top: 3px solid #333; border-bottom: 3px solid #333; flex-shrink: 0;"></div>
+                        <div>
+                            <h3 style="margin: 0 0 5px 0; font-size: 16px; color: #2b5797;">⚪ Minimaliste</h3>
+                            <p style="margin: 0; font-size: 13px; color: #666;">Arial, épuré, bordures haut/bas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="style-option" onclick="applyPageStyle('corporate')">
+                    <div style="display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #d1d1d1; border-radius: 8px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#2b5797'; this.style.background='#f8f9fa'" onmouseout="this.style.borderColor='#d1d1d1'; this.style.background='white'">
+                        <div style="width: 60px; height: 80px; background: white; border: 2px solid #2b5797; box-shadow: 0 0 0 4px #f0f4f8; flex-shrink: 0;"></div>
+                        <div>
+                            <h3 style="margin: 0 0 5px 0; font-size: 16px; color: #2b5797;">🏢 Corporate</h3>
+                            <p style="margin: 0; font-size: 13px; color: #666;">Verdana, professionnel, cadre bleu</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal('styleModal')">Fermer</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal pour rechercher/remplacer -->
     <div class="modal" id="findModal">
         <div class="modal-content">
@@ -1410,6 +1632,148 @@ Exemple de formules :
     <script>
         const editor = document.getElementById('editor');
         let currentZoom = 1;
+        let currentPageIndex = 0;
+        let pages = [editor];
+        
+        // Fonction pour obtenir toutes les pages
+        function getAllPages() {
+            return Array.from(document.querySelectorAll('.editor-content'));
+        }
+
+        // Fonction pour mettre à jour le compteur de pages
+        function updatePageInfo() {
+            const allPages = getAllPages();
+            const totalPages = allPages.length;
+            document.getElementById('pageInfo').textContent = `${currentPageIndex + 1}/${totalPages}`;
+            document.getElementById('totalPages').textContent = totalPages;
+            
+            // Mettre à jour les numéros de page
+            document.querySelectorAll('.page').forEach((page, index) => {
+                const pageNum = page.querySelector('.page-number');
+                if (pageNum) {
+                    pageNum.textContent = `Page ${index + 1}`;
+                }
+            });
+        }
+
+        // Ajouter une nouvelle page
+        function addNewPage() {
+            const container = document.getElementById('pagesContainer');
+            const allPages = getAllPages();
+            const pageNumber = allPages.length + 1;
+            
+            // Obtenir le style actuel de la page
+            const currentPage = document.querySelector('.page');
+            const currentStyle = Array.from(currentPage.classList).find(cls => cls.startsWith('style-')) || 'style-classique';
+            
+            const newPage = document.createElement('div');
+            newPage.className = `page ${currentStyle}`;
+            newPage.setAttribute('data-page-number', pageNumber);
+            
+            const newEditor = document.createElement('div');
+            newEditor.className = 'editor-content';
+            newEditor.contentEditable = 'true';
+            newEditor.setAttribute('data-placeholder', `Page ${pageNumber}`);
+            
+            const pageNumDiv = document.createElement('div');
+            pageNumDiv.className = 'page-number';
+            pageNumDiv.textContent = `Page ${pageNumber}`;
+            
+            newPage.appendChild(newEditor);
+            newPage.appendChild(pageNumDiv);
+            container.appendChild(newPage);
+            
+            // Ajouter les événements
+            newEditor.addEventListener('input', updateStats);
+            
+            // Scroller vers la nouvelle page
+            newPage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            currentPageIndex = pageNumber - 1;
+            updatePageInfo();
+            
+            // Notification
+            showNotification(`✅ Page ${pageNumber} ajoutée !`, 'success');
+        }
+
+        // Aller à la page suivante
+        function goToNextPage() {
+            const allPages = getAllPages();
+            if (currentPageIndex < allPages.length - 1) {
+                currentPageIndex++;
+                const targetPage = allPages[currentPageIndex].closest('.page');
+                targetPage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                updatePageInfo();
+            } else {
+                showNotification('ℹ️ Vous êtes sur la dernière page', 'info');
+            }
+        }
+
+        // Aller à la page précédente
+        function goToPreviousPage() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                const allPages = getAllPages();
+                const targetPage = allPages[currentPageIndex].closest('.page');
+                targetPage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                updatePageInfo();
+            } else {
+                showNotification('ℹ️ Vous êtes sur la première page', 'info');
+            }
+        }
+
+        // Supprimer la page actuelle
+        function deleteCurrentPage() {
+            const allPages = getAllPages();
+            if (allPages.length <= 1) {
+                showNotification('❌ Impossible de supprimer la seule page', 'error');
+                return;
+            }
+            
+            if (confirm(`Supprimer la page ${currentPageIndex + 1} ?`)) {
+                const pageToDelete = allPages[currentPageIndex].closest('.page');
+                pageToDelete.remove();
+                
+                // Ajuster l'index si nécessaire
+                if (currentPageIndex >= allPages.length - 1) {
+                    currentPageIndex = Math.max(0, currentPageIndex - 1);
+                }
+                
+                updatePageInfo();
+                updateStats();
+                showNotification('✅ Page supprimée', 'success');
+            }
+        }
+
+        // Fonction pour afficher les notifications
+        function showNotification(message, type = 'success') {
+            const colors = {
+                success: '#28a745',
+                error: '#dc3545',
+                info: '#17a2b8'
+            };
+            
+            const notif = document.createElement('div');
+            notif.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${colors[type]};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                animation: slideIn 0.3s ease;
+            `;
+            notif.textContent = message;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => document.body.removeChild(notif), 300);
+            }, 2000);
+        }
         
         // Fonction pour insérer du texte à la position du curseur
         function insertText(text) {
@@ -1525,12 +1889,19 @@ Exemple de formules :
         }
         
         function updateStats() {
-            const text = editor.innerText || editor.textContent;
-            const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-            const chars = text.length;
+            const allPages = getAllPages();
+            let totalWords = 0;
+            let totalChars = 0;
             
-            document.getElementById('wordCount').textContent = words || 0;
-            document.getElementById('charCount').textContent = chars || 0;
+            allPages.forEach(page => {
+                const text = page.innerText || page.textContent;
+                const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+                totalWords += words;
+                totalChars += text.length;
+            });
+            
+            document.getElementById('wordCount').textContent = totalWords || 0;
+            document.getElementById('charCount').textContent = totalChars || 0;
         }
 
         // Menu Fichier
@@ -1605,7 +1976,6 @@ Exemple de formules :
 
         function saveAsPDF() {
             // Afficher un message de chargement
-            const originalContent = editor.innerHTML;
             const loadingMsg = document.createElement('div');
             loadingMsg.style.cssText = `
                 position: fixed;
@@ -1625,7 +1995,7 @@ Exemple de formules :
 
             // Configuration pour html2pdf
             const opt = {
-                margin: [25, 25, 25, 25], // en mm (haut, droite, bas, gauche)
+                margin: [25, 25, 25, 25],
                 filename: 'document_' + new Date().getTime() + '.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
@@ -1637,46 +2007,23 @@ Exemple de formules :
                     unit: 'mm', 
                     format: 'a4', 
                     orientation: 'portrait' 
-                }
+                },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
-            // Créer un clone de la page pour le PDF
-            const pageClone = document.getElementById('page').cloneNode(true);
-            const editorClone = pageClone.querySelector('#editor');
+            // Créer un clone du conteneur de pages
+            const pagesContainer = document.getElementById('pagesContainer').cloneNode(true);
             
-            // Appliquer les styles inline pour le PDF
-            if (editorClone) {
-                editorClone.style.minHeight = 'auto';
-                editorClone.style.padding = '0';
-            }
+            // Supprimer les numéros de page du clone pour le PDF
+            pagesContainer.querySelectorAll('.page-number').forEach(el => el.remove());
 
             // Générer le PDF
-            html2pdf().set(opt).from(pageClone).save().then(() => {
+            html2pdf().set(opt).from(pagesContainer).save().then(() => {
                 document.body.removeChild(loadingMsg);
-                
-                // Message de succès
-                const successMsg = document.createElement('div');
-                successMsg.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: #28a745;
-                    color: white;
-                    padding: 15px 25px;
-                    border-radius: 8px;
-                    font-size: 14px;
-                    z-index: 9999;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-                `;
-                successMsg.textContent = '✅ PDF téléchargé avec succès !';
-                document.body.appendChild(successMsg);
-                
-                setTimeout(() => {
-                    document.body.removeChild(successMsg);
-                }, 3000);
+                showNotification('✅ PDF téléchargé avec succès !', 'success');
             }).catch(err => {
                 document.body.removeChild(loadingMsg);
-                alert('❌ Erreur lors de la génération du PDF. Veuillez réessayer.');
+                showNotification('❌ Erreur lors de la génération du PDF', 'error');
                 console.error(err);
             });
         }
@@ -2054,6 +2401,34 @@ Exemple de formules :
             document.getElementById('page').style.transform = `scale(1)`;
         }
 
+        // Gestion des styles de page
+        function openStyleSelector() {
+            document.getElementById('styleModal').classList.add('active');
+        }
+
+        function applyPageStyle(style) {
+            const allPages = document.querySelectorAll('.page');
+            
+            // Retirer tous les styles précédents et appliquer le nouveau
+            allPages.forEach(page => {
+                page.classList.remove('style-classique', 'style-moderne', 'style-elegant', 'style-minimaliste', 'style-corporate');
+                page.classList.add('style-' + style);
+            });
+            
+            closeModal('styleModal');
+            
+            // Message de confirmation
+            const styleNames = {
+                'classique': '📄 Classique',
+                'moderne': '🎯 Moderne',
+                'elegant': '👔 Élégant',
+                'minimaliste': '⚪ Minimaliste',
+                'corporate': '🏢 Corporate'
+            };
+            
+            showNotification(`✅ Style "${styleNames[style]}" appliqué à toutes les pages !`, 'success');
+        }
+
         // Gestion des modals
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
@@ -2151,9 +2526,29 @@ Exemple de formules :
         // Initialisation
         updateStats();
         adjustForMobile();
+        updatePageInfo();
 
         // Réajuster lors du redimensionnement
         window.addEventListener('resize', adjustForMobile);
+
+        // Détecter la page visible lors du scroll
+        const editorMain = document.querySelector('.editor-main');
+        editorMain.addEventListener('scroll', () => {
+            const allPages = getAllPages();
+            const scrollTop = editorMain.scrollTop;
+            const viewportMiddle = scrollTop + (editorMain.clientHeight / 2);
+            
+            allPages.forEach((page, index) => {
+                const pageElement = page.closest('.page');
+                const pageTop = pageElement.offsetTop;
+                const pageBottom = pageTop + pageElement.offsetHeight;
+                
+                if (viewportMiddle >= pageTop && viewportMiddle <= pageBottom) {
+                    currentPageIndex = index;
+                    updatePageInfo();
+                }
+            });
+        });
     </script>
 </body>
 </html>
