@@ -2,7 +2,7 @@
 const CACHE_NAME = 'studrive-v1';
 const urlsToCache = [
   '/',
-  '/index.html',
+  '/ass.html',
   '/manifest.json'
 ];
 
