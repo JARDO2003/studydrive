@@ -1,21 +1,33 @@
 {
-  "name": "Focus & StuDrive",
+  "name": "StuDrive - Bibliothèque Étudiante",
   "short_name": "StuDrive",
+  "description": "Plateforme de partage de sujets d'examens et de ressources académiques",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#3b82f6",
-  "description": "Plateforme étudiante collaborative",
+  "background_color": "#1a237e",
+  "theme_color": "#1a237e",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg width='192' height='192' viewBox='0 0 192 192' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='192' height='192' rx='30' fill='%233b82f6'/%3E%3Ctext x='50%25' y='55%25' font-size='100' text-anchor='middle' fill='white'%3E📚%3C/text%3E%3C/svg%3E",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "data:image/svg+xml,%3Csvg width='512' height='512' viewBox='0 0 512 512' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='512' height='512' rx='80' fill='%233b82f6'/%3E%3Ctext x='50%25' y='55%25' font-size='280' text-anchor='middle' fill='white'%3E📚%3C/text%3E%3C/svg%3E",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "540x720",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "lang": "fr-FR"
 }
