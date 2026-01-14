@@ -369,24 +369,21 @@
             box-shadow: var(--shadow-sm);
             border-bottom: 2px solid var(--gray-200);
             position: relative;
-        }
-        body.dark-mode .chat-fullscreen-header { background: #1e1e1e; border-color: #333; }
+        
+    }    body.dark-mode .chat-fullscreen-header { background: #1e1e1e; border-color: #333; }
+.chat-close-btn {
 
-        .chat-close-btn {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            background: var(--gray-100);
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--gray-100);
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+}
 
         .chat-fullscreen-avatar {
             width: 48px; height: 48px; border-radius: 50%; overflow: hidden;
@@ -855,7 +852,7 @@
     </style>
 </head>
 <body>
-    <!-- Écran d'inscription -->
+     <!-- Écran d'inscription -->
     <div class="onboarding-screen" id="onboardingScreen">
         <div class="onboarding-logo">📚</div>
         <h1 class="onboarding-title">Bienvenue sur StuDrive</h1>
@@ -1173,7 +1170,6 @@
     <button class="fab" id="fabBtn">➕</button>
 
     <div class="toast" id="toast"></div>
-
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getDatabase, ref, set, push, onValue, update, remove, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
@@ -1430,49 +1426,114 @@
 
         // Enregistrement audio (désactivé sur mobile Android)
         document.getElementById('startRecording').addEventListener('click', async () => {
-            // Détecter si on est sur Android
-            const isAndroid = /Android/i.test(navigator.userAgent);
-            
-            if (isAndroid) {
-                showToast('Fonctionnalité en développement pour Android. Utilisez un ordinateur.', 'error');
-                return;
-            }
+    // Utiliser Web Speech API au lieu de MediaRecorder
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        showToast('Reconnaissance vocale non supportée sur ce navigateur', 'error');
+        return;
+    }
 
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-                finalTranscript = '';
-                interimTranscript = '';
-                isRecording = true;
-                isPaused = false;
-                
-                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
-                mediaRecorder.onstop = () => stream.getTracks().forEach(t => t.stop());
-                mediaRecorder.start(1000);
-                recordingStartTime = Date.now();
-                
-                document.getElementById('startRecording').style.display = 'none';
-                document.getElementById('pauseRecording').style.display = 'flex';
-                document.getElementById('stopRecording').style.display = 'flex';
-                document.getElementById('recordingStatus').style.display = 'flex';
-                document.getElementById('recordingWaveform').style.display = 'flex';
-                document.getElementById('transcriptionResult').style.display = 'block';
-                
-                recordingInterval = setInterval(() => {
-                    if (!isPaused) {
-                        const elapsed = Math.floor((Date.now() - recordingStartTime - pausedTime) / 1000);
-                        const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
-                        const secs = (elapsed % 60).toString().padStart(2, '0');
-                        document.getElementById('recordingTime').textContent = `${mins}:${secs}`;
-                    }
-                }, 1000);
-                
-                showToast('Enregistrement démarré', 'success');
-            } catch (err) {
-                showToast('Erreur micro : ' + err.message, 'error');
+    try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'fr-FR';
+        
+        recognition.onstart = () => {
+            isRecording = true;
+            recordingStartTime = Date.now();
+            pausedTime = 0;
+            
+            document.getElementById('startRecording').style.display = 'none';
+            document.getElementById('pauseRecording').style.display = 'flex';
+            document.getElementById('stopRecording').style.display = 'flex';
+            document.getElementById('recordingStatus').style.display = 'flex';
+            document.getElementById('recordingWaveform').style.display = 'flex';
+            document.getElementById('transcriptionResult').style.display = 'block';
+            
+            recordingInterval = setInterval(() => {
+                if (!isPaused) {
+                    const elapsed = Math.floor((Date.now() - recordingStartTime - pausedTime) / 1000);
+                    const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                    const secs = (elapsed % 60).toString().padStart(2, '0');
+                    document.getElementById('recordingTime').textContent = `${mins}:${secs}`;
+                }
+            }, 1000);
+            
+            showToast('Enregistrement démarré', 'success');
+        };
+        
+        recognition.onresult = (event) => {
+            let interim = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript + ' ';
+                } else {
+                    interim += transcript;
+                }
             }
-        });
+            document.getElementById('transcriptionText').textContent = finalTranscript + interim;
+        };
+        
+        recognition.onerror = (event) => {
+            console.error('Erreur reconnaissance vocale:', event.error);
+            if (event.error !== 'no-speech' && event.error !== 'aborted') {
+                showToast('Erreur: ' + event.error, 'error');
+            }
+        };
+        
+        recognition.onend = () => {
+            if (isRecording && !isPaused) {
+                recognition.start(); // Redémarrer si toujours en enregistrement
+            }
+        };
+        
+        mediaRecorder = recognition; // Stocker la référence
+        finalTranscript = '';
+        recognition.start();
+        
+    } catch (err) {
+        showToast('Erreur : ' + err.message, 'error');
+    }
+});
+
+document.getElementById('pauseRecording').addEventListener('click', () => {
+    if (isPaused) {
+        if (mediaRecorder) {
+            mediaRecorder.start();
+            isPaused = false;
+            pausedTime += Date.now() - pauseStartTime;
+            document.getElementById('recordingState').textContent = 'En cours...';
+            document.getElementById('pauseRecording').innerHTML = '<span>⏸️</span><span>Pause</span>';
+        }
+    } else {
+        if (mediaRecorder) {
+            mediaRecorder.stop();
+            isPaused = true;
+            pauseStartTime = Date.now();
+            document.getElementById('recordingState').textContent = 'En pause';
+            document.getElementById('pauseRecording').innerHTML = '<span>▶️</span><span>Reprendre</span>';
+        }
+    }
+});
+
+document.getElementById('stopRecording').addEventListener('click', () => {
+    if (mediaRecorder) {
+        mediaRecorder.stop();
+        mediaRecorder.abort();
+    }
+    clearInterval(recordingInterval);
+    isRecording = false;
+    isPaused = false;
+    document.getElementById('startRecording').style.display = 'flex';
+    document.getElementById('pauseRecording').style.display = 'none';
+    document.getElementById('stopRecording').style.display = 'none';
+    document.getElementById('recordingStatus').style.display = 'none';
+    document.getElementById('recordingWaveform').style.display = 'none';
+    showToast('Enregistrement terminé', 'success');
+});
 
         document.getElementById('pauseRecording').addEventListener('click', () => {
             if (isPaused) {
