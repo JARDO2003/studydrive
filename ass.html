@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a237e">
+    <meta name="description" content="Plateforme de partage de sujets d'examens et de ressources académiques">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="StuDrive">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <title>FocusClass & StuDrive</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -861,6 +867,90 @@
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
+.install-prompt {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(200px);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    padding: 20px 24px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-xl);
+    z-index: 2500;
+    max-width: 90%;
+    width: 400px;
+    transition: transform 0.4s ease;
+    animation: slideUpPrompt 0.5s ease forwards;
+}
+.install-prompt.show {
+    transform: translateX(-50%) translateY(0);
+}
+.install-prompt.hide {
+    animation: slideDownPrompt 0.4s ease forwards;
+}
+@keyframes slideUpPrompt {
+    from { transform: translateX(-50%) translateY(200px); }
+    to { transform: translateX(-50%) translateY(0); }
+}
+@keyframes slideDownPrompt {
+    from { transform: translateX(-50%) translateY(0); }
+    to { transform: translateX(-50%) translateY(200px); }
+}
+.install-prompt-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.install-prompt-icon {
+    font-size: 48px;
+    animation: bounce 2s infinite;
+}
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.install-prompt-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.install-prompt-subtitle {
+    font-size: 13px;
+    opacity: 0.9;
+}
+.install-prompt-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+.install-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.install-btn-primary {
+    background: white;
+    color: var(--primary);
+}
+.install-btn-primary:active {
+    transform: scale(0.95);
+}
+.install-btn-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+.install-btn-secondary:active {
+    transform: scale(0.95);
+}
+
 .loading { padding: 40px 20px; text-align: center; color: var(--gray-600); }
         .toast.succe
         .loading-spinner {
@@ -1284,7 +1374,6 @@
     <button class="fab" id="fabBtn">➕</button>
 
     <div class="toast" id="toast"></div>
-
 <!-- Visualiseur d'image protégé -->
 <div class="image-viewer-modal" id="imageViewerModal">
     <div class="image-viewer-watermark" id="imageWatermark">STUDRIVE - PROTÉGÉ</div>
@@ -1294,7 +1383,22 @@
     <button class="image-viewer-close" id="closeImageViewer">×</button>
 </div>
 
-    <script type="module">
+<!-- Notification d'installation PWA -->
+<div class="install-prompt" id="installPrompt">
+    <div class="install-prompt-header">
+        <div class="install-prompt-icon">📱</div>
+        <div style="flex: 1;">
+            <div class="install-prompt-title">Installer StuDrive</div>
+            <div class="install-prompt-subtitle">Accédez rapidement à l'application depuis votre écran d'accueil</div>
+        </div>
+    </div>
+    <div class="install-prompt-actions">
+        <button class="install-btn install-btn-primary" id="installAppBtn">📥 Installer</button>
+        <button class="install-btn install-btn-secondary" id="dismissInstallBtn">Plus tard</button>
+    </div>
+</div>
+
+<script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getDatabase, ref, set, push, onValue, update, remove, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
         import { getFirestore, collection, addDoc, doc, setDoc, getDoc, getDocs, query, where, orderBy, serverTimestamp as firestoreTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
@@ -2989,6 +3093,150 @@ document.addEventListener('keydown', function(e) {
         showToast('Erreur lors de la suppression', 'error');
     }
 };
+
+// ===== PWA INSTALLATION PROMPT =====
+let deferredPrompt = null;
+const installPromptElement = document.getElementById('installPrompt');
+const installAppBtn = document.getElementById('installAppBtn');
+const dismissInstallBtn = document.getElementById('dismissInstallBtn');
+
+// Vérifier si c'est la première visite
+function checkFirstVisit() {
+    const hasVisited = localStorage.getItem('studrive_has_visited');
+    const installDismissed = localStorage.getItem('studrive_install_dismissed');
+    const isInstalled = localStorage.getItem('studrive_is_installed');
+    
+    // Ne pas afficher si déjà installé ou si rejeté récemment
+    if (isInstalled === 'true' || installDismissed === 'true') {
+        return false;
+    }
+    
+    // Si première visite, marquer comme visité
+    if (!hasVisited) {
+        localStorage.setItem('studrive_has_visited', 'true');
+        return true;
+    }
+    
+    return false;
+}
+
+// Écouter l'événement beforeinstallprompt
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Empêcher le navigateur d'afficher sa propre invite
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Afficher notre propre invite uniquement pour les nouveaux utilisateurs
+    if (checkFirstVisit()) {
+        setTimeout(() => {
+            showInstallPrompt();
+        }, 3000); // Attendre 3 secondes après le chargement
+    }
+});
+
+function showInstallPrompt() {
+    installPromptElement.classList.add('show');
+}
+
+function hideInstallPrompt() {
+    installPromptElement.classList.add('hide');
+    setTimeout(() => {
+        installPromptElement.classList.remove('show', 'hide');
+    }, 400);
+}
+
+// Bouton Installer
+installAppBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) {
+        // Si pas de prompt disponible, essayer d'afficher les instructions manuelles
+        showManualInstallInstructions();
+        return;
+    }
+    
+    // Afficher le prompt natif
+    deferredPrompt.prompt();
+    
+    // Attendre le choix de l'utilisateur
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+        showToast('✅ Application installée avec succès !', 'success');
+        localStorage.setItem('studrive_is_installed', 'true');
+    } else {
+        showToast('Installation annulée', 'error');
+    }
+    
+    // Réinitialiser le prompt
+    deferredPrompt = null;
+    hideInstallPrompt();
+});
+
+// Bouton Plus tard
+dismissInstallBtn.addEventListener('click', () => {
+    hideInstallPrompt();
+    // Marquer comme rejeté pour ne pas redemander pendant 7 jours
+    const dismissedUntil = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 jours
+    localStorage.setItem('studrive_install_dismissed', 'true');
+    localStorage.setItem('studrive_install_dismissed_until', dismissedUntil);
+    showToast('Vous pouvez installer l\'application plus tard depuis le menu', 'success');
+});
+
+// Réinitialiser le rejet après 7 jours
+function checkDismissalExpiry() {
+    const dismissedUntil = localStorage.getItem('studrive_install_dismissed_until');
+    if (dismissedUntil && Date.now() > parseInt(dismissedUntil)) {
+        localStorage.removeItem('studrive_install_dismissed');
+        localStorage.removeItem('studrive_install_dismissed_until');
+    }
+}
+checkDismissalExpiry();
+
+// Instructions manuelles pour navigateurs qui ne supportent pas beforeinstallprompt
+function showManualInstallInstructions() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+    
+    if (isIOS) {
+        alert(`📱 Pour installer StuDrive sur iOS:
+
+1. Appuyez sur le bouton Partager (⎙)
+2. Faites défiler et sélectionnez "Sur l'écran d'accueil"
+3. Appuyez sur "Ajouter"
+
+L'application sera accessible depuis votre écran d'accueil !`);
+    } else if (isAndroid) {
+        alert(`📱 Pour installer StuDrive sur Android:
+
+1. Ouvrez le menu du navigateur (⋮)
+2. Sélectionnez "Installer l'application" ou "Ajouter à l'écran d'accueil"
+3. Confirmez l'installation
+
+L'application sera accessible depuis votre écran d'accueil !`);
+    } else {
+        alert(`💻 Pour installer StuDrive:
+
+1. Cherchez l'icône d'installation dans la barre d'adresse
+2. Ou ouvrez le menu du navigateur
+3. Sélectionnez "Installer StuDrive"
+
+L'application sera accessible depuis votre bureau !`);
+    }
+    
+    hideInstallPrompt();
+}
+
+// Détecter quand l'app est installée
+window.addEventListener('appinstalled', () => {
+    console.log('StuDrive a été installé');
+    localStorage.setItem('studrive_is_installed', 'true');
+    hideInstallPrompt();
+    showToast('🎉 StuDrive est maintenant installé sur votre appareil !', 'success');
+});
+
+// Si l'app est déjà en standalone mode (installée)
+if (window.matchMedia('(display-mode: standalone)').matches) {
+    localStorage.setItem('studrive_is_installed', 'true');
+}
 
         // Initialiser l'application
         checkUserRegistration();
