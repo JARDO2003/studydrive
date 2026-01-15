@@ -3183,17 +3183,6 @@ function checkAndShowInstallPrompt() {
         return;
     }
     
-    // Vérifier si l'utilisateur a déjà cliqué sur "Plus tard"
-    const hasClickedLater = localStorage.getItem('studrive_install_later');
-    if (hasClickedLater === 'true') {
-        // Ne pas afficher si déjà cliqué sur "Plus tard"
-        return;
-    }
-    
-    // Afficher après 2 secondes
-    setTimeout(() => {
-        showInstallPrompt();
-    }, 2000);
 }
 
 // Écouter l'événement beforeinstallprompt
