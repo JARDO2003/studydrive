@@ -1,33 +1,41 @@
-{
-  "name": "StuDrive - Bibliothèque Étudiante",
-  "short_name": "StuDrive",
-  "description": "Plateforme de partage de sujets d'examens et de ressources académiques",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#1a237e",
-  "theme_color": "#1a237e",
-  "orientation": "portrait-primary",
-  "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "screenshot1.png",
-      "sizes": "540x720",
-      "type": "image/png"
-    }
-  ],
-  "categories": ["education", "productivity"],
-  "lang": "fr-FR"
-}
+// Créer dynamiquement le manifest avec icônes inline
+const icon192 = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%231a237e' width='192' height='192' rx='48'/%3E%3Ctext x='96' y='130' font-size='100' text-anchor='middle' fill='white'%3E📚%3C/text%3E%3C/svg%3E";
+const icon512 = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%231a237e' width='512' height='512' rx='128'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' fill='white'%3E📚%3C/text%3E%3C/svg%3E";
+
+const manifestData = {
+    name: "StuDrive - Bibliothèque Étudiante",
+    short_name: "StuDrive",
+    description: "Plateforme de partage de sujets d'examens et de ressources académiques",
+    start_url: "/",
+    scope: "/",
+    display: "standalone",
+    background_color: "#1a237e",
+    theme_color: "#1a237e",
+    orientation: "portrait-primary",
+    icons: [
+        {
+            src: icon192,
+            sizes: "192x192",
+            type: "image/svg+xml",
+            purpose: "any"
+        },
+        {
+            src: icon512,
+            sizes: "512x512",
+            type: "image/svg+xml",
+            purpose: "any"
+        },
+        {
+            src: icon192,
+            sizes: "192x192",
+            type: "image/svg+xml",
+            purpose: "maskable"
+        },
+        {
+            src: icon512,
+            sizes: "512x512",
+            type: "image/svg+xml",
+            purpose: "maskable"
+        }
+    ]
+};
