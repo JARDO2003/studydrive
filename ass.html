@@ -3208,14 +3208,6 @@ function hideInstallPrompt() {
 }
 
 
-if (dismissInstallBtn) {
-    dismissInstallBtn.addEventListener('click', () => {
-        hideInstallPrompt();
-        // Marquer comme "Plus tard" pour ne JAMAIS redemander
-        localStorage.setItem('studrive_install_later', 'true');
-        showToast('✅ Notification masquée définitivement', 'success');
-    });
-}
 
 // Bouton Installer - Installation automatique
 if (installAppBtn) {
