@@ -1397,7 +1397,8 @@
         <button class="install-btn install-btn-secondary" id="dismissInstallBtn">Plus tard</button>
     </div>
 </div>
-
+ <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect fill='%231a237e' width='180' height='180'/%3E%3Ctext x='90' y='125' font-size='100' text-anchor='middle' fill='white'%3E📚%3C/text%3E%3C/svg%3E">
+    <title>FocusClass & StuDrive</title>
 <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getDatabase, ref, set, push, onValue, update, remove, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
@@ -3094,148 +3095,157 @@ document.addEventListener('keydown', function(e) {
     }
 };
 
-// ===== PWA INSTALLATION PROMPT =====
+// ===== PWA INSTALLATION AUTOMATIQUE =====
 let deferredPrompt = null;
 const installPromptElement = document.getElementById('installPrompt');
 const installAppBtn = document.getElementById('installAppBtn');
 const dismissInstallBtn = document.getElementById('dismissInstallBtn');
 
-// Vérifier si c'est la première visite
-function checkFirstVisit() {
-    const hasVisited = localStorage.getItem('studrive_has_visited');
-    const installDismissed = localStorage.getItem('studrive_install_dismissed');
-    const isInstalled = localStorage.getItem('studrive_is_installed');
-    
-    // Ne pas afficher si déjà installé ou si rejeté récemment
-    if (isInstalled === 'true' || installDismissed === 'true') {
-        return false;
+// Enregistrer le Service Worker pour PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        // Créer un service worker inline
+        const swCode = `
+            self.addEventListener('install', (e) => {
+                console.log('Service Worker installé');
+                self.skipWaiting();
+            });
+            
+            self.addEventListener('activate', (e) => {
+                console.log('Service Worker activé');
+                return self.clients.claim();
+            });
+            
+            self.addEventListener('fetch', (e) => {
+                e.respondWith(
+                    caches.match(e.request).then((response) => {
+                        return response || fetch(e.request);
+                    })
+                );
+            });
+        `;
+        
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        
+        navigator.serviceWorker.register(swUrl)
+            .then(reg => console.log('Service Worker enregistré'))
+            .catch(err => console.log('Erreur Service Worker:', err));
+    });
+}
+
+// Créer dynamiquement le manifest
+const manifestData = {
+    name: "StuDrive - Bibliothèque Étudiante",
+    short_name: "StuDrive",
+    description: "Plateforme de partage de sujets d'examens et de ressources académiques",
+    start_url: window.location.href,
+    display: "standalone",
+    background_color: "#1a237e",
+    theme_color: "#1a237e",
+    orientation: "portrait-primary",
+    icons: [
+        {
+            src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%231a237e' width='512' height='512'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle' fill='white'%3E📚%3C/text%3E%3C/svg%3E",
+            sizes: "512x512",
+            type: "image/svg+xml",
+            purpose: "any maskable"
+        }
+    ]
+};
+
+const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+const manifestURL = URL.createObjectURL(manifestBlob);
+const manifestLink = document.createElement('link');
+manifestLink.rel = 'manifest';
+manifestLink.href = manifestURL;
+document.head.appendChild(manifestLink);
+
+// Vérifier si déjà installé
+function isAppInstalled() {
+    // Vérifier le localStorage
+    if (localStorage.getItem('studrive_pwa_installed') === 'true') {
+        return true;
     }
     
-    // Si première visite, marquer comme visité
-    if (!hasVisited) {
-        localStorage.setItem('studrive_has_visited', 'true');
+    // Vérifier si en mode standalone (déjà installé)
+    if (window.matchMedia('(display-mode: standalone)').matches || 
+        window.navigator.standalone === true) {
+        localStorage.setItem('studrive_pwa_installed', 'true');
         return true;
     }
     
     return false;
 }
 
-// Écouter l'événement beforeinstallprompt
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Empêcher le navigateur d'afficher sa propre invite
-    e.preventDefault();
-    deferredPrompt = e;
-    
-    // Afficher notre propre invite uniquement pour les nouveaux utilisateurs
-    if (checkFirstVisit()) {
-        setTimeout(() => {
-            showInstallPrompt();
-        }, 3000); // Attendre 3 secondes après le chargement
-    }
-});
-
-function showInstallPrompt() {
-    installPromptElement.classList.add('show');
-}
-
-function hideInstallPrompt() {
-    installPromptElement.classList.add('hide');
-    setTimeout(() => {
-        installPromptElement.classList.remove('show', 'hide');
-    }, 400);
-}
-
-// Bouton Installer
-installAppBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) {
-        // Si pas de prompt disponible, essayer d'afficher les instructions manuelles
-        showManualInstallInstructions();
+// Afficher le prompt uniquement si pas installé
+function checkAndShowInstallPrompt() {
+    if (isAppInstalled()) {
+        // Ne jamais afficher le prompt si déjà installé
         return;
     }
     
-    // Afficher le prompt natif
-    deferredPrompt.prompt();
-    
-    // Attendre le choix de l'utilisateur
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-        showToast('✅ Application installée avec succès !', 'success');
-        localStorage.setItem('studrive_is_installed', 'true');
-    } else {
-        showToast('Installation annulée', 'error');
-    }
-    
-    // Réinitialiser le prompt
-    deferredPrompt = null;
-    hideInstallPrompt();
-});
-
-// Bouton Plus tard
-dismissInstallBtn.addEventListener('click', () => {
-    hideInstallPrompt();
-    // Marquer comme rejeté pour ne pas redemander pendant 7 jours
-    const dismissedUntil = Date.now() + (7 * 24 * 60 * 60 * 1000); // 7 jours
-    localStorage.setItem('studrive_install_dismissed', 'true');
-    localStorage.setItem('studrive_install_dismissed_until', dismissedUntil);
-    showToast('Vous pouvez installer l\'application plus tard depuis le menu', 'success');
-});
-
-// Réinitialiser le rejet après 7 jours
-function checkDismissalExpiry() {
-    const dismissedUntil = localStorage.getItem('studrive_install_dismissed_until');
-    if (dismissedUntil && Date.now() > parseInt(dismissedUntil)) {
-        localStorage.removeItem('studrive_install_dismissed');
-        localStorage.removeItem('studrive_install_dismissed_until');
-    }
-}
-checkDismissalExpiry();
-
-// Instructions manuelles pour navigateurs qui ne supportent pas beforeinstallprompt
-function showManualInstallInstructions() {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isAndroid = /Android/.test(navigator.userAgent);
-    
-    if (isIOS) {
-        alert(`📱 Pour installer StuDrive sur iOS:
-
-1. Appuyez sur le bouton Partager (⎙)
-2. Faites défiler et sélectionnez "Sur l'écran d'accueil"
-3. Appuyez sur "Ajouter"
-
-L'application sera accessible depuis votre écran d'accueil !`);
-    } else if (isAndroid) {
-        alert(`📱 Pour installer StuDrive sur Android:
-
-1. Ouvrez le menu du navigateur (⋮)
-2. Sélectionnez "Installer l'application" ou "Ajouter à l'écran d'accueil"
-3. Confirmez l'installation
-
-L'application sera accessible depuis votre écran d'accueil !`);
-    } else {
-        alert(`💻 Pour installer StuDrive:
-
-1. Cherchez l'icône d'installation dans la barre d'adresse
-2. Ou ouvrez le menu du navigateur
-3. Sélectionnez "Installer StuDrive"
-
-L'application sera accessible depuis votre bureau !`);
-    }
-    
-    hideInstallPrompt();
+    // Afficher après 2 secondes
+    setTimeout(() => {
+        showInstallPrompt();
+    }, 2000);
 }
 
-// Détecter quand l'app est installée
-window.addEventListener('appinstalled', () => {
-    console.log('StuDrive a été installé');
-    localStorage.setItem('studrive_is_installed', 'true');
-    hideInstallPrompt();
-    showToast('🎉 StuDrive est maintenant installé sur votre appareil !', 'success');
+// Écouter l'événement beforeinstallprompt
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    checkAndShowInstallPrompt();
 });
 
-// Si l'app est déjà en standalone mode (installée)
-if (window.matchMedia('(display-mode: standalone)').matches) {
-    localStorage.setItem('studrive_is_installed', 'true');
+function showInstallPrompt() {
+    if (installPromptElement) {
+        installPromptElement.classList.add('show');
+    }
+}
+
+function hideInstallPrompt() {
+    if (installPromptElement) {
+        installPromptElement.classList.add('hide');
+        setTimeout(() => {
+            installPromptElement.classList.remove('show', 'hide');
+        }, 400);
+    }
+}
+
+// Bouton Installer - Installation automatique
+if (installAppBtn) {
+    installAppBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+            showToast('❌ Installation non disponible sur ce navigateur', 'error');
+            return;
+        }
+        
+        try {
+            // Afficher le toast de chargement
+            showToast('⏳ Installation en cours...', 'success');
+            
+            // Lancer automatiquement l'installation
+            await deferredPrompt.prompt();
+            
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                // Marquer comme installé immédiatement
+                localStorage.setItem('studrive_pwa_installed', 'true');
+                showToast('✅ Application installée avec succès !', 'success');
+                hideInstallPrompt();
+            } else {
+                showToast('❌ Installation annulée', 'error');
+            }
+            
+            deferredPrompt = null;
+            
+        } catch (err) {
+            console.error('Erreur installation:', err);
+            showToast('❌ Erreur lors de l\'installation', 'error');
+        }
+    });
 }
 
         // Initialiser l'application
