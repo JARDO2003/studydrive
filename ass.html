@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a237e">
     <meta name="description" content="Plateforme de partage de sujets d'examens et de ressources académiques">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="StuDrive">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
     <title>FocusClass & StuDrive</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -3185,6 +3183,13 @@ function checkAndShowInstallPrompt() {
         return;
     }
     
+    // Vérifier si l'utilisateur a déjà cliqué sur "Plus tard"
+    const hasClickedLater = localStorage.getItem('studrive_install_later');
+    if (hasClickedLater === 'true') {
+        // Ne pas afficher si déjà cliqué sur "Plus tard"
+        return;
+    }
+    
     // Afficher après 2 secondes
     setTimeout(() => {
         showInstallPrompt();
@@ -3211,6 +3216,16 @@ function hideInstallPrompt() {
             installPromptElement.classList.remove('show', 'hide');
         }, 400);
     }
+}
+
+
+if (dismissInstallBtn) {
+    dismissInstallBtn.addEventListener('click', () => {
+        hideInstallPrompt();
+        // Marquer comme "Plus tard" pour ne JAMAIS redemander
+        localStorage.setItem('studrive_install_later', 'true');
+        showToast('✅ Notification masquée définitivement', 'success');
+    });
 }
 
 // Bouton Installer - Installation automatique
