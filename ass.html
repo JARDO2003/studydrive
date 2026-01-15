@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+²<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -1039,6 +1039,128 @@
             .modal { align-items: center; }
             .modal-content { border-radius: 12px; max-width: 500px; }
         }
+
+        .upload-progress-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.upload-progress-overlay.active {
+    display: flex;
+}
+
+.upload-progress-container {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 32px 24px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+}
+
+body.dark-mode .upload-progress-container {
+    background: #1e1e1e;
+}
+
+.upload-progress-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    animation: bounce-upload 1s ease-in-out infinite;
+}
+
+@keyframes bounce-upload {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.upload-progress-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+body.dark-mode .upload-progress-title {
+    color: var(--primary-light);
+}
+
+.upload-progress-subtitle {
+    font-size: 14px;
+    color: var(--gray-600);
+    margin-bottom: 24px;
+}
+
+.upload-progress-bar-container {
+    width: 100%;
+    height: 12px;
+    background: var(--gray-200);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 12px;
+}
+
+body.dark-mode .upload-progress-bar-container {
+    background: #333;
+}
+
+.upload-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 6px;
+    width: 0%;
+    transition: width 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.upload-progress-percent {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+body.dark-mode .upload-progress-percent {
+    color: var(--primary-light);
+}
+
+.upload-progress-status {
+    font-size: 13px;
+    color: var(--gray-600);
+    font-style: italic;
+}
     </style>
 </head>
 <body>
@@ -1383,6 +1505,20 @@
 
  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect fill='%231a237e' width='180' height='180'/%3E%3Ctext x='90' y='125' font-size='100' text-anchor='middle' fill='white'%3E📚%3C/text%3E%3C/svg%3E">
     <title>FocusClass & StuDrive</title>
+
+    <!-- Barre de progression d'upload -->
+<div class="upload-progress-overlay" id="uploadProgressOverlay">
+    <div class="upload-progress-container">
+        <div class="upload-progress-icon">📤</div>
+        <div class="upload-progress-title" id="uploadProgressTitle">Publication en cours...</div>
+        <div class="upload-progress-subtitle" id="uploadProgressSubtitle">Veuillez patienter</div>
+        <div class="upload-progress-bar-container">
+            <div class="upload-progress-bar" id="uploadProgressBar"></div>
+        </div>
+        <div class="upload-progress-percent" id="uploadProgressPercent">0%</div>
+        <div class="upload-progress-status" id="uploadProgressStatus">Préparation...</div>
+    </div>
+</div>
 <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getDatabase, ref, set, push, onValue, update, remove, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
@@ -1623,19 +1759,183 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        async function uploadToCloudinary(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-            
-            const resourceType = file.type.startsWith('video/') ? 'video' : 'auto';
-            const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/${resourceType}/upload`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            return data.secure_url;
+       // Fonction pour afficher la barre de progression
+function showUploadProgress(title = 'Publication en cours...', subtitle = 'Veuillez patienter') {
+    document.getElementById('uploadProgressOverlay').classList.add('active');
+    document.getElementById('uploadProgressTitle').textContent = title;
+    document.getElementById('uploadProgressSubtitle').textContent = subtitle;
+    document.getElementById('uploadProgressBar').style.width = '0%';
+    document.getElementById('uploadProgressPercent').textContent = '0%';
+    document.getElementById('uploadProgressStatus').textContent = 'Préparation...';
+}
+
+function updateUploadProgress(percent, status) {
+    document.getElementById('uploadProgressBar').style.width = percent + '%';
+    document.getElementById('uploadProgressPercent').textContent = Math.round(percent) + '%';
+    document.getElementById('uploadProgressStatus').textContent = status;
+}
+
+function hideUploadProgress() {
+    setTimeout(() => {
+        document.getElementById('uploadProgressOverlay').classList.remove('active');
+    }, 500);
+}
+
+// Fonction uploadToCloudinary modifiée avec progression simulée
+async function uploadToCloudinary(file) {
+    return new Promise((resolve, reject) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+        
+        const resourceType = file.type.startsWith('video/') ? 'video' : 'auto';
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percent = (e.loaded / e.total) * 90; // 90% pour l'upload
+                updateUploadProgress(percent, 'Téléchargement du fichier...');
+            }
+        });
+        
+        xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+                updateUploadProgress(95, 'Traitement...');
+                const data = JSON.parse(xhr.responseText);
+                setTimeout(() => {
+                    updateUploadProgress(100, 'Terminé !');
+                    setTimeout(() => resolve(data.secure_url), 300);
+                }, 500);
+            } else {
+                reject(new Error('Upload failed'));
+            }
+        });
+        
+        xhr.addEventListener('error', () => reject(new Error('Network error')));
+        
+        xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/${resourceType}/upload`);
+        xhr.send(formData);
+    });
+}
+
+// Publier un sujet - NOUVEAU CODE
+document.getElementById('submitSubject').addEventListener('click', async () => {
+    const title = document.getElementById('subjectTitle').value.trim();
+    const filiere = document.getElementById('subjectFiliere').value;
+    const description = document.getElementById('subjectDescription').value.trim();
+
+    if (!title || !filiere || !selectedSubjectFile) {
+        showToast('Veuillez remplir tous les champs obligatoires', 'error');
+        return;
+    }
+
+    try {
+        showUploadProgress('Publication du sujet', 'Téléchargement en cours...');
+        updateUploadProgress(10, 'Préparation du fichier...');
+
+        const fileUrl = await uploadToCloudinary(selectedSubjectFile);
+
+        updateUploadProgress(95, 'Enregistrement...');
+
+        const subjectData = {
+            title,
+            filiere,
+            description,
+            fileUrl,
+            fileName: selectedSubjectFile.name,
+            userId: currentUser.uid,
+            userName: `${currentUser.firstName} ${currentUser.lastName}`,
+            userProfilePic: currentUser.profilePic || null,
+            timestamp: Date.now(),
+            views: 0,
+            downloads: 0
+        };
+
+        const subjectRef = push(ref(db, 'subjects'));
+        await set(subjectRef, subjectData);
+
+        updateUploadProgress(100, 'Sujet publié avec succès !');
+        
+        setTimeout(() => {
+            hideUploadProgress();
+            showToast('Sujet publié avec succès ! 🎉', 'success');
+            closeModal('addSubjectModal');
+
+            // Réinitialiser le formulaire
+            document.getElementById('subjectTitle').value = '';
+            document.getElementById('subjectFiliere').value = '';
+            document.getElementById('subjectDescription').value = '';
+            document.getElementById('subjectFileInput').value = '';
+            selectedSubjectFile = null;
+        }, 800);
+
+    } catch (err) {
+        console.error('Erreur:', err);
+        hideUploadProgress();
+        showToast('Erreur lors de la publication', 'error');
+    }
+});
+
+// Publier un post - NOUVEAU CODE
+document.getElementById('submitPost').addEventListener('click', async () => {
+    const caption = document.getElementById('postCaption').value.trim();
+
+    if (!caption && !selectedPostMedia) {
+        showToast('Veuillez écrire quelque chose ou ajouter une image/vidéo', 'error');
+        return;
+    }
+
+    try {
+        showUploadProgress('Publication FocusClass', 'Préparation...');
+        updateUploadProgress(10, 'Démarrage...');
+
+        let mediaUrl = null;
+        let mediaType = null;
+
+        if (selectedPostMedia) {
+            updateUploadProgress(20, 'Téléchargement du média...');
+            mediaUrl = await uploadToCloudinary(selectedPostMedia);
+            mediaType = selectedPostMedia.type;
+        } else {
+            updateUploadProgress(90, 'Traitement...');
         }
+
+        updateUploadProgress(95, 'Enregistrement...');
+
+        const postData = {
+            caption,
+            mediaUrl,
+            mediaType,
+            userId: currentUser.uid,
+            userName: `${currentUser.firstName} ${currentUser.lastName}`,
+            userProfilePic: currentUser.profilePic || null,
+            timestamp: Date.now(),
+            likes: {},
+            comments: {}
+        };
+
+        const postRef = push(ref(db, 'posts'));
+        await set(postRef, postData);
+
+        updateUploadProgress(100, 'Publication réussie !');
+
+        setTimeout(() => {
+            hideUploadProgress();
+            showToast('Publication réussie ! 🎉', 'success');
+            closeModal('addPostModal');
+
+            // Réinitialiser le formulaire
+            document.getElementById('postCaption').value = '';
+            document.getElementById('postMediaInput').value = '';
+            selectedPostMedia = null;
+        }, 800);
+
+    } catch (err) {
+        console.error('Erreur:', err);
+        hideUploadProgress();
+        showToast('Erreur lors de la publication', 'error');
+    }
+});
 
         // Enregistrement audio (désactivé sur mobile Android)
         document.getElementById('startRecording').addEventListener('click', async () => {
@@ -2477,54 +2777,53 @@ document.addEventListener('keydown', function(e) {
         document.getElementById('subjectFileInput').addEventListener('change', (e) => {
             selectedSubjectFile = e.target.files[0];
         });
+document.getElementById('submitPost').addEventListener('click', async () => {
+    const caption = document.getElementById('postCaption').value.trim();
 
-        document.getElementById('submitSubject').addEventListener('click', async () => {
-            const title = document.getElementById('subjectTitle').value.trim();
-            const filiere = document.getElementById('subjectFiliere').value;
-            const description = document.getElementById('subjectDescription').value.trim();
+    if (!caption && !selectedPostMedia) {
+        showToast('Veuillez écrire quelque chose ou ajouter une image/vidéo', 'error');
+        return;
+    }
 
-            if (!title || !filiere || !selectedSubjectFile) {
-                showToast('Veuillez remplir tous les champs obligatoires', 'error');
-                return;
-            }
+    try {
+        showToast('Publication en cours...', 'success');
 
-            try {
-                showToast('Publication en cours...', 'success');
+        let mediaUrl = null;
+        let mediaType = null;
 
-                const fileUrl = await uploadToCloudinary(selectedSubjectFile);
+        if (selectedPostMedia) {
+            mediaUrl = await uploadToCloudinary(selectedPostMedia);
+            mediaType = selectedPostMedia.type;
+        }
 
-                const subjectData = {
-                    title,
-                    filiere,
-                    description,
-                    fileUrl,
-                    fileName: selectedSubjectFile.name,
-                    userId: currentUser.uid,
-                    userName: `${currentUser.firstName} ${currentUser.lastName}`,
-                    userProfilePic: currentUser.profilePic || null,
-                    timestamp: Date.now(),
-                    views: 0,
-                    downloads: 0
-                };
+        const postData = {
+            caption,
+            mediaUrl,
+            mediaType,
+            userId: currentUser.uid,
+            userName: `${currentUser.firstName} ${currentUser.lastName}`,
+            userProfilePic: currentUser.profilePic || null,
+            timestamp: Date.now(),
+            likes: {},
+            comments: {}
+        };
 
-                const subjectRef = push(ref(db, 'subjects'));
-                await set(subjectRef, subjectData);
+        const postRef = push(ref(db, 'posts'));
+        await set(postRef, postData);
 
-                showToast('Sujet publié avec succès !', 'success');
-                closeModal('addSubjectModal');
+        showToast('Publication réussie !', 'success');
+        closeModal('addPostModal');
 
-                // Réinitialiser le formulaire
-                document.getElementById('subjectTitle').value = '';
-                document.getElementById('subjectFiliere').value = '';
-                document.getElementById('subjectDescription').value = '';
-                document.getElementById('subjectFileInput').value = '';
-                selectedSubjectFile = null;
+        // Réinitialiser le formulaire
+        document.getElementById('postCaption').value = '';
+        document.getElementById('postMediaInput').value = '';
+        selectedPostMedia = null;
 
-            } catch (err) {
-                console.error('Erreur:', err);
-                showToast('Erreur lors de la publication', 'error');
-            }
-        });
+    } catch (err) {
+        console.error('Erreur:', err);
+        showToast('Erreur lors de la publication', 'error');
+    }
+});
 
         // Publier un post
         document.getElementById('postMediaInput').addEventListener('change', (e) => {
