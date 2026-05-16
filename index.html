@@ -1,392 +1,861 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="Dslg7SeH2D1d_eRjYSEi22ZtU86QGVdAexktPU969Gw" />
-    <title>StudyDrive - Excellence Académique</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMEO — Administration Serveur</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
 
-        body {
-            font-family: 'Garamond', 'Georgia', 'Times New Roman', serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: #2c3e50;
-            min-height: 100vh;
-            padding: 1rem;
-            position: relative;
-            overflow-x: hidden;
-        }
+  :root {
+    --bg:        #080a0f;
+    --surface:   #0e1117;
+    --surface2:  #141820;
+    --surface3:  #1c2130;
+    --border:    rgba(212,168,83,0.15);
+    --gold:      #d4a853;
+    --gold2:     #f0c46a;
+    --ink:       #e8e4d8;
+    --muted:     #6b7280;
+    --slate:     #9ca3af;
+    --green:     #4ade80;
+    --red:       #f87171;
+    --blue:      #60a5fa;
+    --radius:    10px;
+    --mono:      'Space Mono', monospace;
+    --display:   'Syne', sans-serif;
+  }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 60s linear infinite;
-            z-index: 0;
-        }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--display);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-        .container {
-            max-width: 1400px;
-            width: 100%;
-            margin: 0 auto;
-            background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 4px;
-            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5),
-                        0 0 0 1px rgba(212, 175, 55, 0.2);
-            padding: 1.5rem;
-            position: relative;
-            z-index: 1;
-        }
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
 
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, 
-                #d4af37 0%, 
-                #c5a028 25%, 
-                #d4af37 50%, 
-                #c5a028 75%, 
-                #d4af37 100%);
-        }
+  /* ── GOLD GLOW TOP ── */
+  body::after {
+    content: '';
+    position: fixed; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 400px;
+    background: radial-gradient(ellipse, rgba(212,168,83,0.08) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
 
-        .header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #d4af37;
-        }
+  /* ── HEADER ── */
+  .header {
+    position: relative; z-index: 10;
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(180deg, rgba(14,17,23,0.98) 0%, transparent 100%);
+    backdrop-filter: blur(12px);
+  }
+  .logo {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .logo-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--gold), #a07830);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800; color: #080a0f;
+    font-family: var(--mono);
+    box-shadow: 0 0 20px rgba(212,168,83,0.3);
+  }
+  .logo-text { display: flex; flex-direction: column; }
+  .logo-name { font-size: 18px; font-weight: 800; color: var(--gold); letter-spacing: 0.05em; }
+  .logo-sub  { font-size: 10px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.1em; }
 
-        .logo {
-            font-size: 2rem;
-            font-weight: 400;
-            color: #1a1a2e;
-            letter-spacing: 4px;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-        }
+  .header-badge {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px;
+    background: rgba(212,168,83,0.08);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-family: var(--mono); font-size: 11px; color: var(--gold);
+  }
+  .header-badge::before {
+    content: ''; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-        .subtitle {
-            font-size: 0.9rem;
-            color: #5a5a5a;
-            font-style: italic;
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
+  /* ── MAIN ── */
+  main {
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
 
-        .cta-section {
-            text-align: center;
-            margin: 2rem 0;
-            padding: 1.5rem 0;
-        }
+  .page-title {
+    font-size: 32px; font-weight: 800; color: var(--ink);
+    letter-spacing: -0.02em; margin-bottom: 6px;
+  }
+  .page-title span { color: var(--gold); }
+  .page-desc { color: var(--muted); font-size: 14px; margin-bottom: 40px; font-family: var(--mono); }
 
-        .start-button {
-            display: inline-block;
-            padding: 1.2rem 4rem;
-            background: linear-gradient(to right, #1a1a2e 0%, #16213e 100%);
-            color: #d4af37;
-            text-decoration: none;
-            font-size: 1.3rem;
-            font-weight: 400;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            border: 2px solid #d4af37;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-        }
+  /* ── AUTH GATE ── */
+  #authGate {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 420px; margin: 0 auto;
+    text-align: center;
+  }
+  #authGate .auth-icon { font-size: 42px; margin-bottom: 16px; }
+  #authGate h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  #authGate p  { color: var(--muted); font-size: 13px; margin-bottom: 28px; font-family: var(--mono); }
 
-        .start-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.2), transparent);
-            transition: left 0.6s ease;
-        }
+  /* ── SECTION CARD ── */
+  .section-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 28px;
+    transition: border-color .2s;
+  }
+  .section-card:hover { border-color: rgba(212,168,83,0.3); }
 
-        .start-button:hover::before {
-            left: 100%;
-        }
+  .section-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px;
+  }
+  .section-header-left { display: flex; align-items: center; gap: 12px; }
+  .section-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: rgba(212,168,83,0.12);
+    border: 1px solid rgba(212,168,83,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .section-title { font-size: 16px; font-weight: 700; color: var(--ink); }
+  .section-subtitle { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-top: 1px; }
 
-        .start-button:hover {
-            background: linear-gradient(to right, #d4af37 0%, #c5a028 100%);
-            color: #1a1a2e;
-            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.4);
-            transform: translateY(-3px);
-        }
+  .section-body { padding: 28px; }
 
-        .divider {
-            width: 100px;
-            height: 2px;
-            background: #d4af37;
-            margin: 2rem auto;
-        }
+  /* ── KEY ROW ── */
+  .keys-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+  .key-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface3);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 10px 14px;
+    animation: slideIn .25s ease;
+  }
+  @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:none} }
 
-        .features {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
+  .key-index {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: rgba(212,168,83,0.12);
+    border: 1px solid rgba(212,168,83,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: var(--gold);
+    font-family: var(--mono); flex-shrink: 0;
+  }
+  .key-input {
+    flex: 1;
+    background: transparent;
+    border: none; outline: none;
+    color: var(--ink);
+    font-family: var(--mono); font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+  .key-input::placeholder { color: var(--muted); }
 
-        .feature {
-            text-align: center;
-            padding: 1.5rem 1rem;
-            background: #ffffff;
-            border: 1px solid #e8e8e8;
-            border-radius: 2px;
-            transition: all 0.3s ease;
-        }
+  .key-toggle {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 14px; padding: 4px;
+    transition: color .15s;
+  }
+  .key-toggle:hover { color: var(--gold); }
 
-        .feature:hover {
-            border-color: #d4af37;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            transform: translateY(-3px);
-        }
+  .key-status {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    background: var(--muted);
+  }
+  .key-status.ok  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .key-status.err { background: var(--red);   box-shadow: 0 0 6px var(--red); }
 
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.8rem;
-            display: block;
-            color: #d4af37;
-        }
+  .key-del {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 13px; padding: 4px 6px;
+    border-radius: 5px; transition: all .15s;
+  }
+  .key-del:hover { background: rgba(248,113,113,0.1); color: var(--red); }
 
-        .feature h3 {
-            font-size: 1.2rem;
-            color: #1a1a2e;
-            margin-bottom: 0.5rem;
-            font-weight: 400;
-            letter-spacing: 1px;
-        }
+  /* ── MODEL ROW ── */
+  .models-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .model-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface3);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: grab;
+    animation: slideIn .25s ease;
+  }
+  .model-row:active { cursor: grabbing; }
+  .model-drag { color: var(--muted); font-size: 14px; cursor: grab; user-select: none; flex-shrink: 0; }
+  .model-badge {
+    background: rgba(96,165,250,0.1);
+    border: 1px solid rgba(96,165,250,0.2);
+    color: var(--blue);
+    font-family: var(--mono); font-size: 10px;
+    padding: 2px 8px; border-radius: 4px; flex-shrink: 0;
+  }
+  .model-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: var(--ink); font-family: var(--mono); font-size: 12px;
+  }
+  .model-input::placeholder { color: var(--muted); }
+  .model-del { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 13px; padding: 4px 6px; border-radius: 5px; transition: all .15s; }
+  .model-del:hover { background: rgba(248,113,113,0.1); color: var(--red); }
 
-        .feature p {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #6a6a6a;
-        }
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 8px;
+    font-family: var(--display); font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none; transition: all .15s;
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), #b88a30);
+    color: #080a0f;
+    box-shadow: 0 0 20px rgba(212,168,83,0.25);
+  }
+  .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 0 28px rgba(212,168,83,0.4); }
+  .btn-ghost {
+    background: var(--surface3);
+    color: var(--slate);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .btn-ghost:hover { border-color: var(--border); color: var(--ink); }
+  .btn-danger {
+    background: rgba(248,113,113,0.08);
+    color: var(--red); border: 1px solid rgba(248,113,113,0.2);
+  }
+  .btn-danger:hover { background: rgba(248,113,113,0.15); }
+  .btn-sm { padding: 7px 14px; font-size: 12px; }
 
-        .intro-text {
-            text-align: center;
-            padding: 0 1rem;
-            margin-bottom: 1.5rem;
-        }
+  .btn-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
 
-        .intro-text p {
-            font-size: 1rem;
-            line-height: 1.7;
-            color: #4a4a4a;
-            margin-bottom: 1rem;
-        }
+  /* ── FIELD ── */
+  .field-group { margin-bottom: 20px; }
+  .field-label { font-size: 12px; font-weight: 600; color: var(--gold); font-family: var(--mono); margin-bottom: 8px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .field-input {
+    width: 100%;
+    background: var(--surface3);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 11px 16px;
+    color: var(--ink);
+    font-family: var(--mono); font-size: 13px;
+    outline: none; transition: border-color .2s;
+  }
+  .field-input:focus { border-color: var(--gold); }
+  .field-input::placeholder { color: var(--muted); }
 
-        /* Tablettes */
-        @media (min-width: 768px) {
-            .container {
-                padding: 2.5rem;
-            }
+  /* ── SELECT ── */
+  .model-preset-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px; margin-bottom: 16px;
+  }
+  .preset-btn {
+    background: var(--surface3);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 10px 14px;
+    text-align: left; cursor: pointer;
+    transition: all .15s; color: var(--ink);
+  }
+  .preset-btn:hover { border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.05); }
+  .preset-name { font-size: 12px; font-weight: 600; font-family: var(--mono); color: var(--blue); }
+  .preset-desc { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
-            .header {
-                margin-bottom: 2rem;
-                padding-bottom: 1.5rem;
-            }
+  /* ── STATUS BAR ── */
+  .status-bar {
+    display: flex; align-items: center; gap: 20px;
+    padding: 14px 28px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+    font-family: var(--mono); font-size: 11px;
+  }
+  .stat-item { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+  .stat-val  { color: var(--ink); font-weight: 700; }
+  .stat-val.gold { color: var(--gold); }
+  .stat-val.green { color: var(--green); }
 
-            .logo {
-                font-size: 3rem;
-                letter-spacing: 6px;
-                margin-bottom: 1rem;
-            }
+  /* ── SAVE TOAST ── */
+  #saveToast {
+    position: fixed; bottom: 32px; right: 32px; z-index: 100;
+    background: var(--surface2);
+    border: 1px solid rgba(74,222,128,0.3);
+    border-radius: 10px;
+    padding: 14px 22px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; font-weight: 600;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    opacity: 0; transform: translateY(12px);
+    transition: all .3s;
+    pointer-events: none;
+  }
+  #saveToast.show { opacity: 1; transform: none; }
+  #saveToast.error { border-color: rgba(248,113,113,0.3); }
 
-            .subtitle {
-                font-size: 1.2rem;
-                letter-spacing: 2px;
-            }
+  /* ── LOADING OVERLAY ── */
+  #loadingOverlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(8,10,15,0.85);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px;
+  }
+  .loading-spinner {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 3px solid rgba(212,168,83,0.15);
+    border-top-color: var(--gold);
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-family: var(--mono); font-size: 13px; color: var(--muted); }
 
-            .cta-section {
-                margin: 3rem 0;
-                padding: 2rem 0;
-            }
+  /* ── INFO BOX ── */
+  .info-box {
+    background: rgba(212,168,83,0.05);
+    border: 1px solid rgba(212,168,83,0.15);
+    border-radius: 8px; padding: 14px 18px;
+    font-size: 12px; color: var(--muted); font-family: var(--mono);
+    line-height: 1.7; margin-bottom: 20px;
+  }
+  .info-box strong { color: var(--gold); }
 
-            .start-button {
-                padding: 1.5rem 5rem;
-                font-size: 1.5rem;
-                letter-spacing: 4px;
-            }
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
 
-            .features {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 2rem;
-                margin-top: 2rem;
-            }
+  /* ── TEST RESULT ── */
+  .test-result {
+    margin-top: 14px; padding: 12px 16px;
+    background: var(--surface3);
+    border-radius: 8px; font-family: var(--mono); font-size: 11px; line-height: 1.6;
+    display: none;
+  }
+  .test-result.show { display: block; }
+  .test-ok  { color: var(--green); }
+  .test-err { color: var(--red); }
 
-            .feature {
-                padding: 2rem 1.5rem;
-            }
+  /* ── RESPONSIVE ── */
+  @media (max-width:600px) {
+    main { padding: 24px 16px 60px; }
+    .header { padding: 16px 20px; }
+    .page-title { font-size: 24px; }
+  }
 
-            .feature-icon {
-                font-size: 3rem;
-                margin-bottom: 1.2rem;
-            }
-
-            .feature h3 {
-                font-size: 1.4rem;
-            }
-
-            .feature p {
-                font-size: 1rem;
-            }
-
-            .intro-text p {
-                font-size: 1.1rem;
-            }
-        }
-
-        /* Desktop */
-        @media (min-width: 1024px) {
-            body {
-                padding: 2rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .container {
-                padding: 4rem;
-            }
-
-            .container::before {
-                height: 8px;
-            }
-
-            .header {
-                margin-bottom: 3rem;
-                padding-bottom: 2rem;
-            }
-
-            .logo {
-                font-size: 4rem;
-                letter-spacing: 8px;
-                position: relative;
-                display: inline-block;
-            }
-
-            .logo::before,
-            .logo::after {
-                content: '◆';
-                position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
-                color: #d4af37;
-                font-size: 1.5rem;
-            }
-
-            .logo::before {
-                left: -50px;
-            }
-
-            .logo::after {
-                right: -50px;
-            }
-
-            .subtitle {
-                font-size: 1.4rem;
-            }
-
-            .cta-section {
-                margin: 4rem 0;
-                padding: 3rem 0;
-                border-top: 1px solid #e0e0e0;
-                border-bottom: 1px solid #e0e0e0;
-            }
-
-            .start-button {
-                padding: 1.5rem 6rem;
-                font-size: 1.5rem;
-            }
-
-            .features {
-                gap: 3rem;
-                margin-top: 3rem;
-            }
-
-            .feature {
-                padding: 2.5rem 1.5rem;
-            }
-
-            .feature-icon {
-                font-size: 3.5rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .feature h3 {
-                font-size: 1.5rem;
-            }
-
-            .intro-text p {
-                font-size: 1.2rem;
-            }
-        }
-    </style>
+  /* ── DRAG OVER ── */
+  .model-row.drag-over { border-color: var(--gold); background: rgba(212,168,83,0.07); }
+</style>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1 class="logo">StudyDrive</h1>
-            <p class="subtitle">Excellence Académique & Réussite Garantie</p>
-        </header>
 
-        <div class="intro-text">
-            <p>
-                Votre partenaire d'excellence académique. Accédez aux examens et corrigés 
-                qui ont façonné la réussite de milliers d'étudiants.
-            </p>
-        </div>
+<!-- Firebase -->
+<script type="module">
+import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        <div class="cta-section">
-            <a href="ass.html" class="start-button">Commencer</a>
-        </div>
+const firebaseConfig = {
+  apiKey: "AIzaSyCPGgtXoDUycykLaTSee0S0yY0tkeJpqKI",
+  authDomain: "data-com-a94a8.firebaseapp.com",
+  databaseURL: "https://data-com-a94a8-default-rtdb.firebaseio.com",
+  projectId: "data-com-a94a8",
+  storageBucket: "data-com-a94a8.appspot.com",
+  messagingSenderId: "276904640935",
+  appId: "1:276904640935:web:9cd805aeba6c34c767f682"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
 
-        <div class="divider"></div>
+window._srv_db     = db;
+window._srv_doc    = doc;
+window._srv_getDoc = getDoc;
+window._srv_setDoc = setDoc;
+window._srv_ready  = true;
+document.dispatchEvent(new Event('srv-ready'));
+</script>
 
-        <div class="features">
-            <div class="feature">
-                <span class="feature-icon">📖</span>
-                <h3>Examens Authentiques</h3>
-                <p>Collection complète d'épreuves officielles des années antérieures, soigneusement classées par discipline.</p>
-            </div>
+<!-- Loading -->
+<div id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Connexion à Firestore…</div>
+</div>
 
-            <div class="feature">
-                <span class="feature-icon">✍️</span>
-                <h3>Corrigés Détaillés</h3>
-                <p>Solutions complètes rédigées par des experts, accompagnées de méthodologies éprouvées.</p>
-            </div>
-
-            <div class="feature">
-                <span class="feature-icon">⚡</span>
-                <h3>Accès Immédiat</h3>
-                <p>Navigation intuitive et recherche efficace pour accéder instantanément aux ressources.</p>
-            </div>
-        </div>
+<!-- Header -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">CA</div>
+    <div class="logo-text">
+      <div class="logo-name">COMEO AI</div>
+      <div class="logo-sub">ADMINISTRATION SERVEUR</div>
     </div>
+  </div>
+  <div class="header-badge" id="connStatus">Connexion…</div>
+</header>
+
+<!-- Main -->
+<main id="mainContent" style="display:none">
+
+  <h1 class="page-title">Configuration <span>Serveur</span></h1>
+  <p class="page-desc">// Gérez vos clés API Groq et les modèles IA utilisés par COMEO AI</p>
+
+  <!-- ══════════════ CLÉS API ══════════════ -->
+  <div class="section-card" id="keysCard">
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-icon">🔑</div>
+        <div>
+          <div class="section-title">Clés API Groq</div>
+          <div class="section-subtitle">Rotation automatique — la première disponible est utilisée</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="testAllKeys()">⚡ Tester toutes</button>
+    </div>
+
+    <div class="section-body">
+      <div class="info-box">
+        <strong>Rotation automatique :</strong> COMEO AI essaie chaque clé à la suite en cas d'erreur de quota.<br>
+        Obtenez vos clés sur <strong>console.groq.com → API Keys</strong> — Gratuit jusqu'à 14 400 req/jour par clé.
+      </div>
+
+      <div class="keys-list" id="keysList"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="addKeyRow()">＋ Ajouter une clé</button>
+        <button class="btn btn-gold btn-sm" onclick="saveKeys()">💾 Enregistrer les clés</button>
+      </div>
+
+      <div id="testResult" class="test-result"></div>
+    </div>
+
+    <div class="status-bar">
+      <div class="stat-item">Clés configurées : <span class="stat-val gold" id="keysCount">0</span></div>
+      <div class="stat-item">Statut : <span class="stat-val" id="keysStatus">—</span></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MODÈLES ══════════════ -->
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-icon">🤖</div>
+        <div>
+          <div class="section-title">Modèles IA</div>
+          <div class="section-subtitle">Glisser-déposer pour définir l'ordre de priorité</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-body">
+      <div class="info-box">
+        <strong>Ordre de priorité :</strong> Le premier modèle est utilisé en premier. En cas d'indisponibilité, le suivant prend le relais.<br>
+        Faites glisser les lignes pour changer l'ordre. <strong>llama-3.3-70b-versatile</strong> est recommandé en position 1.
+      </div>
+
+      <div class="field-group" style="margin-bottom:18px">
+        <div class="field-label">Ajouter un modèle prédéfini</div>
+        <div class="model-preset-grid" id="presetGrid">
+          <!-- injecté par JS -->
+        </div>
+      </div>
+
+      <div class="models-list" id="modelsList"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="addModelRow()">＋ Modèle personnalisé</button>
+        <button class="btn btn-gold btn-sm" onclick="saveModels()">💾 Enregistrer les modèles</button>
+        <button class="btn btn-danger btn-sm" onclick="resetModels()">↺ Réinitialiser par défaut</button>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div class="stat-item">Modèles actifs : <span class="stat-val green" id="modelsCount">0</span></div>
+      <div class="stat-item">Priorité 1 : <span class="stat-val" id="model1Label">—</span></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ADMIN ══════════════ -->
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-icon">⚙️</div>
+        <div>
+          <div class="section-title">Actions rapides</div>
+          <div class="section-subtitle">Utilitaires de maintenance</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="reloadConfig()">🔄 Recharger depuis Firestore</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportConfig()">📥 Exporter config JSON</button>
+        <a href="index.html" class="btn btn-ghost btn-sm" style="text-decoration:none">← Retour app</a>
+      </div>
+      <hr class="divider">
+      <p style="font-size:12px;color:var(--muted);font-family:var(--mono)">
+        Collection Firestore : <strong style="color:var(--gold)">server_config</strong><br>
+        Documents : <code style="color:var(--blue)">groq_keys</code> &nbsp;·&nbsp; <code style="color:var(--blue)">models</code>
+      </p>
+    </div>
+  </div>
+
+</main>
+
+<!-- Auth Gate (si pas de session admin) -->
+<div id="authGate" style="display:none; padding:80px 24px">
+  <div style="max-width:420px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center">
+    <div style="font-size:42px;margin-bottom:16px">🔐</div>
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:8px">Accès Administrateur</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:28px;font-family:var(--mono)">Entrez le mot de passe administrateur pour accéder à la configuration serveur.</p>
+    <input class="field-input" type="password" id="adminPassInput" placeholder="Mot de passe admin…" style="margin-bottom:14px" onkeydown="if(event.key==='Enter')checkAdminPass()">
+    <div id="adminErr" style="color:var(--red);font-size:12px;margin-bottom:12px;display:none">Mot de passe incorrect.</div>
+    <button class="btn btn-gold" style="width:100%" onclick="checkAdminPass()">Accéder</button>
+    <p style="margin-top:18px;font-size:11px;color:var(--muted);font-family:var(--mono)">Par défaut : <code style="color:var(--gold)">admin2024</code></p>
+  </div>
+</div>
+
+<!-- Save Toast -->
+<div id="saveToast">
+  <span id="saveToastIcon">✓</span>
+  <span id="saveToastMsg">Enregistré avec succès</span>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════
+const ADMIN_PASS = 'admin2024'; // Changez selon votre sécurité
+
+const DEFAULT_MODELS = [
+  { id: 'llama-3.3-70b-versatile',                   label: 'Llama 3.3 70B',         desc: 'Recommandé — polyvalent' },
+  { id: 'qwen/qwen3-32b',                             label: 'Qwen3 32B',              desc: 'Alternatif — qualité' },
+  { id: 'meta-llama/llama-4-scout-17b-16e-instruct',  label: 'Llama 4 Scout 17B',     desc: 'Rapide — contexte long' },
+  { id: 'llama-3.1-70b-versatile',                    label: 'Llama 3.1 70B',         desc: 'Stable — fallback' },
+  { id: 'mixtral-8x7b-32768',                         label: 'Mixtral 8×7B',           desc: 'Contexte étendu' },
+  { id: 'gemma2-9b-it',                               label: 'Gemma2 9B',              desc: 'Léger et rapide' },
+];
+
+let keysData   = [];
+let modelsData = [];
+let dragSrc    = null;
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+document.addEventListener('srv-ready', init);
+
+async function init() {
+  // Auth
+  const authed = sessionStorage.getItem('srv_authed');
+  if (!authed) {
+    document.getElementById('loadingOverlay').style.display = 'none';
+    document.getElementById('authGate').style.display = 'block';
+    return;
+  }
+  await loadFromFirestore();
+}
+
+function checkAdminPass() {
+  const val = document.getElementById('adminPassInput').value;
+  if (val === ADMIN_PASS) {
+    sessionStorage.setItem('srv_authed', '1');
+    document.getElementById('authGate').style.display = 'none';
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.querySelector('#loadingOverlay .loading-text').textContent = 'Chargement de la configuration…';
+    loadFromFirestore();
+  } else {
+    document.getElementById('adminErr').style.display = 'block';
+  }
+}
+
+async function loadFromFirestore() {
+  try {
+    const [keysSnap, modelsSnap] = await Promise.all([
+      window._srv_getDoc(window._srv_doc(window._srv_db, 'server_config', 'groq_keys')),
+      window._srv_getDoc(window._srv_doc(window._srv_db, 'server_config', 'models'))
+    ]);
+
+    keysData   = keysSnap.exists()   ? (keysSnap.data().keys   || []) : [];
+    modelsData = modelsSnap.exists() ? (modelsSnap.data().list  || []) : DEFAULT_MODELS.slice(0,3).map(m=>m.id);
+
+    // normalize models
+    modelsData = modelsData.map(m => typeof m === 'string' ? m : String(m));
+
+    document.getElementById('loadingOverlay').style.display = 'none';
+    document.getElementById('mainContent').style.display    = 'block';
+    document.getElementById('connStatus').textContent = 'Connecté à Firestore';
+
+    renderKeys();
+    renderModels();
+    renderPresets();
+  } catch(e) {
+    document.getElementById('loadingOverlay').style.display = 'none';
+    document.getElementById('connStatus').textContent = '⚠ Erreur connexion';
+    document.getElementById('mainContent').style.display = 'block';
+    showToast('Erreur Firestore : ' + e.message, true);
+    keysData = []; modelsData = DEFAULT_MODELS.slice(0,3).map(m=>m.id);
+    renderKeys(); renderModels(); renderPresets();
+  }
+}
+
+async function reloadConfig() {
+  document.getElementById('loadingOverlay').style.display = 'flex';
+  await loadFromFirestore();
+  showToast('Configuration rechargée depuis Firestore');
+}
+
+// ════════════════════════════════════════════
+// CLÉS API
+// ════════════════════════════════════════════
+function renderKeys() {
+  const list = document.getElementById('keysList');
+  list.innerHTML = '';
+  if (!keysData.length) { addKeyRow(); return; }
+  keysData.forEach((k, i) => addKeyRow(k.value || '', i, k.status));
+  updateKeysStats();
+}
+
+function addKeyRow(value = '', idx = -1, status = '') {
+  if (idx === -1) { keysData.push({ value: '', status: '' }); idx = keysData.length - 1; }
+  const list = document.getElementById('keysList');
+  const row  = document.createElement('div');
+  row.className = 'key-row'; row.dataset.idx = idx;
+  const masked = value ? value.replace(/^(gsk_[a-zA-Z0-9]{4}).*([a-zA-Z0-9]{6})$/, '$1…$2') : '';
+  row.innerHTML = `
+    <div class="key-index">${idx + 1}</div>
+    <input class="key-input" type="password" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx…"
+      value="${escHtml(value)}"
+      oninput="keysData[${idx}].value=this.value;updateKeysStats()"
+      autocomplete="off">
+    <button class="key-toggle" title="Afficher/masquer" onclick="toggleKeyVis(this)">👁</button>
+    <div class="key-status ${status === 'ok' ? 'ok' : status === 'err' ? 'err' : ''}" id="kstatus-${idx}"></div>
+    <button class="key-del" onclick="removeKey(${idx})" title="Supprimer">✕</button>`;
+  list.appendChild(row);
+  updateKeysStats();
+}
+
+function toggleKeyVis(btn) {
+  const input = btn.previousElementSibling.previousElementSibling;
+  input.type = input.type === 'password' ? 'text' : 'password';
+  btn.textContent = input.type === 'password' ? '👁' : '🙈';
+}
+
+function removeKey(idx) {
+  keysData.splice(idx, 1);
+  renderKeys();
+  updateKeysStats();
+}
+
+function updateKeysStats() {
+  const filled = keysData.filter(k => k.value && k.value.trim()).length;
+  document.getElementById('keysCount').textContent = filled;
+  document.getElementById('keysStatus').textContent = filled > 0
+    ? filled + ' clé' + (filled > 1 ? 's' : '') + ' active' + (filled > 1 ? 's' : '')
+    : 'Aucune clé';
+}
+
+async function saveKeys() {
+  const freshKeys = [];
+  document.querySelectorAll('#keysList .key-row').forEach((row, i) => {
+    const val = row.querySelector('.key-input').value.trim();
+    if (val) freshKeys.push({ value: val, status: '' });
+  });
+  keysData = freshKeys;
+  try {
+    await window._srv_setDoc(
+      window._srv_doc(window._srv_db, 'server_config', 'groq_keys'),
+      { keys: keysData, updatedAt: new Date().toISOString() }
+    );
+    showToast(`✓ ${keysData.length} clé${keysData.length > 1 ? 's' : ''} enregistrée${keysData.length > 1 ? 's' : ''}`);
+    renderKeys();
+  } catch(e) { showToast('Erreur : ' + e.message, true); }
+}
+
+async function testAllKeys() {
+  const filled = keysData.filter(k => k.value && k.value.trim());
+  if (!filled.length) { showToast('Aucune clé à tester', true); return; }
+  const res = document.getElementById('testResult');
+  res.className = 'test-result show';
+  res.innerHTML = '⏳ Test en cours…';
+  const lines = [];
+  for (let i = 0; i < filled.length; i++) {
+    const key = filled[i].value;
+    try {
+      const r = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: { Authorization: 'Bearer ' + key }
+      });
+      const dot = document.getElementById('kstatus-' + i);
+      if (r.ok) {
+        lines.push(`<span class="test-ok">✓ Clé ${i+1} : VALIDE</span>`);
+        filled[i].status = 'ok';
+        if (dot) dot.className = 'key-status ok';
+      } else {
+        const d = await r.json().catch(()=>({}));
+        lines.push(`<span class="test-err">✗ Clé ${i+1} : ${d.error?.message || 'Invalide'}</span>`);
+        filled[i].status = 'err';
+        if (dot) dot.className = 'key-status err';
+      }
+    } catch(e) {
+      lines.push(`<span class="test-err">✗ Clé ${i+1} : ${e.message}</span>`);
+    }
+  }
+  res.innerHTML = lines.join('<br>');
+}
+
+// ════════════════════════════════════════════
+// MODÈLES
+// ════════════════════════════════════════════
+function renderPresets() {
+  const grid = document.getElementById('presetGrid');
+  grid.innerHTML = DEFAULT_MODELS.map(m => `
+    <button class="preset-btn" onclick="addPresetModel('${m.id}')">
+      <div class="preset-name">${m.label}</div>
+      <div class="preset-desc">${m.desc}</div>
+      <div class="preset-desc" style="color:rgba(96,165,250,.5);font-size:9px;margin-top:2px">${m.id}</div>
+    </button>`).join('');
+}
+
+function renderModels() {
+  const list = document.getElementById('modelsList');
+  list.innerHTML = '';
+  if (!modelsData.length) modelsData = DEFAULT_MODELS.slice(0,3).map(m=>m.id);
+  modelsData.forEach((m, i) => appendModelRow(m, i));
+  updateModelsStats();
+}
+
+function appendModelRow(modelId, idx) {
+  const list = document.getElementById('modelsList');
+  const preset = DEFAULT_MODELS.find(p => p.id === modelId);
+  const row = document.createElement('div');
+  row.className = 'model-row'; row.draggable = true; row.dataset.idx = idx;
+  row.innerHTML = `
+    <span class="model-drag" title="Glisser pour réordonner">⠿</span>
+    <span class="model-badge">#${idx + 1}</span>
+    <input class="model-input" type="text" value="${escHtml(modelId)}"
+      placeholder="nom-du-modele-groq"
+      oninput="modelsData[${idx}]=this.value;updateModelsStats()">
+    <button class="model-del" onclick="removeModel(${idx})" title="Supprimer">✕</button>`;
+  // Drag & drop
+  row.addEventListener('dragstart', e => { dragSrc = row; e.dataTransfer.effectAllowed = 'move'; row.style.opacity = '.4'; });
+  row.addEventListener('dragend',   e => { row.style.opacity = '1'; document.querySelectorAll('.model-row').forEach(r=>r.classList.remove('drag-over')); });
+  row.addEventListener('dragover',  e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; row.classList.add('drag-over'); });
+  row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+  row.addEventListener('drop', e => {
+    e.preventDefault();
+    if (dragSrc !== row) {
+      const all = [...document.querySelectorAll('.model-row')];
+      const fromIdx = all.indexOf(dragSrc);
+      const toIdx   = all.indexOf(row);
+      modelsData.splice(toIdx, 0, modelsData.splice(fromIdx, 1)[0]);
+      renderModels();
+    }
+  });
+  list.appendChild(row);
+  updateModelsStats();
+}
+
+function addModelRow(value = '') {
+  modelsData.push(value || '');
+  appendModelRow(value, modelsData.length - 1);
+  updateModelsStats();
+}
+
+function addPresetModel(modelId) {
+  if (modelsData.includes(modelId)) { showToast('Modèle déjà dans la liste', true); return; }
+  modelsData.push(modelId);
+  appendModelRow(modelId, modelsData.length - 1);
+  updateModelsStats();
+  showToast('Modèle ajouté : ' + modelId);
+}
+
+function removeModel(idx) {
+  modelsData.splice(idx, 1);
+  renderModels();
+}
+
+function resetModels() {
+  if (!confirm('Réinitialiser les modèles par défaut ?')) return;
+  modelsData = DEFAULT_MODELS.slice(0,3).map(m=>m.id);
+  renderModels();
+  showToast('Modèles réinitialisés');
+}
+
+function updateModelsStats() {
+  const filled = modelsData.filter(m => m && m.trim()).length;
+  document.getElementById('modelsCount').textContent = filled;
+  document.getElementById('model1Label').textContent = (modelsData[0] || '—').replace(/.*\//, '');
+}
+
+async function saveModels() {
+  const freshModels = [];
+  document.querySelectorAll('#modelsList .model-input').forEach(inp => {
+    const v = inp.value.trim();
+    if (v) freshModels.push(v);
+  });
+  modelsData = freshModels;
+  try {
+    await window._srv_setDoc(
+      window._srv_doc(window._srv_db, 'server_config', 'models'),
+      { list: modelsData, updatedAt: new Date().toISOString() }
+    );
+    showToast(`✓ ${modelsData.length} modèle${modelsData.length > 1 ? 's' : ''} enregistré${modelsData.length > 1 ? 's' : ''}`);
+    renderModels();
+  } catch(e) { showToast('Erreur : ' + e.message, true); }
+}
+
+// ════════════════════════════════════════════
+// EXPORT
+// ════════════════════════════════════════════
+function exportConfig() {
+  const data = { groq_keys: keysData.map(k=>({...k, value:'***hidden***'})), models: modelsData, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'comeo_server_config.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════
+function showToast(msg, isError = false) {
+  const t = document.getElementById('saveToast');
+  document.getElementById('saveToastMsg').textContent = msg;
+  document.getElementById('saveToastIcon').textContent = isError ? '✕' : '✓';
+  t.style.borderColor = isError ? 'rgba(248,113,113,0.3)' : 'rgba(74,222,128,0.3)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function escHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
 </body>
 </html>
-
