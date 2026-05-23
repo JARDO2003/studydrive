@@ -4,381 +4,165 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>COMEO — Administration Serveur</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+:root {
+  --bg:      #080a0f;
+  --s1:      #0e1117;
+  --s2:      #141820;
+  --s3:      #1c2130;
+  --border:  rgba(212,168,83,0.15);
+  --gold:    #d4a853;
+  --gold2:   #f0c46a;
+  --ink:     #e8e4d8;
+  --muted:   #6b7280;
+  --slate:   #9ca3af;
+  --green:   #4ade80;
+  --red:     #f87171;
+  --blue:    #60a5fa;
+  --mono:    'Space Mono', monospace;
+  --display: 'Syne', sans-serif;
+  --radius:  10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--display);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(212,168,83,0.08) 0%,transparent 70%);pointer-events:none;z-index:0}
 
-  :root {
-    --bg:        #080a0f;
-    --surface:   #0e1117;
-    --surface2:  #141820;
-    --surface3:  #1c2130;
-    --border:    rgba(212,168,83,0.15);
-    --gold:      #d4a853;
-    --gold2:     #f0c46a;
-    --ink:       #e8e4d8;
-    --muted:     #6b7280;
-    --slate:     #9ca3af;
-    --green:     #4ade80;
-    --red:       #f87171;
-    --blue:      #60a5fa;
-    --radius:    10px;
-    --mono:      'Space Mono', monospace;
-    --display:   'Syne', sans-serif;
-  }
+/* HEADER */
+.header{position:relative;z-index:10;border-bottom:1px solid var(--border);padding:18px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(14,17,23,0.98);backdrop-filter:blur(12px)}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--gold),#a07830);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#080a0f;font-family:var(--mono);box-shadow:0 0 20px rgba(212,168,83,0.3)}
+.logo-name{font-size:17px;font-weight:800;color:var(--gold);letter-spacing:.05em}
+.logo-sub{font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:.1em}
+.conn-badge{display:flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(212,168,83,0.08);border:1px solid var(--border);border-radius:20px;font-family:var(--mono);font-size:11px;color:var(--gold)}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.conn-dot.online{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* LOADING */
+#loadingOverlay{position:fixed;inset:0;z-index:200;background:rgba(8,10,15,0.9);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.spinner{width:44px;height:44px;border-radius:50%;border:3px solid rgba(212,168,83,0.15);border-top-color:var(--gold);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-family:var(--mono);font-size:12px;color:var(--muted)}
 
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: var(--display);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* AUTH GATE */
+#authGate{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px}
+.auth-card{background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:48px 40px;max-width:400px;width:100%;text-align:center;position:relative;overflow:hidden}
+.auth-card::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:300px;height:200px;background:radial-gradient(ellipse,rgba(212,168,83,0.1) 0%,transparent 70%);pointer-events:none}
+.auth-icon{font-size:40px;margin-bottom:20px}
+.auth-title{font-size:22px;font-weight:800;margin-bottom:8px}
+.auth-sub{color:var(--muted);font-size:12px;margin-bottom:32px;font-family:var(--mono);line-height:1.6}
+.af{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
+.af-input{width:100%;background:var(--s3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 16px;color:var(--ink);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .2s}
+.af-input:focus{border-color:var(--gold)}
+.af-input::placeholder{color:var(--muted)}
+.auth-err{color:var(--red);font-size:12px;margin:8px 0;font-family:var(--mono);min-height:18px}
+.btn-auth{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),#b88a30);color:#080a0f;border:none;border-radius:8px;font-family:var(--display);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px}
+.btn-auth:hover{transform:translateY(-1px);box-shadow:0 0 28px rgba(212,168,83,0.4)}
+.btn-auth:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
-  /* ── NOISE OVERLAY ── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 0;
-  }
+/* MAIN */
+main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:48px 24px 80px}
+.page-title{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+.page-title span{color:var(--gold)}
+.page-desc{color:var(--muted);font-size:13px;margin-bottom:40px;font-family:var(--mono)}
 
-  /* ── GOLD GLOW TOP ── */
-  body::after {
-    content: '';
-    position: fixed; top: -200px; left: 50%; transform: translateX(-50%);
-    width: 700px; height: 400px;
-    background: radial-gradient(ellipse, rgba(212,168,83,0.08) 0%, transparent 70%);
-    pointer-events: none; z-index: 0;
-  }
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:28px;transition:border-color .2s}
+.card:hover{border-color:rgba(212,168,83,0.3)}
+.card-header{padding:18px 28px;border-bottom:1px solid var(--border);background:var(--s2);display:flex;align-items:center;justify-content:space-between;gap:16px}
+.card-header-left{display:flex;align-items:center;gap:12px}
+.card-icon{width:36px;height:36px;border-radius:8px;background:rgba(212,168,83,0.12);border:1px solid rgba(212,168,83,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.card-title{font-size:15px;font-weight:700}
+.card-subtitle{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:1px}
+.card-body{padding:28px}
 
-  /* ── HEADER ── */
-  .header {
-    position: relative; z-index: 10;
-    border-bottom: 1px solid var(--border);
-    padding: 20px 40px;
-    display: flex; align-items: center; justify-content: space-between;
-    background: linear-gradient(180deg, rgba(14,17,23,0.98) 0%, transparent 100%);
-    backdrop-filter: blur(12px);
-  }
-  .logo {
-    display: flex; align-items: center; gap: 14px;
-  }
-  .logo-icon {
-    width: 42px; height: 42px;
-    background: linear-gradient(135deg, var(--gold), #a07830);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 800; color: #080a0f;
-    font-family: var(--mono);
-    box-shadow: 0 0 20px rgba(212,168,83,0.3);
-  }
-  .logo-text { display: flex; flex-direction: column; }
-  .logo-name { font-size: 18px; font-weight: 800; color: var(--gold); letter-spacing: 0.05em; }
-  .logo-sub  { font-size: 10px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.1em; }
+/* INFO BOX */
+.info-box{background:rgba(212,168,83,0.05);border:1px solid rgba(212,168,83,0.15);border-radius:8px;padding:14px 18px;font-size:12px;color:var(--muted);font-family:var(--mono);line-height:1.7;margin-bottom:20px}
+.info-box strong{color:var(--gold)}
 
-  .header-badge {
-    display: flex; align-items: center; gap: 8px;
-    padding: 6px 14px;
-    background: rgba(212,168,83,0.08);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    font-family: var(--mono); font-size: 11px; color: var(--gold);
-  }
-  .header-badge::before {
-    content: ''; width: 7px; height: 7px; border-radius: 50%;
-    background: var(--green); box-shadow: 0 0 8px var(--green);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+/* KEYS */
+.keys-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.key-row{display:flex;align-items:center;gap:10px;background:var(--s3);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 14px;animation:slideIn .25s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.key-num{width:24px;height:24px;border-radius:6px;background:rgba(212,168,83,0.12);border:1px solid rgba(212,168,83,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gold);font-family:var(--mono);flex-shrink:0}
+.key-input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:var(--mono);font-size:12px;letter-spacing:.02em}
+.key-input::placeholder{color:var(--muted)}
+.key-eye{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:4px;transition:color .15s}
+.key-eye:hover{color:var(--gold)}
+.key-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.key-dot.ok{background:var(--green);box-shadow:0 0 6px var(--green)}
+.key-dot.err{background:var(--red);box-shadow:0 0 6px var(--red)}
+.key-del{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;padding:4px 6px;border-radius:5px;transition:all .15s}
+.key-del:hover{background:rgba(248,113,113,0.1);color:var(--red)}
 
-  /* ── MAIN ── */
-  main {
-    position: relative; z-index: 1;
-    max-width: 900px; margin: 0 auto;
-    padding: 48px 24px 80px;
-  }
+/* MODELS */
+.models-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.model-row{display:flex;align-items:center;gap:10px;background:var(--s3);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 14px;cursor:grab;animation:slideIn .25s ease}
+.model-row:active{cursor:grabbing}
+.model-drag{color:var(--muted);font-size:14px;user-select:none;flex-shrink:0}
+.model-badge{background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:var(--blue);font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;flex-shrink:0}
+.model-input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:var(--mono);font-size:12px}
+.model-input::placeholder{color:var(--muted)}
+.model-del{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;padding:4px 6px;border-radius:5px;transition:all .15s}
+.model-del:hover{background:rgba(248,113,113,0.1);color:var(--red)}
+.model-row.drag-over{border-color:var(--gold);background:rgba(212,168,83,0.07)}
 
-  .page-title {
-    font-size: 32px; font-weight: 800; color: var(--ink);
-    letter-spacing: -0.02em; margin-bottom: 6px;
-  }
-  .page-title span { color: var(--gold); }
-  .page-desc { color: var(--muted); font-size: 14px; margin-bottom: 40px; font-family: var(--mono); }
+/* PRESETS */
+.preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:16px}
+.preset-btn{background:var(--s3);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px 14px;text-align:left;cursor:pointer;transition:all .15s;color:var(--ink)}
+.preset-btn:hover{border-color:rgba(96,165,250,0.3);background:rgba(96,165,250,0.05)}
+.preset-name{font-size:12px;font-weight:600;font-family:var(--mono);color:var(--blue)}
+.preset-id{font-size:9px;color:rgba(96,165,250,.4);margin-top:2px;font-family:var(--mono)}
+.preset-desc{font-size:10px;color:var(--muted);margin-top:2px}
 
-  /* ── AUTH GATE ── */
-  #authGate {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 40px;
-    max-width: 420px; margin: 0 auto;
-    text-align: center;
-  }
-  #authGate .auth-icon { font-size: 42px; margin-bottom: 16px; }
-  #authGate h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-  #authGate p  { color: var(--muted); font-size: 13px; margin-bottom: 28px; font-family: var(--mono); }
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;font-family:var(--display);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;text-decoration:none}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#b88a30);color:#080a0f;box-shadow:0 0 20px rgba(212,168,83,0.2)}
+.btn-gold:hover{transform:translateY(-1px);box-shadow:0 0 28px rgba(212,168,83,0.4)}
+.btn-ghost{background:var(--s3);color:var(--slate);border:1px solid rgba(255,255,255,0.08)}
+.btn-ghost:hover{border-color:var(--border);color:var(--ink)}
+.btn-danger{background:rgba(248,113,113,0.08);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
+.btn-danger:hover{background:rgba(248,113,113,0.15)}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px}
 
-  /* ── SECTION CARD ── */
-  .section-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 28px;
-    transition: border-color .2s;
-  }
-  .section-card:hover { border-color: rgba(212,168,83,0.3); }
+/* STATUS BAR */
+.status-bar{display:flex;align-items:center;gap:20px;padding:14px 28px;border-top:1px solid var(--border);background:var(--s2);font-family:var(--mono);font-size:11px;flex-wrap:wrap}
+.stat-item{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.stat-val{color:var(--ink);font-weight:700}
+.stat-val.gold{color:var(--gold)}
+.stat-val.green{color:var(--green)}
 
-  .section-header {
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface2);
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 16px;
-  }
-  .section-header-left { display: flex; align-items: center; gap: 12px; }
-  .section-icon {
-    width: 36px; height: 36px; border-radius: 8px;
-    background: rgba(212,168,83,0.12);
-    border: 1px solid rgba(212,168,83,0.2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-  }
-  .section-title { font-size: 16px; font-weight: 700; color: var(--ink); }
-  .section-subtitle { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-top: 1px; }
+/* TEST RESULT */
+.test-result{margin-top:14px;padding:12px 16px;background:var(--s3);border-radius:8px;font-family:var(--mono);font-size:11px;line-height:1.7;display:none}
+.test-result.show{display:block}
+.t-ok{color:var(--green)}
+.t-err{color:var(--red)}
 
-  .section-body { padding: 28px; }
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--border);margin:24px 0}
 
-  /* ── KEY ROW ── */
-  .keys-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
-  .key-row {
-    display: flex; align-items: center; gap: 10px;
-    background: var(--surface3);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 10px;
-    padding: 10px 14px;
-    animation: slideIn .25s ease;
-  }
-  @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:none} }
+/* TOAST */
+#toast{position:fixed;bottom:32px;right:32px;z-index:300;background:var(--s2);border:1px solid rgba(74,222,128,0.3);border-radius:10px;padding:14px 22px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,0.5);opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none}
+#toast.show{opacity:1;transform:none}
 
-  .key-index {
-    width: 24px; height: 24px; border-radius: 6px;
-    background: rgba(212,168,83,0.12);
-    border: 1px solid rgba(212,168,83,0.2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 700; color: var(--gold);
-    font-family: var(--mono); flex-shrink: 0;
-  }
-  .key-input {
-    flex: 1;
-    background: transparent;
-    border: none; outline: none;
-    color: var(--ink);
-    font-family: var(--mono); font-size: 12px;
-    letter-spacing: 0.02em;
-  }
-  .key-input::placeholder { color: var(--muted); }
+/* USER INFO */
+.user-pill{display:flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);border-radius:20px;font-family:var(--mono);font-size:11px;color:var(--blue)}
+.logout-btn{background:none;border:1px solid rgba(248,113,113,0.3);color:var(--red);padding:6px 14px;border-radius:20px;font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s}
+.logout-btn:hover{background:rgba(248,113,113,0.1)}
 
-  .key-toggle {
-    background: none; border: none; cursor: pointer;
-    color: var(--muted); font-size: 14px; padding: 4px;
-    transition: color .15s;
-  }
-  .key-toggle:hover { color: var(--gold); }
-
-  .key-status {
-    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-    background: var(--muted);
-  }
-  .key-status.ok  { background: var(--green); box-shadow: 0 0 6px var(--green); }
-  .key-status.err { background: var(--red);   box-shadow: 0 0 6px var(--red); }
-
-  .key-del {
-    background: none; border: none; cursor: pointer;
-    color: var(--muted); font-size: 13px; padding: 4px 6px;
-    border-radius: 5px; transition: all .15s;
-  }
-  .key-del:hover { background: rgba(248,113,113,0.1); color: var(--red); }
-
-  /* ── MODEL ROW ── */
-  .models-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-  .model-row {
-    display: flex; align-items: center; gap: 10px;
-    background: var(--surface3);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 10px;
-    padding: 10px 14px;
-    cursor: grab;
-    animation: slideIn .25s ease;
-  }
-  .model-row:active { cursor: grabbing; }
-  .model-drag { color: var(--muted); font-size: 14px; cursor: grab; user-select: none; flex-shrink: 0; }
-  .model-badge {
-    background: rgba(96,165,250,0.1);
-    border: 1px solid rgba(96,165,250,0.2);
-    color: var(--blue);
-    font-family: var(--mono); font-size: 10px;
-    padding: 2px 8px; border-radius: 4px; flex-shrink: 0;
-  }
-  .model-input {
-    flex: 1; background: transparent; border: none; outline: none;
-    color: var(--ink); font-family: var(--mono); font-size: 12px;
-  }
-  .model-input::placeholder { color: var(--muted); }
-  .model-del { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 13px; padding: 4px 6px; border-radius: 5px; transition: all .15s; }
-  .model-del:hover { background: rgba(248,113,113,0.1); color: var(--red); }
-
-  /* ── BUTTONS ── */
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 20px; border-radius: 8px;
-    font-family: var(--display); font-size: 13px; font-weight: 600;
-    cursor: pointer; border: none; transition: all .15s;
-  }
-  .btn-gold {
-    background: linear-gradient(135deg, var(--gold), #b88a30);
-    color: #080a0f;
-    box-shadow: 0 0 20px rgba(212,168,83,0.25);
-  }
-  .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 0 28px rgba(212,168,83,0.4); }
-  .btn-ghost {
-    background: var(--surface3);
-    color: var(--slate);
-    border: 1px solid rgba(255,255,255,0.08);
-  }
-  .btn-ghost:hover { border-color: var(--border); color: var(--ink); }
-  .btn-danger {
-    background: rgba(248,113,113,0.08);
-    color: var(--red); border: 1px solid rgba(248,113,113,0.2);
-  }
-  .btn-danger:hover { background: rgba(248,113,113,0.15); }
-  .btn-sm { padding: 7px 14px; font-size: 12px; }
-
-  .btn-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-
-  /* ── FIELD ── */
-  .field-group { margin-bottom: 20px; }
-  .field-label { font-size: 12px; font-weight: 600; color: var(--gold); font-family: var(--mono); margin-bottom: 8px; letter-spacing: 0.06em; text-transform: uppercase; }
-  .field-input {
-    width: 100%;
-    background: var(--surface3);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px;
-    padding: 11px 16px;
-    color: var(--ink);
-    font-family: var(--mono); font-size: 13px;
-    outline: none; transition: border-color .2s;
-  }
-  .field-input:focus { border-color: var(--gold); }
-  .field-input::placeholder { color: var(--muted); }
-
-  /* ── SELECT ── */
-  .model-preset-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 8px; margin-bottom: 16px;
-  }
-  .preset-btn {
-    background: var(--surface3);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 8px; padding: 10px 14px;
-    text-align: left; cursor: pointer;
-    transition: all .15s; color: var(--ink);
-  }
-  .preset-btn:hover { border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.05); }
-  .preset-name { font-size: 12px; font-weight: 600; font-family: var(--mono); color: var(--blue); }
-  .preset-desc { font-size: 10px; color: var(--muted); margin-top: 2px; }
-
-  /* ── STATUS BAR ── */
-  .status-bar {
-    display: flex; align-items: center; gap: 20px;
-    padding: 14px 28px;
-    border-top: 1px solid var(--border);
-    background: var(--surface2);
-    font-family: var(--mono); font-size: 11px;
-  }
-  .stat-item { display: flex; align-items: center; gap: 6px; color: var(--muted); }
-  .stat-val  { color: var(--ink); font-weight: 700; }
-  .stat-val.gold { color: var(--gold); }
-  .stat-val.green { color: var(--green); }
-
-  /* ── SAVE TOAST ── */
-  #saveToast {
-    position: fixed; bottom: 32px; right: 32px; z-index: 100;
-    background: var(--surface2);
-    border: 1px solid rgba(74,222,128,0.3);
-    border-radius: 10px;
-    padding: 14px 22px;
-    display: flex; align-items: center; gap: 10px;
-    font-size: 13px; font-weight: 600;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    opacity: 0; transform: translateY(12px);
-    transition: all .3s;
-    pointer-events: none;
-  }
-  #saveToast.show { opacity: 1; transform: none; }
-  #saveToast.error { border-color: rgba(248,113,113,0.3); }
-
-  /* ── LOADING OVERLAY ── */
-  #loadingOverlay {
-    position: fixed; inset: 0; z-index: 200;
-    background: rgba(8,10,15,0.85);
-    backdrop-filter: blur(8px);
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 16px;
-  }
-  .loading-spinner {
-    width: 44px; height: 44px; border-radius: 50%;
-    border: 3px solid rgba(212,168,83,0.15);
-    border-top-color: var(--gold);
-    animation: spin .8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-family: var(--mono); font-size: 13px; color: var(--muted); }
-
-  /* ── INFO BOX ── */
-  .info-box {
-    background: rgba(212,168,83,0.05);
-    border: 1px solid rgba(212,168,83,0.15);
-    border-radius: 8px; padding: 14px 18px;
-    font-size: 12px; color: var(--muted); font-family: var(--mono);
-    line-height: 1.7; margin-bottom: 20px;
-  }
-  .info-box strong { color: var(--gold); }
-
-  /* ── DIVIDER ── */
-  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
-
-  /* ── TEST RESULT ── */
-  .test-result {
-    margin-top: 14px; padding: 12px 16px;
-    background: var(--surface3);
-    border-radius: 8px; font-family: var(--mono); font-size: 11px; line-height: 1.6;
-    display: none;
-  }
-  .test-result.show { display: block; }
-  .test-ok  { color: var(--green); }
-  .test-err { color: var(--red); }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width:600px) {
-    main { padding: 24px 16px 60px; }
-    .header { padding: 16px 20px; }
-    .page-title { font-size: 24px; }
-  }
-
-  /* ── DRAG OVER ── */
-  .model-row.drag-over { border-color: var(--gold); background: rgba(212,168,83,0.07); }
+@media(max-width:600px){main{padding:24px 16px 60px}.header{padding:14px 16px}.page-title{font-size:22px}.auth-card{padding:32px 24px}}
 </style>
 </head>
 <body>
 
 <!-- Firebase -->
 <script type="module">
-import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCPGgtXoDUycykLaTSee0S0yY0tkeJpqKI",
@@ -389,234 +173,249 @@ const firebaseConfig = {
   messagingSenderId: "276904640935",
   appId: "1:276904640935:web:9cd805aeba6c34c767f682"
 };
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
 
-window._srv_db     = db;
-window._srv_doc    = doc;
-window._srv_getDoc = getDoc;
-window._srv_setDoc = setDoc;
-window._srv_ready  = true;
-document.dispatchEvent(new Event('srv-ready'));
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+window._db      = db;
+window._doc     = doc;
+window._getDoc  = getDoc;
+window._setDoc  = setDoc;
+window._auth    = auth;
+window._signIn  = signInWithEmailAndPassword;
+window._signOut = signOut;
+
+onAuthStateChanged(auth, user => {
+  window._currentUser = user;
+  document.dispatchEvent(new CustomEvent('auth-change', { detail: user }));
+});
+
+window._fbReady = true;
+document.dispatchEvent(new Event('fb-ready'));
 </script>
 
 <!-- Loading -->
 <div id="loadingOverlay">
-  <div class="loading-spinner"></div>
-  <div class="loading-text">Connexion à Firestore…</div>
+  <div class="spinner"></div>
+  <div class="loading-txt" id="loadingTxt">Initialisation…</div>
+</div>
+
+<!-- Auth Gate -->
+<div id="authGate" style="display:none">
+  <div class="auth-card">
+    <div class="auth-icon">🔐</div>
+    <div class="auth-title">Administration</div>
+    <div class="auth-sub">Connectez-vous avec votre compte Firebase admin pour accéder à la configuration serveur.</div>
+    <div class="af">
+      <input class="af-input" type="email" id="adminEmail" placeholder="Email administrateur" autocomplete="email">
+      <input class="af-input" type="password" id="adminPass" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <div class="auth-err" id="authErr"></div>
+    <button class="btn-auth" id="loginBtn" onclick="doAdminLogin()">⚡ Accéder</button>
+  </div>
 </div>
 
 <!-- Header -->
-<header class="header">
+<header class="header" id="appHeader" style="display:none">
   <div class="logo">
     <div class="logo-icon">CA</div>
-    <div class="logo-text">
+    <div>
       <div class="logo-name">COMEO AI</div>
       <div class="logo-sub">ADMINISTRATION SERVEUR</div>
     </div>
   </div>
-  <div class="header-badge" id="connStatus">Connexion…</div>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <div class="conn-badge"><div class="conn-dot" id="connDot"></div><span id="connTxt">Connexion…</span></div>
+    <div class="user-pill" id="userPill">—</div>
+    <button class="logout-btn" onclick="doAdminLogout()">⏻ Déconnexion</button>
+  </div>
 </header>
 
 <!-- Main -->
 <main id="mainContent" style="display:none">
 
   <h1 class="page-title">Configuration <span>Serveur</span></h1>
-  <p class="page-desc">// Gérez vos clés API Groq et les modèles IA utilisés par COMEO AI</p>
+  <p class="page-desc">// Clés API Groq et modèles IA — COMEO AI v4</p>
 
-  <!-- ══════════════ CLÉS API ══════════════ -->
-  <div class="section-card" id="keysCard">
-    <div class="section-header">
-      <div class="section-header-left">
-        <div class="section-icon">🔑</div>
+  <!-- CLÉS API -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-left">
+        <div class="card-icon">🔑</div>
         <div>
-          <div class="section-title">Clés API Groq</div>
-          <div class="section-subtitle">Rotation automatique — la première disponible est utilisée</div>
+          <div class="card-title">Clés API Groq</div>
+          <div class="card-subtitle">Rotation automatique — la première disponible est utilisée</div>
         </div>
       </div>
       <button class="btn btn-ghost btn-sm" onclick="testAllKeys()">⚡ Tester toutes</button>
     </div>
-
-    <div class="section-body">
+    <div class="card-body">
       <div class="info-box">
         <strong>Rotation automatique :</strong> COMEO AI essaie chaque clé à la suite en cas d'erreur de quota.<br>
         Obtenez vos clés sur <strong>console.groq.com → API Keys</strong> — Gratuit jusqu'à 14 400 req/jour par clé.
       </div>
-
       <div class="keys-list" id="keysList"></div>
-
       <div class="btn-row">
         <button class="btn btn-ghost btn-sm" onclick="addKeyRow()">＋ Ajouter une clé</button>
         <button class="btn btn-gold btn-sm" onclick="saveKeys()">💾 Enregistrer les clés</button>
       </div>
-
-      <div id="testResult" class="test-result"></div>
+      <div class="test-result" id="testResult"></div>
     </div>
-
     <div class="status-bar">
       <div class="stat-item">Clés configurées : <span class="stat-val gold" id="keysCount">0</span></div>
       <div class="stat-item">Statut : <span class="stat-val" id="keysStatus">—</span></div>
     </div>
   </div>
 
-  <!-- ══════════════ MODÈLES ══════════════ -->
-  <div class="section-card">
-    <div class="section-header">
-      <div class="section-header-left">
-        <div class="section-icon">🤖</div>
+  <!-- MODÈLES -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-left">
+        <div class="card-icon">🤖</div>
         <div>
-          <div class="section-title">Modèles IA</div>
-          <div class="section-subtitle">Glisser-déposer pour définir l'ordre de priorité</div>
+          <div class="card-title">Modèles IA</div>
+          <div class="card-subtitle">Glisser-déposer pour définir l'ordre de priorité</div>
         </div>
       </div>
     </div>
-
-    <div class="section-body">
+    <div class="card-body">
       <div class="info-box">
         <strong>Ordre de priorité :</strong> Le premier modèle est utilisé en premier. En cas d'indisponibilité, le suivant prend le relais.<br>
-        Faites glisser les lignes pour changer l'ordre. <strong>llama-3.3-70b-versatile</strong> est recommandé en position 1.
+        <strong>llama-3.3-70b-versatile</strong> est recommandé en position 1.
       </div>
-
-      <div class="field-group" style="margin-bottom:18px">
-        <div class="field-label">Ajouter un modèle prédéfini</div>
-        <div class="model-preset-grid" id="presetGrid">
-          <!-- injecté par JS -->
-        </div>
+      <div style="margin-bottom:18px">
+        <div style="font-size:12px;font-weight:600;color:var(--gold);font-family:var(--mono);margin-bottom:10px;letter-spacing:.06em;text-transform:uppercase">Modèles prédéfinis</div>
+        <div class="preset-grid" id="presetGrid"></div>
       </div>
-
       <div class="models-list" id="modelsList"></div>
-
       <div class="btn-row">
         <button class="btn btn-ghost btn-sm" onclick="addModelRow()">＋ Modèle personnalisé</button>
         <button class="btn btn-gold btn-sm" onclick="saveModels()">💾 Enregistrer les modèles</button>
-        <button class="btn btn-danger btn-sm" onclick="resetModels()">↺ Réinitialiser par défaut</button>
+        <button class="btn btn-danger btn-sm" onclick="resetModels()">↺ Par défaut</button>
       </div>
     </div>
-
     <div class="status-bar">
       <div class="stat-item">Modèles actifs : <span class="stat-val green" id="modelsCount">0</span></div>
       <div class="stat-item">Priorité 1 : <span class="stat-val" id="model1Label">—</span></div>
     </div>
   </div>
 
-  <!-- ══════════════ ADMIN ══════════════ -->
-  <div class="section-card">
-    <div class="section-header">
-      <div class="section-header-left">
-        <div class="section-icon">⚙️</div>
+  <!-- ACTIONS -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-left">
+        <div class="card-icon">⚙️</div>
         <div>
-          <div class="section-title">Actions rapides</div>
-          <div class="section-subtitle">Utilitaires de maintenance</div>
+          <div class="card-title">Actions rapides</div>
+          <div class="card-subtitle">Utilitaires de maintenance</div>
         </div>
       </div>
     </div>
-    <div class="section-body">
+    <div class="card-body">
       <div class="btn-row">
         <button class="btn btn-ghost btn-sm" onclick="reloadConfig()">🔄 Recharger depuis Firestore</button>
         <button class="btn btn-ghost btn-sm" onclick="exportConfig()">📥 Exporter config JSON</button>
-        <a href="index.html" class="btn btn-ghost btn-sm" style="text-decoration:none">← Retour app</a>
+        <a href="index.html" class="btn btn-ghost btn-sm">← Retour app</a>
       </div>
       <hr class="divider">
-      <p style="font-size:12px;color:var(--muted);font-family:var(--mono)">
+      <p style="font-size:12px;color:var(--muted);font-family:var(--mono);line-height:1.8">
         Collection Firestore : <strong style="color:var(--gold)">server_config</strong><br>
-        Documents : <code style="color:var(--blue)">groq_keys</code> &nbsp;·&nbsp; <code style="color:var(--blue)">models</code>
+        Documents : <code style="color:var(--blue)">groq_keys</code> &nbsp;·&nbsp; <code style="color:var(--blue)">models</code><br>
+        Accès : utilisateurs Firebase Auth connectés uniquement
       </p>
     </div>
   </div>
 
 </main>
 
-<!-- Auth Gate (si pas de session admin) -->
-<div id="authGate" style="display:none; padding:80px 24px">
-  <div style="max-width:420px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center">
-    <div style="font-size:42px;margin-bottom:16px">🔐</div>
-    <h2 style="font-size:20px;font-weight:700;margin-bottom:8px">Accès Administrateur</h2>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:28px;font-family:var(--mono)">Entrez le mot de passe administrateur pour accéder à la configuration serveur.</p>
-    <input class="field-input" type="password" id="adminPassInput" placeholder="Mot de passe admin…" style="margin-bottom:14px" onkeydown="if(event.key==='Enter')checkAdminPass()">
-    <div id="adminErr" style="color:var(--red);font-size:12px;margin-bottom:12px;display:none">Mot de passe incorrect.</div>
-    <button class="btn btn-gold" style="width:100%" onclick="checkAdminPass()">Accéder</button>
-    <p style="margin-top:18px;font-size:11px;color:var(--muted);font-family:var(--mono)">Par défaut : <code style="color:var(--gold)">admin2024</code></p>
-  </div>
-</div>
-
-<!-- Save Toast -->
-<div id="saveToast">
-  <span id="saveToastIcon">✓</span>
-  <span id="saveToastMsg">Enregistré avec succès</span>
-</div>
+<!-- Toast -->
+<div id="toast"><span id="toastIcon">✓</span><span id="toastMsg">OK</span></div>
 
 <script>
-// ════════════════════════════════════════════
-// CONFIG
-// ════════════════════════════════════════════
-const ADMIN_PASS = 'admin2024'; // Changez selon votre sécurité
-
 const DEFAULT_MODELS = [
-  { id: 'llama-3.3-70b-versatile',                   label: 'Llama 3.3 70B',         desc: 'Recommandé — polyvalent' },
-  { id: 'qwen/qwen3-32b',                             label: 'Qwen3 32B',              desc: 'Alternatif — qualité' },
-  { id: 'meta-llama/llama-4-scout-17b-16e-instruct',  label: 'Llama 4 Scout 17B',     desc: 'Rapide — contexte long' },
-  { id: 'llama-3.1-70b-versatile',                    label: 'Llama 3.1 70B',         desc: 'Stable — fallback' },
-  { id: 'mixtral-8x7b-32768',                         label: 'Mixtral 8×7B',           desc: 'Contexte étendu' },
-  { id: 'gemma2-9b-it',                               label: 'Gemma2 9B',              desc: 'Léger et rapide' },
+  { id:'llama-3.3-70b-versatile',                  label:'Llama 3.3 70B',      desc:'Recommandé — polyvalent' },
+  { id:'qwen/qwen3-32b',                            label:'Qwen3 32B',           desc:'Alternatif — qualité' },
+  { id:'meta-llama/llama-4-scout-17b-16e-instruct', label:'Llama 4 Scout 17B',  desc:'Rapide — contexte long' },
+  { id:'llama-3.1-70b-versatile',                   label:'Llama 3.1 70B',      desc:'Stable — fallback' },
+  { id:'mixtral-8x7b-32768',                        label:'Mixtral 8×7B',        desc:'Contexte étendu' },
+  { id:'gemma2-9b-it',                              label:'Gemma2 9B',           desc:'Léger et rapide' },
 ];
 
 let keysData   = [];
 let modelsData = [];
 let dragSrc    = null;
 
-// ════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════
-document.addEventListener('srv-ready', init);
-
-async function init() {
-  // Auth
-  const authed = sessionStorage.getItem('srv_authed');
-  if (!authed) {
-    document.getElementById('loadingOverlay').style.display = 'none';
-    document.getElementById('authGate').style.display = 'block';
-    return;
-  }
-  await loadFromFirestore();
-}
-
-function checkAdminPass() {
-  const val = document.getElementById('adminPassInput').value;
-  if (val === ADMIN_PASS) {
-    sessionStorage.setItem('srv_authed', '1');
-    document.getElementById('authGate').style.display = 'none';
+// ── AUTH ──
+document.addEventListener('auth-change', e => {
+  const user = e.detail;
+  if (user) {
+    document.getElementById('authGate').style.display    = 'none';
     document.getElementById('loadingOverlay').style.display = 'flex';
-    document.querySelector('#loadingOverlay .loading-text').textContent = 'Chargement de la configuration…';
+    document.getElementById('loadingTxt').textContent    = 'Chargement configuration…';
+    document.getElementById('userPill').textContent      = '👤 ' + (user.email || user.uid);
+    document.getElementById('connDot').className         = 'conn-dot online';
+    document.getElementById('connTxt').textContent       = 'Connecté';
     loadFromFirestore();
   } else {
-    document.getElementById('adminErr').style.display = 'block';
+    document.getElementById('loadingOverlay').style.display = 'none';
+    document.getElementById('mainContent').style.display    = 'none';
+    document.getElementById('appHeader').style.display      = 'none';
+    document.getElementById('authGate').style.display       = 'flex';
+  }
+});
+
+document.addEventListener('fb-ready', () => {
+  // onAuthStateChanged gère tout
+});
+
+async function doAdminLogin() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const pass  = document.getElementById('adminPass').value;
+  const err   = document.getElementById('authErr');
+  const btn   = document.getElementById('loginBtn');
+  err.textContent = '';
+  if (!email || !pass) { err.textContent = 'Remplissez tous les champs.'; return; }
+  btn.disabled = true; btn.textContent = 'Connexion…';
+  try {
+    await window._signIn(window._auth, email, pass);
+    // onAuthStateChanged prend le relais
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found':   'Aucun compte avec cet email.',
+      'auth/wrong-password':   'Mot de passe incorrect.',
+      'auth/invalid-email':    'Email invalide.',
+      'auth/too-many-requests':'Trop de tentatives. Réessayez plus tard.',
+      'auth/invalid-credential':'Email ou mot de passe incorrect.'
+    };
+    err.textContent = msgs[e.code] || e.message;
+    btn.disabled = false; btn.textContent = '⚡ Accéder';
   }
 }
 
+async function doAdminLogout() {
+  if (!confirm('Se déconnecter ?')) return;
+  await window._signOut(window._auth);
+}
+
+// ── FIRESTORE ──
 async function loadFromFirestore() {
   try {
     const [keysSnap, modelsSnap] = await Promise.all([
-      window._srv_getDoc(window._srv_doc(window._srv_db, 'server_config', 'groq_keys')),
-      window._srv_getDoc(window._srv_doc(window._srv_db, 'server_config', 'models'))
+      window._getDoc(window._doc(window._db, 'server_config', 'groq_keys')),
+      window._getDoc(window._doc(window._db, 'server_config', 'models'))
     ]);
-
-    keysData   = keysSnap.exists()   ? (keysSnap.data().keys   || []) : [];
-    modelsData = modelsSnap.exists() ? (modelsSnap.data().list  || []) : DEFAULT_MODELS.slice(0,3).map(m=>m.id);
-
-    // normalize models
+    keysData   = keysSnap.exists()   ? (keysSnap.data().keys  || []) : [];
+    modelsData = modelsSnap.exists() ? (modelsSnap.data().list || []) : DEFAULT_MODELS.slice(0,3).map(m=>m.id);
     modelsData = modelsData.map(m => typeof m === 'string' ? m : String(m));
-
     document.getElementById('loadingOverlay').style.display = 'none';
     document.getElementById('mainContent').style.display    = 'block';
-    document.getElementById('connStatus').textContent = 'Connecté à Firestore';
-
-    renderKeys();
-    renderModels();
-    renderPresets();
+    document.getElementById('appHeader').style.display      = 'flex';
+    renderKeys(); renderModels(); renderPresets();
   } catch(e) {
     document.getElementById('loadingOverlay').style.display = 'none';
-    document.getElementById('connStatus').textContent = '⚠ Erreur connexion';
-    document.getElementById('mainContent').style.display = 'block';
+    document.getElementById('mainContent').style.display    = 'block';
+    document.getElementById('appHeader').style.display      = 'flex';
     showToast('Erreur Firestore : ' + e.message, true);
     keysData = []; modelsData = DEFAULT_MODELS.slice(0,3).map(m=>m.id);
     renderKeys(); renderModels(); renderPresets();
@@ -625,118 +424,99 @@ async function loadFromFirestore() {
 
 async function reloadConfig() {
   document.getElementById('loadingOverlay').style.display = 'flex';
+  document.getElementById('loadingTxt').textContent = 'Rechargement…';
   await loadFromFirestore();
-  showToast('Configuration rechargée depuis Firestore');
+  showToast('Configuration rechargée');
 }
 
-// ════════════════════════════════════════════
-// CLÉS API
-// ════════════════════════════════════════════
+// ── CLÉS ──
 function renderKeys() {
   const list = document.getElementById('keysList');
   list.innerHTML = '';
   if (!keysData.length) { addKeyRow(); return; }
-  keysData.forEach((k, i) => addKeyRow(k.value || '', i, k.status));
+  keysData.forEach((k, i) => _appendKeyRow(k.value || '', i, k.status || ''));
   updateKeysStats();
 }
 
-function addKeyRow(value = '', idx = -1, status = '') {
-  if (idx === -1) { keysData.push({ value: '', status: '' }); idx = keysData.length - 1; }
+function addKeyRow(value='', idx=-1, status='') {
+  if (idx === -1) { keysData.push({ value:'', status:'' }); idx = keysData.length - 1; }
+  _appendKeyRow(value, idx, status);
+  updateKeysStats();
+}
+
+function _appendKeyRow(value, idx, status) {
   const list = document.getElementById('keysList');
   const row  = document.createElement('div');
   row.className = 'key-row'; row.dataset.idx = idx;
-  const masked = value ? value.replace(/^(gsk_[a-zA-Z0-9]{4}).*([a-zA-Z0-9]{6})$/, '$1…$2') : '';
   row.innerHTML = `
-    <div class="key-index">${idx + 1}</div>
+    <div class="key-num">${idx+1}</div>
     <input class="key-input" type="password" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx…"
-      value="${escHtml(value)}"
-      oninput="keysData[${idx}].value=this.value;updateKeysStats()"
-      autocomplete="off">
-    <button class="key-toggle" title="Afficher/masquer" onclick="toggleKeyVis(this)">👁</button>
-    <div class="key-status ${status === 'ok' ? 'ok' : status === 'err' ? 'err' : ''}" id="kstatus-${idx}"></div>
+      value="${esc(value)}" autocomplete="off"
+      oninput="keysData[${idx}].value=this.value;updateKeysStats()">
+    <button class="key-eye" onclick="toggleEye(this)" title="Afficher/masquer">👁</button>
+    <div class="key-dot ${status==='ok'?'ok':status==='err'?'err':''}" id="kdot-${idx}"></div>
     <button class="key-del" onclick="removeKey(${idx})" title="Supprimer">✕</button>`;
   list.appendChild(row);
-  updateKeysStats();
 }
 
-function toggleKeyVis(btn) {
-  const input = btn.previousElementSibling.previousElementSibling;
-  input.type = input.type === 'password' ? 'text' : 'password';
-  btn.textContent = input.type === 'password' ? '👁' : '🙈';
+function toggleEye(btn) {
+  const inp = btn.previousElementSibling.previousElementSibling;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
 }
 
-function removeKey(idx) {
-  keysData.splice(idx, 1);
-  renderKeys();
-  updateKeysStats();
-}
+function removeKey(idx) { keysData.splice(idx,1); renderKeys(); }
 
 function updateKeysStats() {
-  const filled = keysData.filter(k => k.value && k.value.trim()).length;
-  document.getElementById('keysCount').textContent = filled;
-  document.getElementById('keysStatus').textContent = filled > 0
-    ? filled + ' clé' + (filled > 1 ? 's' : '') + ' active' + (filled > 1 ? 's' : '')
-    : 'Aucune clé';
+  const n = keysData.filter(k=>k.value&&k.value.trim()).length;
+  document.getElementById('keysCount').textContent  = n;
+  document.getElementById('keysStatus').textContent = n > 0 ? n+' clé'+(n>1?'s':'')+' active'+(n>1?'s':'') : 'Aucune clé';
 }
 
 async function saveKeys() {
-  const freshKeys = [];
-  document.querySelectorAll('#keysList .key-row').forEach((row, i) => {
-    const val = row.querySelector('.key-input').value.trim();
-    if (val) freshKeys.push({ value: val, status: '' });
+  const fresh = [];
+  document.querySelectorAll('#keysList .key-input').forEach(inp => {
+    const v = inp.value.trim();
+    if (v) fresh.push({ value:v, status:'' });
   });
-  keysData = freshKeys;
+  keysData = fresh;
   try {
-    await window._srv_setDoc(
-      window._srv_doc(window._srv_db, 'server_config', 'groq_keys'),
-      { keys: keysData, updatedAt: new Date().toISOString() }
-    );
-    showToast(`✓ ${keysData.length} clé${keysData.length > 1 ? 's' : ''} enregistrée${keysData.length > 1 ? 's' : ''}`);
+    await window._setDoc(window._doc(window._db,'server_config','groq_keys'), { keys:keysData, updatedAt:new Date().toISOString() });
+    showToast(`✓ ${keysData.length} clé${keysData.length>1?'s':''} enregistrée${keysData.length>1?'s':''}`);
     renderKeys();
-  } catch(e) { showToast('Erreur : ' + e.message, true); }
+  } catch(e) { showToast('Erreur : '+e.message, true); }
 }
 
 async function testAllKeys() {
-  const filled = keysData.filter(k => k.value && k.value.trim());
+  const filled = keysData.filter(k=>k.value&&k.value.trim());
   if (!filled.length) { showToast('Aucune clé à tester', true); return; }
   const res = document.getElementById('testResult');
-  res.className = 'test-result show';
-  res.innerHTML = '⏳ Test en cours…';
+  res.className = 'test-result show'; res.innerHTML = '⏳ Test en cours…';
   const lines = [];
-  for (let i = 0; i < filled.length; i++) {
-    const key = filled[i].value;
+  for (let i=0; i<filled.length; i++) {
     try {
-      const r = await fetch('https://api.groq.com/openai/v1/models', {
-        headers: { Authorization: 'Bearer ' + key }
-      });
-      const dot = document.getElementById('kstatus-' + i);
+      const r = await fetch('https://api.groq.com/openai/v1/models', { headers:{ Authorization:'Bearer '+filled[i].value } });
+      const dot = document.getElementById('kdot-'+i);
       if (r.ok) {
-        lines.push(`<span class="test-ok">✓ Clé ${i+1} : VALIDE</span>`);
-        filled[i].status = 'ok';
-        if (dot) dot.className = 'key-status ok';
+        lines.push(`<span class="t-ok">✓ Clé ${i+1} : VALIDE</span>`);
+        filled[i].status='ok'; if(dot) dot.className='key-dot ok';
       } else {
         const d = await r.json().catch(()=>({}));
-        lines.push(`<span class="test-err">✗ Clé ${i+1} : ${d.error?.message || 'Invalide'}</span>`);
-        filled[i].status = 'err';
-        if (dot) dot.className = 'key-status err';
+        lines.push(`<span class="t-err">✗ Clé ${i+1} : ${d.error?.message||'Invalide'}</span>`);
+        filled[i].status='err'; if(dot) dot.className='key-dot err';
       }
-    } catch(e) {
-      lines.push(`<span class="test-err">✗ Clé ${i+1} : ${e.message}</span>`);
-    }
+    } catch(e) { lines.push(`<span class="t-err">✗ Clé ${i+1} : ${e.message}</span>`); }
   }
   res.innerHTML = lines.join('<br>');
 }
 
-// ════════════════════════════════════════════
-// MODÈLES
-// ════════════════════════════════════════════
+// ── MODÈLES ──
 function renderPresets() {
-  const grid = document.getElementById('presetGrid');
-  grid.innerHTML = DEFAULT_MODELS.map(m => `
+  document.getElementById('presetGrid').innerHTML = DEFAULT_MODELS.map(m=>`
     <button class="preset-btn" onclick="addPresetModel('${m.id}')">
       <div class="preset-name">${m.label}</div>
+      <div class="preset-id">${m.id}</div>
       <div class="preset-desc">${m.desc}</div>
-      <div class="preset-desc" style="color:rgba(96,165,250,.5);font-size:9px;margin-top:2px">${m.id}</div>
     </button>`).join('');
 }
 
@@ -744,118 +524,78 @@ function renderModels() {
   const list = document.getElementById('modelsList');
   list.innerHTML = '';
   if (!modelsData.length) modelsData = DEFAULT_MODELS.slice(0,3).map(m=>m.id);
-  modelsData.forEach((m, i) => appendModelRow(m, i));
+  modelsData.forEach((m,i) => _appendModelRow(m,i));
   updateModelsStats();
 }
 
-function appendModelRow(modelId, idx) {
+function _appendModelRow(modelId, idx) {
   const list = document.getElementById('modelsList');
-  const preset = DEFAULT_MODELS.find(p => p.id === modelId);
-  const row = document.createElement('div');
-  row.className = 'model-row'; row.draggable = true; row.dataset.idx = idx;
-  row.innerHTML = `
+  const row  = document.createElement('div');
+  row.className='model-row'; row.draggable=true; row.dataset.idx=idx;
+  row.innerHTML=`
     <span class="model-drag" title="Glisser pour réordonner">⠿</span>
-    <span class="model-badge">#${idx + 1}</span>
-    <input class="model-input" type="text" value="${escHtml(modelId)}"
-      placeholder="nom-du-modele-groq"
+    <span class="model-badge">#${idx+1}</span>
+    <input class="model-input" type="text" value="${esc(modelId)}" placeholder="nom-du-modele"
       oninput="modelsData[${idx}]=this.value;updateModelsStats()">
-    <button class="model-del" onclick="removeModel(${idx})" title="Supprimer">✕</button>`;
-  // Drag & drop
-  row.addEventListener('dragstart', e => { dragSrc = row; e.dataTransfer.effectAllowed = 'move'; row.style.opacity = '.4'; });
-  row.addEventListener('dragend',   e => { row.style.opacity = '1'; document.querySelectorAll('.model-row').forEach(r=>r.classList.remove('drag-over')); });
-  row.addEventListener('dragover',  e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; row.classList.add('drag-over'); });
-  row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
-  row.addEventListener('drop', e => {
-    e.preventDefault();
-    if (dragSrc !== row) {
-      const all = [...document.querySelectorAll('.model-row')];
-      const fromIdx = all.indexOf(dragSrc);
-      const toIdx   = all.indexOf(row);
-      modelsData.splice(toIdx, 0, modelsData.splice(fromIdx, 1)[0]);
-      renderModels();
-    }
-  });
+    <button class="model-del" onclick="removeModel(${idx})">✕</button>`;
+  row.addEventListener('dragstart', e=>{ dragSrc=row; e.dataTransfer.effectAllowed='move'; row.style.opacity='.4'; });
+  row.addEventListener('dragend',   ()=>{ row.style.opacity='1'; document.querySelectorAll('.model-row').forEach(r=>r.classList.remove('drag-over')); });
+  row.addEventListener('dragover',  e=>{ e.preventDefault(); row.classList.add('drag-over'); });
+  row.addEventListener('dragleave', ()=>row.classList.remove('drag-over'));
+  row.addEventListener('drop', e=>{ e.preventDefault(); if(dragSrc!==row){ const all=[...document.querySelectorAll('.model-row')]; modelsData.splice(all.indexOf(row),0,modelsData.splice(all.indexOf(dragSrc),1)[0]); renderModels(); } });
   list.appendChild(row);
-  updateModelsStats();
 }
 
-function addModelRow(value = '') {
-  modelsData.push(value || '');
-  appendModelRow(value, modelsData.length - 1);
-  updateModelsStats();
+function addModelRow() { modelsData.push(''); _appendModelRow('', modelsData.length-1); updateModelsStats(); }
+
+function addPresetModel(id) {
+  if (modelsData.includes(id)) { showToast('Modèle déjà dans la liste', true); return; }
+  modelsData.push(id); _appendModelRow(id, modelsData.length-1); updateModelsStats();
+  showToast('Modèle ajouté : '+id);
 }
 
-function addPresetModel(modelId) {
-  if (modelsData.includes(modelId)) { showToast('Modèle déjà dans la liste', true); return; }
-  modelsData.push(modelId);
-  appendModelRow(modelId, modelsData.length - 1);
-  updateModelsStats();
-  showToast('Modèle ajouté : ' + modelId);
-}
-
-function removeModel(idx) {
-  modelsData.splice(idx, 1);
-  renderModels();
-}
+function removeModel(idx) { modelsData.splice(idx,1); renderModels(); }
 
 function resetModels() {
   if (!confirm('Réinitialiser les modèles par défaut ?')) return;
-  modelsData = DEFAULT_MODELS.slice(0,3).map(m=>m.id);
-  renderModels();
+  modelsData = DEFAULT_MODELS.slice(0,3).map(m=>m.id); renderModels();
   showToast('Modèles réinitialisés');
 }
 
 function updateModelsStats() {
-  const filled = modelsData.filter(m => m && m.trim()).length;
-  document.getElementById('modelsCount').textContent = filled;
-  document.getElementById('model1Label').textContent = (modelsData[0] || '—').replace(/.*\//, '');
+  const n = modelsData.filter(m=>m&&m.trim()).length;
+  document.getElementById('modelsCount').textContent  = n;
+  document.getElementById('model1Label').textContent  = (modelsData[0]||'—').replace(/.*\//,'');
 }
 
 async function saveModels() {
-  const freshModels = [];
-  document.querySelectorAll('#modelsList .model-input').forEach(inp => {
-    const v = inp.value.trim();
-    if (v) freshModels.push(v);
-  });
-  modelsData = freshModels;
+  const fresh = [...document.querySelectorAll('#modelsList .model-input')].map(i=>i.value.trim()).filter(Boolean);
+  modelsData = fresh;
   try {
-    await window._srv_setDoc(
-      window._srv_doc(window._srv_db, 'server_config', 'models'),
-      { list: modelsData, updatedAt: new Date().toISOString() }
-    );
-    showToast(`✓ ${modelsData.length} modèle${modelsData.length > 1 ? 's' : ''} enregistré${modelsData.length > 1 ? 's' : ''}`);
+    await window._setDoc(window._doc(window._db,'server_config','models'), { list:modelsData, updatedAt:new Date().toISOString() });
+    showToast(`✓ ${modelsData.length} modèle${modelsData.length>1?'s':''} enregistré${modelsData.length>1?'s':''}`);
     renderModels();
-  } catch(e) { showToast('Erreur : ' + e.message, true); }
+  } catch(e) { showToast('Erreur : '+e.message, true); }
 }
 
-// ════════════════════════════════════════════
-// EXPORT
-// ════════════════════════════════════════════
+// ── EXPORT ──
 function exportConfig() {
-  const data = { groq_keys: keysData.map(k=>({...k, value:'***hidden***'})), models: modelsData, exportedAt: new Date().toISOString() };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const data = { groq_keys:keysData.map(k=>({...k,value:'***hidden***'})), models:modelsData, exportedAt:new Date().toISOString() };
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'comeo_server_config.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download='comeo_server_config.json'; a.click();
 }
 
-// ════════════════════════════════════════════
-// UTILS
-// ════════════════════════════════════════════
-function showToast(msg, isError = false) {
-  const t = document.getElementById('saveToast');
-  document.getElementById('saveToastMsg').textContent = msg;
-  document.getElementById('saveToastIcon').textContent = isError ? '✕' : '✓';
-  t.style.borderColor = isError ? 'rgba(248,113,113,0.3)' : 'rgba(74,222,128,0.3)';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3200);
+// ── UTILS ──
+function showToast(msg, isErr=false) {
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  document.getElementById('toastIcon').textContent=isErr?'✕':'✓';
+  t.style.borderColor=isErr?'rgba(248,113,113,0.3)':'rgba(74,222,128,0.3)';
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3200);
 }
 
-function escHtml(str) {
-  return String(str||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
 </body>
 </html>
