@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>COMEO — Administration Serveur</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:      #080a0f;
@@ -41,26 +41,51 @@ body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* LOADING */
-#loadingOverlay{position:fixed;inset:0;z-index:200;background:rgba(8,10,15,0.9);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#loadingOverlay{position:fixed;inset:0;z-index:200;background:rgba(8,10,15,0.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
 .spinner{width:44px;height:44px;border-radius:50%;border:3px solid rgba(212,168,83,0.15);border-top-color:var(--gold);animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-txt{font-family:var(--mono);font-size:12px;color:var(--muted)}
 
 /* AUTH GATE */
 #authGate{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px}
-.auth-card{background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:48px 40px;max-width:400px;width:100%;text-align:center;position:relative;overflow:hidden}
+.auth-card{background:var(--s1);border:1px solid var(--border);border-radius:20px;max-width:420px;width:100%;position:relative;overflow:hidden}
 .auth-card::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:300px;height:200px;background:radial-gradient(ellipse,rgba(212,168,83,0.1) 0%,transparent 70%);pointer-events:none}
-.auth-icon{font-size:40px;margin-bottom:20px}
-.auth-title{font-size:22px;font-weight:800;margin-bottom:8px}
-.auth-sub{color:var(--muted);font-size:12px;margin-bottom:32px;font-family:var(--mono);line-height:1.6}
+
+/* TABS */
+.auth-tabs{display:flex;border-bottom:1px solid var(--border)}
+.auth-tab{flex:1;padding:16px;background:none;border:none;cursor:pointer;font-family:var(--display);font-size:13px;font-weight:600;color:var(--muted);transition:all .2s;position:relative}
+.auth-tab.active{color:var(--gold)}
+.auth-tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.auth-tab:hover:not(.active){color:var(--slate)}
+
+.auth-body{padding:40px 36px 36px}
+.auth-icon{font-size:36px;margin-bottom:16px;text-align:center}
+.auth-title{font-size:20px;font-weight:800;margin-bottom:6px;text-align:center}
+.auth-sub{color:var(--muted);font-size:11px;margin-bottom:28px;font-family:var(--mono);line-height:1.6;text-align:center}
 .af{display:flex;flex-direction:column;gap:10px;margin-bottom:8px}
-.af-input{width:100%;background:var(--s3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 16px;color:var(--ink);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .2s}
-.af-input:focus{border-color:var(--gold)}
+.af-label{font-size:10px;font-weight:700;color:var(--muted);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.af-group{display:flex;flex-direction:column}
+.af-input{width:100%;background:var(--s3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:11px 14px;color:var(--ink);font-family:var(--mono);font-size:12px;outline:none;transition:border-color .2s}
+.af-input:focus{border-color:rgba(212,168,83,0.5)}
 .af-input::placeholder{color:var(--muted)}
-.auth-err{color:var(--red);font-size:12px;margin:8px 0;font-family:var(--mono);min-height:18px}
-.btn-auth{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),#b88a30);color:#080a0f;border:none;border-radius:8px;font-family:var(--display);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px}
-.btn-auth:hover{transform:translateY(-1px);box-shadow:0 0 28px rgba(212,168,83,0.4)}
+.af-input.err-field{border-color:rgba(248,113,113,0.4)}
+.auth-err{color:var(--red);font-size:11px;margin:8px 0 4px;font-family:var(--mono);min-height:16px;line-height:1.4}
+.auth-ok{color:var(--green);font-size:11px;margin:8px 0 4px;font-family:var(--mono)}
+.btn-auth{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),#b88a30);color:#080a0f;border:none;border-radius:8px;font-family:var(--display);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:8px}
+.btn-auth:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 0 28px rgba(212,168,83,0.4)}
 .btn-auth:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* strength bar */
+.strength-wrap{margin-top:6px;display:none}
+.strength-wrap.show{display:block}
+.strength-bar{height:3px;border-radius:2px;background:var(--s3);overflow:hidden}
+.strength-fill{height:100%;border-radius:2px;transition:all .3s;width:0}
+.strength-txt{font-size:10px;font-family:var(--mono);margin-top:4px;color:var(--muted)}
+
+/* DIVIDER */
+.auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0}
+.auth-divider-line{flex:1;height:1px;background:var(--border)}
+.auth-divider-txt{font-size:10px;color:var(--muted);font-family:var(--mono)}
 
 /* MAIN */
 main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:48px 24px 80px}
@@ -153,7 +178,11 @@ main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:48px 24px
 .logout-btn{background:none;border:1px solid rgba(248,113,113,0.3);color:var(--red);padding:6px 14px;border-radius:20px;font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s}
 .logout-btn:hover{background:rgba(248,113,113,0.1)}
 
-@media(max-width:600px){main{padding:24px 16px 60px}.header{padding:14px 16px}.page-title{font-size:22px}.auth-card{padding:32px 24px}}
+/* PANEL FADE */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+@media(max-width:600px){main{padding:24px 16px 60px}.header{padding:14px 16px}.page-title{font-size:22px}.auth-body{padding:28px 20px 24px}}
 </style>
 </head>
 <body>
@@ -161,7 +190,7 @@ main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:48px 24px
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -178,13 +207,15 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-window._db      = db;
-window._doc     = doc;
-window._getDoc  = getDoc;
-window._setDoc  = setDoc;
-window._auth    = auth;
-window._signIn  = signInWithEmailAndPassword;
-window._signOut = signOut;
+window._db                       = db;
+window._doc                      = doc;
+window._getDoc                   = getDoc;
+window._setDoc                   = setDoc;
+window._auth                     = auth;
+window._signIn                   = signInWithEmailAndPassword;
+window._createUser               = createUserWithEmailAndPassword;
+window._updateProfile            = updateProfile;
+window._signOut                  = signOut;
 
 onAuthStateChanged(auth, user => {
   window._currentUser = user;
@@ -204,15 +235,80 @@ document.dispatchEvent(new Event('fb-ready'));
 <!-- Auth Gate -->
 <div id="authGate" style="display:none">
   <div class="auth-card">
-    <div class="auth-icon">🔐</div>
-    <div class="auth-title">Administration</div>
-    <div class="auth-sub">Connectez-vous avec votre compte Firebase admin pour accéder à la configuration serveur.</div>
-    <div class="af">
-      <input class="af-input" type="email" id="adminEmail" placeholder="Email administrateur" autocomplete="email">
-      <input class="af-input" type="password" id="adminPass" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')doAdminLogin()">
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">🔐 Connexion</button>
+      <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">✨ Créer un compte</button>
     </div>
-    <div class="auth-err" id="authErr"></div>
-    <button class="btn-auth" id="loginBtn" onclick="doAdminLogin()">⚡ Accéder</button>
+
+    <!-- LOGIN -->
+    <div class="tab-panel active" id="panelLogin">
+      <div class="auth-body">
+        <div class="auth-icon">👤</div>
+        <div class="auth-title">Administration</div>
+        <div class="auth-sub">Connectez-vous avec votre compte Firebase admin pour accéder à la configuration serveur.</div>
+        <div class="af">
+          <div class="af-group">
+            <div class="af-label">Email</div>
+            <input class="af-input" type="email" id="loginEmail" placeholder="admin@exemple.com" autocomplete="email">
+          </div>
+          <div class="af-group">
+            <div class="af-label">Mot de passe</div>
+            <input class="af-input" type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+          </div>
+        </div>
+        <div class="auth-err" id="loginErr"></div>
+        <button class="btn-auth" id="loginBtn" onclick="doLogin()">⚡ Se connecter</button>
+        <div class="auth-divider">
+          <div class="auth-divider-line"></div>
+          <div class="auth-divider-txt">ou</div>
+          <div class="auth-divider-line"></div>
+        </div>
+        <button class="btn-auth" style="background:transparent;border:1px solid var(--border);color:var(--gold);margin-top:0" onclick="switchTab('register')">✨ Créer un compte</button>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="tab-panel" id="panelRegister">
+      <div class="auth-body">
+        <div class="auth-icon">🚀</div>
+        <div class="auth-title">Nouveau compte</div>
+        <div class="auth-sub">Créez votre compte administrateur Firebase pour gérer la configuration COMEO AI.</div>
+        <div class="af">
+          <div class="af-group">
+            <div class="af-label">Nom d'affichage</div>
+            <input class="af-input" type="text" id="regName" placeholder="Ex: Admin Principal" autocomplete="name">
+          </div>
+          <div class="af-group">
+            <div class="af-label">Email</div>
+            <input class="af-input" type="email" id="regEmail" placeholder="admin@exemple.com" autocomplete="email">
+          </div>
+          <div class="af-group">
+            <div class="af-label">Mot de passe</div>
+            <input class="af-input" type="password" id="regPass" placeholder="Min. 8 caractères" oninput="checkStrength(this.value)">
+            <div class="strength-wrap" id="strengthWrap">
+              <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+              <div class="strength-txt" id="strengthTxt"></div>
+            </div>
+          </div>
+          <div class="af-group">
+            <div class="af-label">Confirmer le mot de passe</div>
+            <input class="af-input" type="password" id="regPassConfirm" placeholder="Répétez le mot de passe" onkeydown="if(event.key==='Enter')doRegister()">
+          </div>
+        </div>
+        <div class="auth-err" id="regErr"></div>
+        <div class="auth-ok" id="regOk" style="display:none"></div>
+        <button class="btn-auth" id="regBtn" onclick="doRegister()">🎯 Créer le compte</button>
+        <div class="auth-divider">
+          <div class="auth-divider-line"></div>
+          <div class="auth-divider-txt">déjà inscrit ?</div>
+          <div class="auth-divider-line"></div>
+        </div>
+        <button class="btn-auth" style="background:transparent;border:1px solid var(--border);color:var(--slate);margin-top:0" onclick="switchTab('login')">← Retour connexion</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -228,7 +324,7 @@ document.dispatchEvent(new Event('fb-ready'));
   <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <div class="conn-badge"><div class="conn-dot" id="connDot"></div><span id="connTxt">Connexion…</span></div>
     <div class="user-pill" id="userPill">—</div>
-    <button class="logout-btn" onclick="doAdminLogout()">⏻ Déconnexion</button>
+    <button class="logout-btn" onclick="doLogout()">⏻ Déconnexion</button>
   </div>
 </header>
 
@@ -346,6 +442,44 @@ let keysData   = [];
 let modelsData = [];
 let dragSrc    = null;
 
+// ── TABS ──
+function switchTab(tab) {
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabRegister').classList.toggle('active', tab==='register');
+  document.getElementById('panelLogin').classList.toggle('active', tab==='login');
+  document.getElementById('panelRegister').classList.toggle('active', tab==='register');
+  document.getElementById('loginErr').textContent = '';
+  document.getElementById('regErr').textContent   = '';
+  document.getElementById('regOk').style.display  = 'none';
+}
+
+// ── PASSWORD STRENGTH ──
+function checkStrength(pw) {
+  const wrap = document.getElementById('strengthWrap');
+  const fill = document.getElementById('strengthFill');
+  const txt  = document.getElementById('strengthTxt');
+  if (!pw) { wrap.classList.remove('show'); return; }
+  wrap.classList.add('show');
+  let score = 0;
+  if (pw.length >= 8)  score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const levels = [
+    { pct:'20%', color:'#f87171', label:'Très faible' },
+    { pct:'40%', color:'#fb923c', label:'Faible' },
+    { pct:'60%', color:'#facc15', label:'Moyen' },
+    { pct:'80%', color:'#a3e635', label:'Fort' },
+    { pct:'100%',color:'#4ade80', label:'Très fort' },
+  ];
+  const l = levels[Math.max(0, score-1)];
+  fill.style.width      = l.pct;
+  fill.style.background = l.color;
+  txt.textContent       = l.label;
+  txt.style.color       = l.color;
+}
+
 // ── AUTH ──
 document.addEventListener('auth-change', e => {
   const user = e.detail;
@@ -353,7 +487,8 @@ document.addEventListener('auth-change', e => {
     document.getElementById('authGate').style.display    = 'none';
     document.getElementById('loadingOverlay').style.display = 'flex';
     document.getElementById('loadingTxt').textContent    = 'Chargement configuration…';
-    document.getElementById('userPill').textContent      = '👤 ' + (user.email || user.uid);
+    const displayName = user.displayName || user.email || user.uid;
+    document.getElementById('userPill').textContent      = '👤 ' + displayName;
     document.getElementById('connDot').className         = 'conn-dot online';
     document.getElementById('connTxt').textContent       = 'Connecté';
     loadFromFirestore();
@@ -365,35 +500,77 @@ document.addEventListener('auth-change', e => {
   }
 });
 
-document.addEventListener('fb-ready', () => {
-  // onAuthStateChanged gère tout
-});
-
-async function doAdminLogin() {
-  const email = document.getElementById('adminEmail').value.trim();
-  const pass  = document.getElementById('adminPass').value;
-  const err   = document.getElementById('authErr');
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const err   = document.getElementById('loginErr');
   const btn   = document.getElementById('loginBtn');
   err.textContent = '';
   if (!email || !pass) { err.textContent = 'Remplissez tous les champs.'; return; }
   btn.disabled = true; btn.textContent = 'Connexion…';
   try {
     await window._signIn(window._auth, email, pass);
-    // onAuthStateChanged prend le relais
   } catch(e) {
     const msgs = {
-      'auth/user-not-found':   'Aucun compte avec cet email.',
-      'auth/wrong-password':   'Mot de passe incorrect.',
-      'auth/invalid-email':    'Email invalide.',
-      'auth/too-many-requests':'Trop de tentatives. Réessayez plus tard.',
+      'auth/user-not-found':    'Aucun compte avec cet email.',
+      'auth/wrong-password':    'Mot de passe incorrect.',
+      'auth/invalid-email':     'Email invalide.',
+      'auth/too-many-requests': 'Trop de tentatives. Réessayez plus tard.',
       'auth/invalid-credential':'Email ou mot de passe incorrect.'
     };
     err.textContent = msgs[e.code] || e.message;
-    btn.disabled = false; btn.textContent = '⚡ Accéder';
+    btn.disabled = false; btn.textContent = '⚡ Se connecter';
   }
 }
 
-async function doAdminLogout() {
+async function doRegister() {
+  const name  = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPassConfirm').value;
+  const err   = document.getElementById('regErr');
+  const ok    = document.getElementById('regOk');
+  const btn   = document.getElementById('regBtn');
+
+  err.textContent = ''; ok.style.display = 'none';
+
+  if (!name || !email || !pass || !pass2) {
+    err.textContent = 'Veuillez remplir tous les champs.'; return;
+  }
+  if (pass.length < 8) {
+    err.textContent = 'Le mot de passe doit contenir au moins 8 caractères.'; return;
+  }
+  if (pass !== pass2) {
+    err.textContent = 'Les mots de passe ne correspondent pas.'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Création…';
+
+  try {
+    const cred = await window._createUser(window._auth, email, pass);
+    // Mettre à jour le nom d'affichage
+    await window._updateProfile(cred.user, { displayName: name });
+    // Enregistrer le profil dans Firestore
+    await window._setDoc(
+      window._doc(window._db, 'users', cred.user.uid),
+      { displayName: name, email, role: 'admin', createdAt: new Date().toISOString() }
+    );
+    ok.style.display = 'block';
+    ok.textContent   = '✓ Compte créé ! Connexion automatique…';
+    // onAuthStateChanged gère la suite automatiquement
+  } catch(e) {
+    const msgs = {
+      'auth/email-already-in-use': 'Cet email est déjà utilisé.',
+      'auth/invalid-email':        'Email invalide.',
+      'auth/weak-password':        'Mot de passe trop faible (min. 6 caractères).',
+    };
+    err.textContent  = msgs[e.code] || e.message;
+    btn.disabled     = false;
+    btn.textContent  = '🎯 Créer le compte';
+  }
+}
+
+async function doLogout() {
   if (!confirm('Se déconnecter ?')) return;
   await window._signOut(window._auth);
 }
