@@ -20,6 +20,7 @@
   --green:   #4ade80;
   --red:     #f87171;
   --blue:    #60a5fa;
+  --purple:  #a78bfa;
   --mono:    'Space Mono', monospace;
   --display: 'Syne', sans-serif;
   --radius:  10px;
@@ -57,7 +58,6 @@ body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-
 .auth-tab.active{color:var(--gold)}
 .auth-tab.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold2))}
 .auth-tab:hover:not(.active){color:var(--slate)}
-
 .auth-body{padding:40px 36px 36px}
 .auth-icon{font-size:36px;margin-bottom:16px;text-align:center}
 .auth-title{font-size:20px;font-weight:800;margin-bottom:6px;text-align:center}
@@ -68,14 +68,13 @@ body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-
 .af-input{width:100%;background:var(--s3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:11px 14px;color:var(--ink);font-family:var(--mono);font-size:12px;outline:none;transition:border-color .2s}
 .af-input:focus{border-color:rgba(212,168,83,0.5)}
 .af-input::placeholder{color:var(--muted)}
-.af-input.err-field{border-color:rgba(248,113,113,0.4)}
 .auth-err{color:var(--red);font-size:11px;margin:8px 0 4px;font-family:var(--mono);min-height:16px;line-height:1.4}
 .auth-ok{color:var(--green);font-size:11px;margin:8px 0 4px;font-family:var(--mono)}
 .btn-auth{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),#b88a30);color:#080a0f;border:none;border-radius:8px;font-family:var(--display);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:8px}
 .btn-auth:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 0 28px rgba(212,168,83,0.4)}
 .btn-auth:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
-/* strength bar */
+/* strength */
 .strength-wrap{margin-top:6px;display:none}
 .strength-wrap.show{display:block}
 .strength-bar{height:3px;border-radius:2px;background:var(--s3);overflow:hidden}
@@ -88,17 +87,27 @@ body::after{content:'';position:fixed;top:-200px;left:50%;transform:translateX(-
 .auth-divider-txt{font-size:10px;color:var(--muted);font-family:var(--mono)}
 
 /* MAIN */
-main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:48px 24px 80px}
+main{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:48px 24px 80px}
 .page-title{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
 .page-title span{color:var(--gold)}
 .page-desc{color:var(--muted);font-size:13px;margin-bottom:40px;font-family:var(--mono)}
 
+/* PROVIDER TABS */
+.provider-tabs{display:flex;gap:8px;margin-bottom:0;flex-wrap:wrap}
+.provider-tab{padding:8px 18px;border-radius:8px 8px 0 0;border:1px solid var(--border);border-bottom:none;background:var(--s2);font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer;color:var(--muted);transition:all .2s;display:flex;align-items:center;gap:6px}
+.provider-tab.active{background:var(--s1);color:var(--gold);border-color:rgba(212,168,83,0.3)}
+.provider-tab .pt-dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.provider-tab.active .pt-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.provider-tab .pt-count{background:rgba(212,168,83,0.12);color:var(--gold);font-size:9px;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+
 /* CARD */
 .card{background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:28px;transition:border-color .2s}
 .card:hover{border-color:rgba(212,168,83,0.3)}
-.card-header{padding:18px 28px;border-bottom:1px solid var(--border);background:var(--s2);display:flex;align-items:center;justify-content:space-between;gap:16px}
+.card.no-top-left{border-top-left-radius:0}
+.card-header{padding:18px 28px;border-bottom:1px solid var(--border);background:var(--s2);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .card-header-left{display:flex;align-items:center;gap:12px}
 .card-icon{width:36px;height:36px;border-radius:8px;background:rgba(212,168,83,0.12);border:1px solid rgba(212,168,83,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.card-icon.purple{background:rgba(167,139,250,0.12);border-color:rgba(167,139,250,0.2)}
 .card-title{font-size:15px;font-weight:700}
 .card-subtitle{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:1px}
 .card-body{padding:28px}
@@ -106,12 +115,15 @@ main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:48px 24px
 /* INFO BOX */
 .info-box{background:rgba(212,168,83,0.05);border:1px solid rgba(212,168,83,0.15);border-radius:8px;padding:14px 18px;font-size:12px;color:var(--muted);font-family:var(--mono);line-height:1.7;margin-bottom:20px}
 .info-box strong{color:var(--gold)}
+.info-box.purple-box{background:rgba(167,139,250,0.05);border-color:rgba(167,139,250,0.2)}
+.info-box.purple-box strong{color:var(--purple)}
 
 /* KEYS */
 .keys-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
 .key-row{display:flex;align-items:center;gap:10px;background:var(--s3);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 14px;animation:slideIn .25s ease}
 @keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 .key-num{width:24px;height:24px;border-radius:6px;background:rgba(212,168,83,0.12);border:1px solid rgba(212,168,83,0.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--gold);font-family:var(--mono);flex-shrink:0}
+.key-num.purple{background:rgba(167,139,250,0.12);border-color:rgba(167,139,250,0.2);color:var(--purple)}
 .key-input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-family:var(--mono);font-size:12px;letter-spacing:.02em}
 .key-input::placeholder{color:var(--muted)}
 .key-eye{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:4px;transition:color .15s}
@@ -135,17 +147,22 @@ main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:48px 24px
 .model-row.drag-over{border-color:var(--gold);background:rgba(212,168,83,0.07)}
 
 /* PRESETS */
-.preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:16px}
+.preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-bottom:16px}
 .preset-btn{background:var(--s3);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px 14px;text-align:left;cursor:pointer;transition:all .15s;color:var(--ink)}
 .preset-btn:hover{border-color:rgba(96,165,250,0.3);background:rgba(96,165,250,0.05)}
+.preset-btn.purple-preset:hover{border-color:rgba(167,139,250,0.3);background:rgba(167,139,250,0.05)}
 .preset-name{font-size:12px;font-weight:600;font-family:var(--mono);color:var(--blue)}
+.preset-name.purple{color:var(--purple)}
 .preset-id{font-size:9px;color:rgba(96,165,250,.4);margin-top:2px;font-family:var(--mono)}
+.preset-id.purple{color:rgba(167,139,250,.4)}
 .preset-desc{font-size:10px;color:var(--muted);margin-top:2px}
 
 /* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;font-family:var(--display);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;text-decoration:none}
 .btn-gold{background:linear-gradient(135deg,var(--gold),#b88a30);color:#080a0f;box-shadow:0 0 20px rgba(212,168,83,0.2)}
 .btn-gold:hover{transform:translateY(-1px);box-shadow:0 0 28px rgba(212,168,83,0.4)}
+.btn-purple{background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;box-shadow:0 0 20px rgba(167,139,250,0.2)}
+.btn-purple:hover{transform:translateY(-1px);box-shadow:0 0 28px rgba(167,139,250,0.4)}
 .btn-ghost{background:var(--s3);color:var(--slate);border:1px solid rgba(255,255,255,0.08)}
 .btn-ghost:hover{border-color:var(--border);color:var(--ink)}
 .btn-danger{background:rgba(248,113,113,0.08);color:var(--red);border:1px solid rgba(248,113,113,0.2)}
@@ -159,15 +176,28 @@ main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:48px 24px
 .stat-val{color:var(--ink);font-weight:700}
 .stat-val.gold{color:var(--gold)}
 .stat-val.green{color:var(--green)}
+.stat-val.purple{color:var(--purple)}
 
 /* TEST RESULT */
 .test-result{margin-top:14px;padding:12px 16px;background:var(--s3);border-radius:8px;font-family:var(--mono);font-size:11px;line-height:1.7;display:none}
 .test-result.show{display:block}
 .t-ok{color:var(--green)}
 .t-err{color:var(--red)}
+.t-warn{color:var(--gold)}
 
 /* DIVIDER */
 .divider{border:none;border-top:1px solid var(--border);margin:24px 0}
+
+/* SUMMARY CARD */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:0}
+.summary-item{background:var(--s3);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px 18px}
+.summary-label{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.summary-val{font-size:22px;font-weight:800;font-family:var(--mono)}
+.summary-val.gold{color:var(--gold)}
+.summary-val.green{color:var(--green)}
+.summary-val.purple{color:var(--purple)}
+.summary-val.blue{color:var(--blue)}
+.summary-sub{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:3px}
 
 /* TOAST */
 #toast{position:fixed;bottom:32px;right:32px;z-index:300;background:var(--s2);border:1px solid rgba(74,222,128,0.3);border-radius:10px;padding:14px 22px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,0.5);opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none}
@@ -182,7 +212,18 @@ main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:48px 24px
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
-@media(max-width:600px){main{padding:24px 16px 60px}.header{padding:14px 16px}.page-title{font-size:22px}.auth-body{padding:28px 20px 24px}}
+/* PANEL PROVIDER */
+.prov-panel{display:none}
+.prov-panel.active{display:block}
+
+@media(max-width:600px){
+  main{padding:24px 16px 60px}
+  .header{padding:14px 16px;flex-wrap:wrap;gap:10px}
+  .page-title{font-size:22px}
+  .auth-body{padding:28px 20px 24px}
+  .provider-tabs{gap:4px}
+  .provider-tab{font-size:11px;padding:6px 12px}
+}
 </style>
 </head>
 <body>
@@ -207,15 +248,15 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-window._db                       = db;
-window._doc                      = doc;
-window._getDoc                   = getDoc;
-window._setDoc                   = setDoc;
-window._auth                     = auth;
-window._signIn                   = signInWithEmailAndPassword;
-window._createUser               = createUserWithEmailAndPassword;
-window._updateProfile            = updateProfile;
-window._signOut                  = signOut;
+window._db            = db;
+window._doc           = doc;
+window._getDoc        = getDoc;
+window._setDoc        = setDoc;
+window._auth          = auth;
+window._signIn        = signInWithEmailAndPassword;
+window._createUser    = createUserWithEmailAndPassword;
+window._updateProfile = updateProfile;
+window._signOut       = signOut;
 
 onAuthStateChanged(auth, user => {
   window._currentUser = user;
@@ -235,8 +276,6 @@ document.dispatchEvent(new Event('fb-ready'));
 <!-- Auth Gate -->
 <div id="authGate" style="display:none">
   <div class="auth-card">
-
-    <!-- Tabs -->
     <div class="auth-tabs">
       <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">🔐 Connexion</button>
       <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">✨ Créer un compte</button>
@@ -308,7 +347,6 @@ document.dispatchEvent(new Event('fb-ready'));
         <button class="btn-auth" style="background:transparent;border:1px solid var(--border);color:var(--slate);margin-top:0" onclick="switchTab('login')">← Retour connexion</button>
       </div>
     </div>
-
   </div>
 </div>
 
@@ -332,45 +370,144 @@ document.dispatchEvent(new Event('fb-ready'));
 <main id="mainContent" style="display:none">
 
   <h1 class="page-title">Configuration <span>Serveur</span></h1>
-  <p class="page-desc">// Clés API Groq et modèles IA — COMEO AI v4</p>
+  <p class="page-desc">// Clés API Groq + Mistral — Modèles IA — COMEO AI v4</p>
 
-  <!-- CLÉS API -->
-  <div class="card">
+  <!-- RÉSUMÉ GLOBAL -->
+  <div class="card" style="margin-bottom:28px">
     <div class="card-header">
       <div class="card-header-left">
-        <div class="card-icon">🔑</div>
+        <div class="card-icon">📊</div>
         <div>
-          <div class="card-title">Clés API Groq</div>
-          <div class="card-subtitle">Rotation automatique — la première disponible est utilisée</div>
+          <div class="card-title">Résumé de configuration</div>
+          <div class="card-subtitle">Vue d'ensemble des providers actifs</div>
         </div>
       </div>
-      <button class="btn btn-ghost btn-sm" onclick="testAllKeys()">⚡ Tester toutes</button>
+      <button class="btn btn-ghost btn-sm" onclick="reloadConfig()">🔄 Recharger</button>
     </div>
     <div class="card-body">
-      <div class="info-box">
-        <strong>Rotation automatique :</strong> COMEO AI essaie chaque clé à la suite en cas d'erreur de quota.<br>
-        Obtenez vos clés sur <strong>console.groq.com → API Keys</strong> — Gratuit jusqu'à 14 400 req/jour par clé.
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-label">Clés Groq</div>
+          <div class="summary-val gold" id="sum-groq-keys">0</div>
+          <div class="summary-sub">clés configurées</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Clés Mistral</div>
+          <div class="summary-val purple" id="sum-mistral-keys">0</div>
+          <div class="summary-sub">clés configurées</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Modèles Groq</div>
+          <div class="summary-val blue" id="sum-models">0</div>
+          <div class="summary-sub">modèles actifs</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Capacité totale</div>
+          <div class="summary-val green" id="sum-capacity">0</div>
+          <div class="summary-sub">req/min estimées</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Fallback</div>
+          <div class="summary-val green" id="sum-fallback">—</div>
+          <div class="summary-sub">provider de secours</div>
+        </div>
       </div>
-      <div class="keys-list" id="keysList"></div>
-      <div class="btn-row">
-        <button class="btn btn-ghost btn-sm" onclick="addKeyRow()">＋ Ajouter une clé</button>
-        <button class="btn btn-gold btn-sm" onclick="saveKeys()">💾 Enregistrer les clés</button>
-      </div>
-      <div class="test-result" id="testResult"></div>
-    </div>
-    <div class="status-bar">
-      <div class="stat-item">Clés configurées : <span class="stat-val gold" id="keysCount">0</span></div>
-      <div class="stat-item">Statut : <span class="stat-val" id="keysStatus">—</span></div>
     </div>
   </div>
 
-  <!-- MODÈLES -->
-  <div class="card">
+  <!-- CLÉS API — TABS PROVIDER -->
+  <div style="margin-bottom:0">
+    <div class="provider-tabs">
+      <button class="provider-tab active" id="ptab-groq" onclick="switchProvider('groq')">
+        <div class="pt-dot"></div>
+        🔑 Groq
+        <span class="pt-count" id="ptcount-groq">0</span>
+      </button>
+      <button class="provider-tab" id="ptab-mistral" onclick="switchProvider('mistral')">
+        <div class="pt-dot"></div>
+        🟣 Mistral
+        <span class="pt-count" id="ptcount-mistral">0</span>
+      </button>
+    </div>
+
+    <!-- GROQ PANEL -->
+    <div class="prov-panel active" id="ppanel-groq">
+      <div class="card no-top-left">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="card-icon">🔑</div>
+            <div>
+              <div class="card-title">Clés API Groq</div>
+              <div class="card-subtitle">Rotation automatique — provider principal</div>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="testAllKeys('groq')">⚡ Tester toutes</button>
+        </div>
+        <div class="card-body">
+          <div class="info-box">
+            <strong>Provider principal :</strong> COMEO AI essaie Groq en priorité.<br>
+            Obtenez vos clés sur <strong>console.groq.com → API Keys</strong><br>
+            Gratuit : 30 req/min · 14 400 req/jour par clé.<br>
+            <strong>Astuce :</strong> Créez plusieurs comptes Gmail pour multiplier les clés gratuites.
+          </div>
+          <div class="keys-list" id="groqKeysList"></div>
+          <div class="btn-row">
+            <button class="btn btn-ghost btn-sm" onclick="addKeyRow('groq')">＋ Ajouter une clé Groq</button>
+            <button class="btn btn-gold btn-sm" onclick="saveKeys('groq')">💾 Enregistrer les clés Groq</button>
+          </div>
+          <div class="test-result" id="groqTestResult"></div>
+        </div>
+        <div class="status-bar">
+          <div class="stat-item">Clés Groq : <span class="stat-val gold" id="groqKeysCount">0</span></div>
+          <div class="stat-item">Capacité : <span class="stat-val green" id="groqCapacity">0 req/min</span></div>
+          <div class="stat-item">Statut : <span class="stat-val" id="groqStatus">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MISTRAL PANEL -->
+    <div class="prov-panel" id="ppanel-mistral">
+      <div class="card no-top-left">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="card-icon purple">🟣</div>
+            <div>
+              <div class="card-title">Clés API Mistral</div>
+              <div class="card-subtitle">Fallback automatique si Groq est épuisé</div>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="testAllKeys('mistral')">⚡ Tester toutes</button>
+        </div>
+        <div class="card-body">
+          <div class="info-box purple-box">
+            <strong>Provider de secours :</strong> Mistral est utilisé automatiquement quand Groq atteint ses limites (429).<br>
+            Obtenez vos clés sur <strong>console.mistral.ai → API Keys</strong><br>
+            Gratuit : quota mensuel généreux sur le tier gratuit.<br>
+            <strong>Modèles disponibles :</strong> mistral-small-latest · mistral-medium-latest · open-mistral-7b
+          </div>
+          <div class="keys-list" id="mistralKeysList"></div>
+          <div class="btn-row">
+            <button class="btn btn-ghost btn-sm" onclick="addKeyRow('mistral')">＋ Ajouter une clé Mistral</button>
+            <button class="btn btn-purple btn-sm" onclick="saveKeys('mistral')">💾 Enregistrer les clés Mistral</button>
+          </div>
+          <div class="test-result" id="mistralTestResult"></div>
+        </div>
+        <div class="status-bar">
+          <div class="stat-item">Clés Mistral : <span class="stat-val purple" id="mistralKeysCount">0</span></div>
+          <div class="stat-item">Statut : <span class="stat-val" id="mistralStatus">—</span></div>
+          <div class="stat-item">Rôle : <span class="stat-val purple">Fallback automatique</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODÈLES GROQ -->
+  <div class="card" style="margin-top:28px">
     <div class="card-header">
       <div class="card-header-left">
         <div class="card-icon">🤖</div>
         <div>
-          <div class="card-title">Modèles IA</div>
+          <div class="card-title">Modèles Groq</div>
           <div class="card-subtitle">Glisser-déposer pour définir l'ordre de priorité</div>
         </div>
       </div>
@@ -378,11 +515,11 @@ document.dispatchEvent(new Event('fb-ready'));
     <div class="card-body">
       <div class="info-box">
         <strong>Ordre de priorité :</strong> Le premier modèle est utilisé en premier. En cas d'indisponibilité, le suivant prend le relais.<br>
-        <strong>llama-3.3-70b-versatile</strong> est recommandé en position 1.
+        <strong>Recommandé en #1 :</strong> llama-3.1-8b-instant (plus rapide, moins limité en req/min).
       </div>
       <div style="margin-bottom:18px">
-        <div style="font-size:12px;font-weight:600;color:var(--gold);font-family:var(--mono);margin-bottom:10px;letter-spacing:.06em;text-transform:uppercase">Modèles prédéfinis</div>
-        <div class="preset-grid" id="presetGrid"></div>
+        <div style="font-size:12px;font-weight:600;color:var(--gold);font-family:var(--mono);margin-bottom:10px;letter-spacing:.06em;text-transform:uppercase">Modèles prédéfinis Groq</div>
+        <div class="preset-grid" id="groqPresetGrid"></div>
       </div>
       <div class="models-list" id="modelsList"></div>
       <div class="btn-row">
@@ -394,6 +531,7 @@ document.dispatchEvent(new Event('fb-ready'));
     <div class="status-bar">
       <div class="stat-item">Modèles actifs : <span class="stat-val green" id="modelsCount">0</span></div>
       <div class="stat-item">Priorité 1 : <span class="stat-val" id="model1Label">—</span></div>
+      <div class="stat-item">Priorité 2 : <span class="stat-val" id="model2Label">—</span></div>
     </div>
   </div>
 
@@ -412,14 +550,19 @@ document.dispatchEvent(new Event('fb-ready'));
       <div class="btn-row">
         <button class="btn btn-ghost btn-sm" onclick="reloadConfig()">🔄 Recharger depuis Firestore</button>
         <button class="btn btn-ghost btn-sm" onclick="exportConfig()">📥 Exporter config JSON</button>
+        <button class="btn btn-ghost btn-sm" onclick="testAllProviders()">🧪 Tester tous les providers</button>
         <a href="index.html" class="btn btn-ghost btn-sm">← Retour app</a>
       </div>
       <hr class="divider">
       <p style="font-size:12px;color:var(--muted);font-family:var(--mono);line-height:1.8">
         Collection Firestore : <strong style="color:var(--gold)">server_config</strong><br>
-        Documents : <code style="color:var(--blue)">groq_keys</code> &nbsp;·&nbsp; <code style="color:var(--blue)">models</code><br>
+        Documents : <code style="color:var(--blue)">groq_keys</code> &nbsp;·&nbsp;
+                    <code style="color:var(--purple)">mistral_keys</code> &nbsp;·&nbsp;
+                    <code style="color:var(--blue)">models</code><br>
+        Logique : <strong style="color:var(--green)">Groq → Mistral</strong> (fallback automatique en cas de 429)<br>
         Accès : utilisateurs Firebase Auth connectés uniquement
       </p>
+      <div class="test-result" id="allProvidersResult"></div>
     </div>
   </div>
 
@@ -429,31 +572,59 @@ document.dispatchEvent(new Event('fb-ready'));
 <div id="toast"><span id="toastIcon">✓</span><span id="toastMsg">OK</span></div>
 
 <script>
-const DEFAULT_MODELS = [
-  { id:'llama-3.3-70b-versatile',                  label:'Llama 3.3 70B',      desc:'Recommandé — polyvalent' },
-  { id:'qwen/qwen3-32b',                            label:'Qwen3 32B',           desc:'Alternatif — qualité' },
-  { id:'meta-llama/llama-4-scout-17b-16e-instruct', label:'Llama 4 Scout 17B',  desc:'Rapide — contexte long' },
-  { id:'llama-3.1-70b-versatile',                   label:'Llama 3.1 70B',      desc:'Stable — fallback' },
-  { id:'mixtral-8x7b-32768',                        label:'Mixtral 8×7B',        desc:'Contexte étendu' },
-  { id:'gemma2-9b-it',                              label:'Gemma2 9B',           desc:'Léger et rapide' },
+// ══════════════════════════════════════════
+// DONNÉES
+// ══════════════════════════════════════════
+const DEFAULT_GROQ_MODELS = [
+  { id:'llama-3.1-8b-instant',                      label:'Llama 3.1 8B Instant',  desc:'Rapide — moins limité' },
+  { id:'llama-3.3-70b-versatile',                   label:'Llama 3.3 70B',          desc:'Recommandé — polyvalent' },
+  { id:'qwen/qwen3-32b',                            label:'Qwen3 32B',              desc:'Alternatif — qualité' },
+  { id:'meta-llama/llama-4-scout-17b-16e-instruct', label:'Llama 4 Scout 17B',      desc:'Contexte long' },
+  { id:'llama-3.1-70b-versatile',                   label:'Llama 3.1 70B',          desc:'Stable — fallback' },
+  { id:'mixtral-8x7b-32768',                        label:'Mixtral 8×7B',           desc:'Contexte étendu' },
+  { id:'gemma2-9b-it',                              label:'Gemma2 9B',              desc:'Léger et rapide' },
 ];
 
-let keysData   = [];
-let modelsData = [];
-let dragSrc    = null;
+const DEFAULT_MISTRAL_MODELS = [
+  { id:'mistral-small-latest',   label:'Mistral Small',   desc:'Rapide — quota élevé' },
+  { id:'mistral-medium-latest',  label:'Mistral Medium',  desc:'Équilibré — qualité' },
+  { id:'open-mistral-7b',        label:'Mistral 7B Open', desc:'Open source — gratuit' },
+  { id:'open-mixtral-8x7b',      label:'Mixtral 8×7B',    desc:'Performant' },
+];
 
-// ── TABS ──
+let groqKeysData    = [];
+let mistralKeysData = [];
+let modelsData      = [];
+let dragSrc         = null;
+let currentProvider = 'groq';
+
+// ══════════════════════════════════════════
+// TABS AUTH
+// ══════════════════════════════════════════
 function switchTab(tab) {
-  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
-  document.getElementById('tabRegister').classList.toggle('active', tab==='register');
-  document.getElementById('panelLogin').classList.toggle('active', tab==='login');
-  document.getElementById('panelRegister').classList.toggle('active', tab==='register');
+  document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+  document.getElementById('panelLogin').classList.toggle('active', tab === 'login');
+  document.getElementById('panelRegister').classList.toggle('active', tab === 'register');
   document.getElementById('loginErr').textContent = '';
   document.getElementById('regErr').textContent   = '';
   document.getElementById('regOk').style.display  = 'none';
 }
 
-// ── PASSWORD STRENGTH ──
+// ══════════════════════════════════════════
+// TABS PROVIDER
+// ══════════════════════════════════════════
+function switchProvider(prov) {
+  currentProvider = prov;
+  ['groq','mistral'].forEach(p => {
+    document.getElementById('ptab-' + p).classList.toggle('active', p === prov);
+    document.getElementById('ppanel-' + p).classList.toggle('active', p === prov);
+  });
+}
+
+// ══════════════════════════════════════════
+// PASSWORD STRENGTH
+// ══════════════════════════════════════════
 function checkStrength(pw) {
   const wrap = document.getElementById('strengthWrap');
   const fill = document.getElementById('strengthFill');
@@ -473,24 +644,26 @@ function checkStrength(pw) {
     { pct:'80%', color:'#a3e635', label:'Fort' },
     { pct:'100%',color:'#4ade80', label:'Très fort' },
   ];
-  const l = levels[Math.max(0, score-1)];
+  const l = levels[Math.max(0, score - 1)];
   fill.style.width      = l.pct;
   fill.style.background = l.color;
   txt.textContent       = l.label;
   txt.style.color       = l.color;
 }
 
-// ── AUTH ──
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
 document.addEventListener('auth-change', e => {
   const user = e.detail;
   if (user) {
-    document.getElementById('authGate').style.display    = 'none';
+    document.getElementById('authGate').style.display       = 'none';
     document.getElementById('loadingOverlay').style.display = 'flex';
-    document.getElementById('loadingTxt').textContent    = 'Chargement configuration…';
+    document.getElementById('loadingTxt').textContent       = 'Chargement configuration…';
     const displayName = user.displayName || user.email || user.uid;
-    document.getElementById('userPill').textContent      = '👤 ' + displayName;
-    document.getElementById('connDot').className         = 'conn-dot online';
-    document.getElementById('connTxt').textContent       = 'Connecté';
+    document.getElementById('userPill').textContent         = '👤 ' + displayName;
+    document.getElementById('connDot').className            = 'conn-dot online';
+    document.getElementById('connTxt').textContent          = 'Connecté';
     loadFromFirestore();
   } else {
     document.getElementById('loadingOverlay').style.display = 'none';
@@ -512,14 +685,15 @@ async function doLogin() {
     await window._signIn(window._auth, email, pass);
   } catch(e) {
     const msgs = {
-      'auth/user-not-found':    'Aucun compte avec cet email.',
-      'auth/wrong-password':    'Mot de passe incorrect.',
-      'auth/invalid-email':     'Email invalide.',
-      'auth/too-many-requests': 'Trop de tentatives. Réessayez plus tard.',
-      'auth/invalid-credential':'Email ou mot de passe incorrect.'
+      'auth/user-not-found':     'Aucun compte avec cet email.',
+      'auth/wrong-password':     'Mot de passe incorrect.',
+      'auth/invalid-email':      'Email invalide.',
+      'auth/too-many-requests':  'Trop de tentatives. Réessayez plus tard.',
+      'auth/invalid-credential': 'Email ou mot de passe incorrect.'
     };
-    err.textContent = msgs[e.code] || e.message;
-    btn.disabled = false; btn.textContent = '⚡ Se connecter';
+    err.textContent  = msgs[e.code] || e.message;
+    btn.disabled     = false;
+    btn.textContent  = '⚡ Se connecter';
   }
 }
 
@@ -531,42 +705,29 @@ async function doRegister() {
   const err   = document.getElementById('regErr');
   const ok    = document.getElementById('regOk');
   const btn   = document.getElementById('regBtn');
-
   err.textContent = ''; ok.style.display = 'none';
-
-  if (!name || !email || !pass || !pass2) {
-    err.textContent = 'Veuillez remplir tous les champs.'; return;
-  }
-  if (pass.length < 8) {
-    err.textContent = 'Le mot de passe doit contenir au moins 8 caractères.'; return;
-  }
-  if (pass !== pass2) {
-    err.textContent = 'Les mots de passe ne correspondent pas.'; return;
-  }
-
+  if (!name || !email || !pass || !pass2) { err.textContent = 'Veuillez remplir tous les champs.'; return; }
+  if (pass.length < 8) { err.textContent = 'Le mot de passe doit contenir au moins 8 caractères.'; return; }
+  if (pass !== pass2)  { err.textContent = 'Les mots de passe ne correspondent pas.'; return; }
   btn.disabled = true; btn.textContent = 'Création…';
-
   try {
     const cred = await window._createUser(window._auth, email, pass);
-    // Mettre à jour le nom d'affichage
     await window._updateProfile(cred.user, { displayName: name });
-    // Enregistrer le profil dans Firestore
     await window._setDoc(
       window._doc(window._db, 'users', cred.user.uid),
       { displayName: name, email, role: 'admin', createdAt: new Date().toISOString() }
     );
     ok.style.display = 'block';
     ok.textContent   = '✓ Compte créé ! Connexion automatique…';
-    // onAuthStateChanged gère la suite automatiquement
   } catch(e) {
     const msgs = {
       'auth/email-already-in-use': 'Cet email est déjà utilisé.',
       'auth/invalid-email':        'Email invalide.',
       'auth/weak-password':        'Mot de passe trop faible (min. 6 caractères).',
     };
-    err.textContent  = msgs[e.code] || e.message;
-    btn.disabled     = false;
-    btn.textContent  = '🎯 Créer le compte';
+    err.textContent = msgs[e.code] || e.message;
+    btn.disabled    = false;
+    btn.textContent = '🎯 Créer le compte';
   }
 }
 
@@ -575,121 +736,241 @@ async function doLogout() {
   await window._signOut(window._auth);
 }
 
-// ── FIRESTORE ──
+// ══════════════════════════════════════════
+// FIRESTORE — CHARGEMENT
+// ══════════════════════════════════════════
 async function loadFromFirestore() {
   try {
-    const [keysSnap, modelsSnap] = await Promise.all([
+    const [groqSnap, mistralSnap, modelsSnap] = await Promise.all([
       window._getDoc(window._doc(window._db, 'server_config', 'groq_keys')),
+      window._getDoc(window._doc(window._db, 'server_config', 'mistral_keys')),
       window._getDoc(window._doc(window._db, 'server_config', 'models'))
     ]);
-    keysData   = keysSnap.exists()   ? (keysSnap.data().keys  || []) : [];
-    modelsData = modelsSnap.exists() ? (modelsSnap.data().list || []) : DEFAULT_MODELS.slice(0,3).map(m=>m.id);
-    modelsData = modelsData.map(m => typeof m === 'string' ? m : String(m));
+
+    groqKeysData    = groqSnap.exists()    ? (groqSnap.data().keys    || []) : [];
+    mistralKeysData = mistralSnap.exists() ? (mistralSnap.data().keys || []) : [];
+    modelsData      = modelsSnap.exists()  ? (modelsSnap.data().list  || []) : DEFAULT_GROQ_MODELS.slice(0,3).map(m=>m.id);
+    modelsData      = modelsData.map(m => typeof m === 'string' ? m : String(m));
+
     document.getElementById('loadingOverlay').style.display = 'none';
     document.getElementById('mainContent').style.display    = 'block';
     document.getElementById('appHeader').style.display      = 'flex';
-    renderKeys(); renderModels(); renderPresets();
+
+    renderGroqKeys();
+    renderMistralKeys();
+    renderModels();
+    renderGroqPresets();
+    updateSummary();
+
   } catch(e) {
     document.getElementById('loadingOverlay').style.display = 'none';
     document.getElementById('mainContent').style.display    = 'block';
     document.getElementById('appHeader').style.display      = 'flex';
     showToast('Erreur Firestore : ' + e.message, true);
-    keysData = []; modelsData = DEFAULT_MODELS.slice(0,3).map(m=>m.id);
-    renderKeys(); renderModels(); renderPresets();
+    groqKeysData    = [];
+    mistralKeysData = [];
+    modelsData      = DEFAULT_GROQ_MODELS.slice(0,3).map(m=>m.id);
+    renderGroqKeys();
+    renderMistralKeys();
+    renderModels();
+    renderGroqPresets();
+    updateSummary();
   }
 }
 
 async function reloadConfig() {
   document.getElementById('loadingOverlay').style.display = 'flex';
-  document.getElementById('loadingTxt').textContent = 'Rechargement…';
+  document.getElementById('loadingTxt').textContent       = 'Rechargement…';
   await loadFromFirestore();
   showToast('Configuration rechargée');
 }
 
-// ── CLÉS ──
-function renderKeys() {
-  const list = document.getElementById('keysList');
+// ══════════════════════════════════════════
+// RÉSUMÉ GLOBAL
+// ══════════════════════════════════════════
+function updateSummary() {
+  const ng = groqKeysData.filter(k => k.value && k.value.trim()).length;
+  const nm = mistralKeysData.filter(k => k.value && k.value.trim()).length;
+  const nmod = modelsData.filter(m => m && m.trim()).length;
+  const capacity = ng * 30; // 30 req/min par clé Groq
+  document.getElementById('sum-groq-keys').textContent  = ng;
+  document.getElementById('sum-mistral-keys').textContent = nm;
+  document.getElementById('sum-models').textContent     = nmod;
+  document.getElementById('sum-capacity').textContent   = capacity;
+  document.getElementById('sum-fallback').textContent   = nm > 0 ? 'Mistral ✓' : 'Non configuré';
+  document.getElementById('ptcount-groq').textContent    = ng;
+  document.getElementById('ptcount-mistral').textContent = nm;
+  // Activer le dot vert si des clés sont présentes
+  document.getElementById('ptab-groq').querySelector('.pt-dot').style.background    = ng > 0 ? 'var(--green)' : 'var(--muted)';
+  document.getElementById('ptab-mistral').querySelector('.pt-dot').style.background = nm > 0 ? 'var(--purple)' : 'var(--muted)';
+}
+
+// ══════════════════════════════════════════
+// CLÉS — GROQ
+// ══════════════════════════════════════════
+function renderGroqKeys() {
+  const list = document.getElementById('groqKeysList');
   list.innerHTML = '';
-  if (!keysData.length) { addKeyRow(); return; }
-  keysData.forEach((k, i) => _appendKeyRow(k.value || '', i, k.status || ''));
-  updateKeysStats();
+  if (!groqKeysData.length) { _appendKeyRowTo(list, '', 0, '', 'groq'); updateGroqStats(); return; }
+  groqKeysData.forEach((k, i) => _appendKeyRowTo(list, k.value || '', i, k.status || '', 'groq'));
+  updateGroqStats();
 }
 
-function addKeyRow(value='', idx=-1, status='') {
-  if (idx === -1) { keysData.push({ value:'', status:'' }); idx = keysData.length - 1; }
-  _appendKeyRow(value, idx, status);
-  updateKeysStats();
+function addKeyRow(provider) {
+  if (provider === 'groq') {
+    groqKeysData.push({ value:'', status:'' });
+    const list = document.getElementById('groqKeysList');
+    _appendKeyRowTo(list, '', groqKeysData.length - 1, '', 'groq');
+    updateGroqStats();
+  } else {
+    mistralKeysData.push({ value:'', status:'' });
+    const list = document.getElementById('mistralKeysList');
+    _appendKeyRowTo(list, '', mistralKeysData.length - 1, '', 'mistral');
+    updateMistralStats();
+  }
+  updateSummary();
 }
 
-function _appendKeyRow(value, idx, status) {
-  const list = document.getElementById('keysList');
-  const row  = document.createElement('div');
-  row.className = 'key-row'; row.dataset.idx = idx;
+function _appendKeyRowTo(list, value, idx, status, provider) {
+  const isGroq    = provider === 'groq';
+  const numCls    = isGroq ? 'key-num' : 'key-num purple';
+  const placeholder = isGroq ? 'gsk_xxxxxxxxxxxxxxxxxxxx…' : 'xxxxxxxxxxxxxxxxxxxxxxxx…';
+  const row = document.createElement('div');
+  row.className     = 'key-row';
+  row.dataset.idx   = idx;
+  row.dataset.prov  = provider;
   row.innerHTML = `
-    <div class="key-num">${idx+1}</div>
-    <input class="key-input" type="password" placeholder="gsk_xxxxxxxxxxxxxxxxxxxx…"
+    <div class="${numCls}">${idx + 1}</div>
+    <input class="key-input" type="password" placeholder="${placeholder}"
       value="${esc(value)}" autocomplete="off"
-      oninput="keysData[${idx}].value=this.value;updateKeysStats()">
+      oninput="onKeyInput(this,'${provider}',${idx})">
     <button class="key-eye" onclick="toggleEye(this)" title="Afficher/masquer">👁</button>
-    <div class="key-dot ${status==='ok'?'ok':status==='err'?'err':''}" id="kdot-${idx}"></div>
-    <button class="key-del" onclick="removeKey(${idx})" title="Supprimer">✕</button>`;
+    <div class="key-dot ${status==='ok'?'ok':status==='err'?'err':''}" id="kdot-${provider}-${idx}"></div>
+    <button class="key-del" onclick="removeKey('${provider}',${idx})" title="Supprimer">✕</button>`;
   list.appendChild(row);
+}
+
+function onKeyInput(input, provider, idx) {
+  if (provider === 'groq') {
+    if (groqKeysData[idx]) groqKeysData[idx].value = input.value;
+    updateGroqStats();
+  } else {
+    if (mistralKeysData[idx]) mistralKeysData[idx].value = input.value;
+    updateMistralStats();
+  }
+  updateSummary();
+}
+
+function removeKey(provider, idx) {
+  if (provider === 'groq') { groqKeysData.splice(idx, 1); renderGroqKeys(); }
+  else { mistralKeysData.splice(idx, 1); renderMistralKeys(); }
+  updateSummary();
 }
 
 function toggleEye(btn) {
   const inp = btn.previousElementSibling.previousElementSibling;
-  inp.type = inp.type === 'password' ? 'text' : 'password';
+  inp.type        = inp.type === 'password' ? 'text' : 'password';
   btn.textContent = inp.type === 'password' ? '👁' : '🙈';
 }
 
-function removeKey(idx) { keysData.splice(idx,1); renderKeys(); }
-
-function updateKeysStats() {
-  const n = keysData.filter(k=>k.value&&k.value.trim()).length;
-  document.getElementById('keysCount').textContent  = n;
-  document.getElementById('keysStatus').textContent = n > 0 ? n+' clé'+(n>1?'s':'')+' active'+(n>1?'s':'') : 'Aucune clé';
+function updateGroqStats() {
+  const n = groqKeysData.filter(k => k.value && k.value.trim()).length;
+  document.getElementById('groqKeysCount').textContent = n;
+  document.getElementById('groqCapacity').textContent  = (n * 30) + ' req/min';
+  document.getElementById('groqStatus').textContent    = n > 0 ? n + ' clé' + (n>1?'s':'') + ' active' + (n>1?'s':'') : 'Aucune clé';
 }
 
-async function saveKeys() {
-  const fresh = [];
-  document.querySelectorAll('#keysList .key-input').forEach(inp => {
+async function saveKeys(provider) {
+  const listId  = provider === 'groq' ? 'groqKeysList' : 'mistralKeysList';
+  const docName = provider === 'groq' ? 'groq_keys'    : 'mistral_keys';
+  const fresh   = [];
+  document.querySelectorAll(`#${listId} .key-input`).forEach(inp => {
     const v = inp.value.trim();
-    if (v) fresh.push({ value:v, status:'' });
+    if (v) fresh.push({ value: v, status: '' });
   });
-  keysData = fresh;
+  if (provider === 'groq') groqKeysData = fresh;
+  else mistralKeysData = fresh;
   try {
-    await window._setDoc(window._doc(window._db,'server_config','groq_keys'), { keys:keysData, updatedAt:new Date().toISOString() });
-    showToast(`✓ ${keysData.length} clé${keysData.length>1?'s':''} enregistrée${keysData.length>1?'s':''}`);
-    renderKeys();
-  } catch(e) { showToast('Erreur : '+e.message, true); }
+    await window._setDoc(
+      window._doc(window._db, 'server_config', docName),
+      { keys: fresh, updatedAt: new Date().toISOString() }
+    );
+    const label = provider === 'groq' ? 'Groq' : 'Mistral';
+    showToast(`✓ ${fresh.length} clé${fresh.length>1?'s':''} ${label} enregistrée${fresh.length>1?'s':''}`);
+    if (provider === 'groq') renderGroqKeys();
+    else renderMistralKeys();
+    updateSummary();
+  } catch(e) { showToast('Erreur : ' + e.message, true); }
 }
 
-async function testAllKeys() {
-  const filled = keysData.filter(k=>k.value&&k.value.trim());
+async function testAllKeys(provider) {
+  const data    = provider === 'groq' ? groqKeysData : mistralKeysData;
+  const resultId = provider === 'groq' ? 'groqTestResult' : 'mistralTestResult';
+  const filled  = data.filter(k => k.value && k.value.trim());
+  const res     = document.getElementById(resultId);
   if (!filled.length) { showToast('Aucune clé à tester', true); return; }
-  const res = document.getElementById('testResult');
-  res.className = 'test-result show'; res.innerHTML = '⏳ Test en cours…';
+  res.className = 'test-result show';
+  res.innerHTML = '⏳ Test en cours…';
+
   const lines = [];
-  for (let i=0; i<filled.length; i++) {
+  for (let i = 0; i < filled.length; i++) {
+    const key = filled[i].value;
     try {
-      const r = await fetch('https://api.groq.com/openai/v1/models', { headers:{ Authorization:'Bearer '+filled[i].value } });
-      const dot = document.getElementById('kdot-'+i);
-      if (r.ok) {
-        lines.push(`<span class="t-ok">✓ Clé ${i+1} : VALIDE</span>`);
-        filled[i].status='ok'; if(dot) dot.className='key-dot ok';
+      let testUrl, testHeaders;
+      if (provider === 'groq') {
+        testUrl     = 'https://api.groq.com/openai/v1/models';
+        testHeaders = { Authorization: 'Bearer ' + key };
       } else {
-        const d = await r.json().catch(()=>({}));
-        lines.push(`<span class="t-err">✗ Clé ${i+1} : ${d.error?.message||'Invalide'}</span>`);
-        filled[i].status='err'; if(dot) dot.className='key-dot err';
+        testUrl     = 'https://api.mistral.ai/v1/models';
+        testHeaders = { Authorization: 'Bearer ' + key };
       }
-    } catch(e) { lines.push(`<span class="t-err">✗ Clé ${i+1} : ${e.message}</span>`); }
+      const r   = await fetch(testUrl, { headers: testHeaders });
+      const dot = document.getElementById(`kdot-${provider}-${i}`);
+      if (r.ok) {
+        const d = await r.json();
+        const nb = (d.data || d.models || []).length;
+        lines.push(`<span class="t-ok">✓ Clé ${i+1} : VALIDE — ${nb} modèle${nb>1?'s':''} disponible${nb>1?'s':''}</span>`);
+        filled[i].status = 'ok';
+        if (dot) dot.className = 'key-dot ok';
+      } else {
+        const d = await r.json().catch(() => ({}));
+        lines.push(`<span class="t-err">✗ Clé ${i+1} : ${d.error?.message || d.message || 'Invalide'}</span>`);
+        filled[i].status = 'err';
+        if (dot) dot.className = 'key-dot err';
+      }
+    } catch(e) {
+      lines.push(`<span class="t-err">✗ Clé ${i+1} : ${e.message}</span>`);
+    }
   }
   res.innerHTML = lines.join('<br>');
 }
 
-// ── MODÈLES ──
-function renderPresets() {
-  document.getElementById('presetGrid').innerHTML = DEFAULT_MODELS.map(m=>`
+// ══════════════════════════════════════════
+// CLÉS — MISTRAL
+// ══════════════════════════════════════════
+function renderMistralKeys() {
+  const list = document.getElementById('mistralKeysList');
+  list.innerHTML = '';
+  if (!mistralKeysData.length) {
+    _appendKeyRowTo(list, '', 0, '', 'mistral');
+    updateMistralStats();
+    return;
+  }
+  mistralKeysData.forEach((k, i) => _appendKeyRowTo(list, k.value || '', i, k.status || '', 'mistral'));
+  updateMistralStats();
+}
+
+function updateMistralStats() {
+  const n = mistralKeysData.filter(k => k.value && k.value.trim()).length;
+  document.getElementById('mistralKeysCount').textContent = n;
+  document.getElementById('mistralStatus').textContent    = n > 0 ? n + ' clé' + (n>1?'s':'') + ' active' + (n>1?'s':'') : 'Aucune clé';
+}
+
+// ══════════════════════════════════════════
+// MODÈLES GROQ
+// ══════════════════════════════════════════
+function renderGroqPresets() {
+  document.getElementById('groqPresetGrid').innerHTML = DEFAULT_GROQ_MODELS.map(m => `
     <button class="preset-btn" onclick="addPresetModel('${m.id}')">
       <div class="preset-name">${m.label}</div>
       <div class="preset-id">${m.id}</div>
@@ -700,79 +981,172 @@ function renderPresets() {
 function renderModels() {
   const list = document.getElementById('modelsList');
   list.innerHTML = '';
-  if (!modelsData.length) modelsData = DEFAULT_MODELS.slice(0,3).map(m=>m.id);
-  modelsData.forEach((m,i) => _appendModelRow(m,i));
+  if (!modelsData.length) modelsData = DEFAULT_GROQ_MODELS.slice(0,3).map(m=>m.id);
+  modelsData.forEach((m, i) => _appendModelRow(m, i));
   updateModelsStats();
 }
 
 function _appendModelRow(modelId, idx) {
   const list = document.getElementById('modelsList');
   const row  = document.createElement('div');
-  row.className='model-row'; row.draggable=true; row.dataset.idx=idx;
-  row.innerHTML=`
+  row.className  = 'model-row';
+  row.draggable  = true;
+  row.dataset.idx = idx;
+  row.innerHTML = `
     <span class="model-drag" title="Glisser pour réordonner">⠿</span>
-    <span class="model-badge">#${idx+1}</span>
+    <span class="model-badge">#${idx + 1}</span>
     <input class="model-input" type="text" value="${esc(modelId)}" placeholder="nom-du-modele"
       oninput="modelsData[${idx}]=this.value;updateModelsStats()">
     <button class="model-del" onclick="removeModel(${idx})">✕</button>`;
-  row.addEventListener('dragstart', e=>{ dragSrc=row; e.dataTransfer.effectAllowed='move'; row.style.opacity='.4'; });
-  row.addEventListener('dragend',   ()=>{ row.style.opacity='1'; document.querySelectorAll('.model-row').forEach(r=>r.classList.remove('drag-over')); });
-  row.addEventListener('dragover',  e=>{ e.preventDefault(); row.classList.add('drag-over'); });
-  row.addEventListener('dragleave', ()=>row.classList.remove('drag-over'));
-  row.addEventListener('drop', e=>{ e.preventDefault(); if(dragSrc!==row){ const all=[...document.querySelectorAll('.model-row')]; modelsData.splice(all.indexOf(row),0,modelsData.splice(all.indexOf(dragSrc),1)[0]); renderModels(); } });
+  row.addEventListener('dragstart', e => {
+    dragSrc = row;
+    e.dataTransfer.effectAllowed = 'move';
+    row.style.opacity = '.4';
+  });
+  row.addEventListener('dragend', () => {
+    row.style.opacity = '1';
+    document.querySelectorAll('.model-row').forEach(r => r.classList.remove('drag-over'));
+  });
+  row.addEventListener('dragover', e => { e.preventDefault(); row.classList.add('drag-over'); });
+  row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+  row.addEventListener('drop', e => {
+    e.preventDefault();
+    if (dragSrc !== row) {
+      const all = [...document.querySelectorAll('.model-row')];
+      modelsData.splice(all.indexOf(row), 0, modelsData.splice(all.indexOf(dragSrc), 1)[0]);
+      renderModels();
+    }
+  });
   list.appendChild(row);
 }
 
-function addModelRow() { modelsData.push(''); _appendModelRow('', modelsData.length-1); updateModelsStats(); }
+function addModelRow() {
+  modelsData.push('');
+  _appendModelRow('', modelsData.length - 1);
+  updateModelsStats();
+}
 
 function addPresetModel(id) {
   if (modelsData.includes(id)) { showToast('Modèle déjà dans la liste', true); return; }
-  modelsData.push(id); _appendModelRow(id, modelsData.length-1); updateModelsStats();
-  showToast('Modèle ajouté : '+id);
+  modelsData.push(id);
+  _appendModelRow(id, modelsData.length - 1);
+  updateModelsStats();
+  showToast('Modèle ajouté : ' + id);
 }
 
-function removeModel(idx) { modelsData.splice(idx,1); renderModels(); }
+function removeModel(idx) {
+  modelsData.splice(idx, 1);
+  renderModels();
+}
 
 function resetModels() {
   if (!confirm('Réinitialiser les modèles par défaut ?')) return;
-  modelsData = DEFAULT_MODELS.slice(0,3).map(m=>m.id); renderModels();
+  modelsData = DEFAULT_GROQ_MODELS.slice(0, 3).map(m => m.id);
+  renderModels();
   showToast('Modèles réinitialisés');
 }
 
 function updateModelsStats() {
-  const n = modelsData.filter(m=>m&&m.trim()).length;
-  document.getElementById('modelsCount').textContent  = n;
-  document.getElementById('model1Label').textContent  = (modelsData[0]||'—').replace(/.*\//,'');
+  const n = modelsData.filter(m => m && m.trim()).length;
+  document.getElementById('modelsCount').textContent = n;
+  document.getElementById('model1Label').textContent = (modelsData[0] || '—').replace(/.*\//, '');
+  document.getElementById('model2Label').textContent = (modelsData[1] || '—').replace(/.*\//, '');
+  updateSummary();
 }
 
 async function saveModels() {
-  const fresh = [...document.querySelectorAll('#modelsList .model-input')].map(i=>i.value.trim()).filter(Boolean);
+  const fresh = [...document.querySelectorAll('#modelsList .model-input')]
+    .map(i => i.value.trim()).filter(Boolean);
   modelsData = fresh;
   try {
-    await window._setDoc(window._doc(window._db,'server_config','models'), { list:modelsData, updatedAt:new Date().toISOString() });
+    await window._setDoc(
+      window._doc(window._db, 'server_config', 'models'),
+      { list: modelsData, updatedAt: new Date().toISOString() }
+    );
     showToast(`✓ ${modelsData.length} modèle${modelsData.length>1?'s':''} enregistré${modelsData.length>1?'s':''}`);
     renderModels();
-  } catch(e) { showToast('Erreur : '+e.message, true); }
+  } catch(e) { showToast('Erreur : ' + e.message, true); }
 }
 
-// ── EXPORT ──
+// ══════════════════════════════════════════
+// TEST TOUS LES PROVIDERS
+// ══════════════════════════════════════════
+async function testAllProviders() {
+  const res = document.getElementById('allProvidersResult');
+  res.className = 'test-result show';
+  res.innerHTML = '⏳ Test de tous les providers en cours…';
+  const lines = [];
+
+  // Test Groq
+  const groqFilled = groqKeysData.filter(k => k.value && k.value.trim());
+  if (groqFilled.length === 0) {
+    lines.push('<span class="t-warn">⚠ Groq : Aucune clé configurée</span>');
+  } else {
+    try {
+      const r = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: { Authorization: 'Bearer ' + groqFilled[0].value }
+      });
+      if (r.ok) lines.push(`<span class="t-ok">✓ Groq : ${groqFilled.length} clé${groqFilled.length>1?'s':''} — Provider ACTIF</span>`);
+      else lines.push(`<span class="t-err">✗ Groq : Erreur ${r.status}</span>`);
+    } catch(e) { lines.push(`<span class="t-err">✗ Groq : ${e.message}</span>`); }
+  }
+
+  // Test Mistral
+  const mistralFilled = mistralKeysData.filter(k => k.value && k.value.trim());
+  if (mistralFilled.length === 0) {
+    lines.push('<span class="t-warn">⚠ Mistral : Aucune clé configurée (fallback désactivé)</span>');
+  } else {
+    try {
+      const r = await fetch('https://api.mistral.ai/v1/models', {
+        headers: { Authorization: 'Bearer ' + mistralFilled[0].value }
+      });
+      if (r.ok) lines.push(`<span class="t-ok" style="color:var(--purple)">✓ Mistral : ${mistralFilled.length} clé${mistralFilled.length>1?'s':''} — Fallback ACTIF</span>`);
+      else lines.push(`<span class="t-err">✗ Mistral : Erreur ${r.status}</span>`);
+    } catch(e) { lines.push(`<span class="t-err">✗ Mistral : ${e.message}</span>`); }
+  }
+
+  lines.push('');
+  const totalKeys = groqFilled.length + mistralFilled.length;
+  lines.push(`<span class="t-ok">📊 Total : ${totalKeys} clé${totalKeys>1?'s':''} · Capacité estimée : ${groqFilled.length * 30} req/min</span>`);
+  res.innerHTML = lines.join('<br>');
+}
+
+// ══════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════
 function exportConfig() {
-  const data = { groq_keys:keysData.map(k=>({...k,value:'***hidden***'})), models:modelsData, exportedAt:new Date().toISOString() };
+  const data = {
+    groq_keys:    groqKeysData.map(k => ({ ...k, value: '***hidden***' })),
+    mistral_keys: mistralKeysData.map(k => ({ ...k, value: '***hidden***' })),
+    models:       modelsData,
+    exportedAt:   new Date().toISOString()
+  };
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
-  a.download='comeo_server_config.json'; a.click();
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+  a.download = 'comeo_server_config.json';
+  a.click();
+  showToast('Configuration exportée');
 }
 
-// ── UTILS ──
-function showToast(msg, isErr=false) {
-  const t=document.getElementById('toast');
-  document.getElementById('toastMsg').textContent=msg;
-  document.getElementById('toastIcon').textContent=isErr?'✕':'✓';
-  t.style.borderColor=isErr?'rgba(248,113,113,0.3)':'rgba(74,222,128,0.3)';
-  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3200);
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function showToast(msg, isErr = false) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent  = msg;
+  document.getElementById('toastIcon').textContent = isErr ? '✕' : '✓';
+  t.style.borderColor = isErr ? 'rgba(248,113,113,0.3)' : 'rgba(74,222,128,0.3)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
 }
 
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
 </script>
 </body>
 </html>
