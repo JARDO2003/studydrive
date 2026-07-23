@@ -122,6 +122,39 @@
 
   ::-webkit-scrollbar{width:5px;}
   ::-webkit-scrollbar-thumb{background:var(--panel-line);border-radius:3px;}
+
+  /* ---- home geofence panel ---- */
+  #homePanel{top:80px;left:282px;width:246px;background:rgba(14,23,38,.9);border:1px solid var(--panel-line);
+    border-radius:10px;backdrop-filter:blur(6px);padding:14px;}
+  #homePanel .head{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.1em;color:var(--muted);
+    margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+  #homePanel .head .st{font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:2px 6px;border-radius:3px;
+    border:1px solid var(--panel-line);}
+  #homePanel .head .st.set{color:var(--teal);border-color:var(--teal);}
+  #homePanel .head .st.unset{color:var(--muted);}
+  button.home-btn{pointer-events:auto;cursor:pointer;background:rgba(255,184,77,.08);border:1px solid var(--amber);
+    color:var(--amber);font-size:11px;padding:8px 10px;border-radius:6px;width:100%;transition:.15s;font-weight:600;}
+  button.home-btn:hover{background:rgba(255,184,77,.18);}
+  button.home-btn.placing{background:var(--amber);color:#1a1206;}
+  #alertsList{max-height:130px;overflow-y:auto;margin-top:10px;}
+  .alert-row{padding:7px 0;border-top:1px solid rgba(28,41,64,.6);font-size:10.5px;line-height:1.4;}
+  .alert-row .t{font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:9.5px;}
+  .alert-row .m{color:var(--red);font-weight:600;}
+  #alertsEmpty{color:var(--muted);font-size:10.5px;padding:8px 0 0;}
+
+  .lw-home-marker{width:26px;height:26px;border-radius:6px;background:var(--amber);border:2px solid #1a1206;
+    box-shadow:0 0 12px rgba(255,184,77,.8);display:flex;align-items:center;justify-content:center;font-size:14px;}
+
+  /* full-screen intrusion flash */
+  #alertFlash{position:fixed;inset:0;z-index:2000;pointer-events:none;background:rgba(239,83,80,0);
+    transition:background .3s;}
+  #alertFlash.on{animation:flashpulse 0.9s ease-in-out 3;}
+  @keyframes flashpulse{0%,100%{background:rgba(239,83,80,0);}50%{background:rgba(239,83,80,0.22);}}
+  #alertToast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);z-index:2001;
+    background:rgba(239,83,80,.95);color:#fff;padding:12px 20px;border-radius:9px;font-family:'Space Grotesk',sans-serif;
+    font-weight:700;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transition:.3s;pointer-events:none;
+    display:flex;align-items:center;gap:8px;}
+  #alertToast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
@@ -168,6 +201,21 @@
   <div class="acc"><div id="accBar"></div></div>
 </div>
 
+<div class="hud interactive" id="homePanel">
+  <div class="head">ZONE MAISON <span class="st unset" id="homeStatus">non définie</span></div>
+  <button class="home-btn" id="setHomeBtn">Placer ma maison ici</button>
+  <div class="ctrl-row" style="margin-top:10px;">
+    <label>Rayon d'alerte</label>
+    <select id="homeRadiusSelect">
+      <option value="30">30 m</option>
+      <option value="50" selected>50 m</option>
+      <option value="100">100 m</option>
+      <option value="200">200 m</option>
+    </select>
+  </div>
+  <div id="alertsList"><div id="alertsEmpty">Aucune alerte pour l'instant.</div></div>
+</div>
+
 <div class="hud interactive" id="controls">
   <div class="head">CONTRÔLES</div>
   <div class="ctrl-row">
@@ -189,6 +237,9 @@
 </div>
 
 <div class="hud" id="bottombar">© contributeurs OpenStreetMap · glisse pour te déplacer · molette pour zoomer</div>
+
+<div id="alertFlash"></div>
+<div id="alertToast">⚠️ <span id="alertToastText"></span></div>
 
 <script type="module">
 /* ============================================================
@@ -253,6 +304,104 @@ function drawSectorCircle(latlng){
   sectorCircle = L.circle(latlng, {
     radius: sectorRadius, color:'#2dd4bf', weight:1, fillColor:'#2dd4bf', fillOpacity:0.06, dashArray:'4,6'
   }).addTo(map);
+}
+
+// ---------- home geofence ----------
+let homeLatLng = null;
+let homeRadius = 50;
+let homeMarker = null, homeCircle = null;
+let placingHome = false;
+const insideHome = new Set(); // keys currently inside the fence, to fire alert only on entry
+let audioCtx = null;
+
+function beep(){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = 'square'; o.frequency.value = 880;
+    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.28);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime+0.3);
+    setTimeout(()=>{
+      const o2=audioCtx.createOscillator(), g2=audioCtx.createGain();
+      o2.type='square'; o2.frequency.value=660;
+      g2.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+      g2.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime+0.02);
+      g2.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.28);
+      o2.connect(g2); g2.connect(audioCtx.destination);
+      o2.start(); o2.stop(audioCtx.currentTime+0.3);
+    }, 260);
+  }catch(e){ console.warn('audio indisponible', e); }
+}
+
+function requestNotifPermission(){
+  if('Notification' in window && Notification.permission === 'default'){
+    Notification.requestPermission();
+  }
+}
+
+const alertLog = [];
+function logAlert(name, dist){
+  const time = new Date().toTimeString().slice(0,8);
+  alertLog.unshift({name, dist, time});
+  if(alertLog.length > 25) alertLog.pop();
+  renderAlerts();
+
+  // visual flash
+  const flash = document.getElementById('alertFlash');
+  flash.classList.remove('on'); void flash.offsetWidth; flash.classList.add('on');
+
+  // toast
+  const toast = document.getElementById('alertToast');
+  document.getElementById('alertToastText').textContent = `${name} approche de ta maison (${Math.round(dist)} m)`;
+  toast.classList.add('show');
+  setTimeout(()=> toast.classList.remove('show'), 4000);
+
+  // sound
+  beep();
+
+  // browser notification
+  if('Notification' in window && Notification.permission === 'granted'){
+    try{ new Notification('LIVEWALK — Alerte maison', {body: `${name} est entré dans la zone (${Math.round(dist)} m)`}); }
+    catch(e){}
+  }
+}
+function renderAlerts(){
+  const list = document.getElementById('alertsList');
+  if(alertLog.length===0){ list.innerHTML = '<div id="alertsEmpty">Aucune alerte pour l\'instant.</div>'; return; }
+  list.innerHTML = alertLog.map(a=>`
+    <div class="alert-row"><span class="t">${a.time}</span> — <span class="m">${a.name}</span> à ${Math.round(a.dist)} m de la maison</div>
+  `).join('');
+}
+
+function setHome(latlng){
+  homeLatLng = latlng;
+  if(homeMarker) map.removeLayer(homeMarker);
+  if(homeCircle) map.removeLayer(homeCircle);
+  homeMarker = L.marker(latlng, {
+    icon: L.divIcon({className:'', html:'<div class="lw-home-marker">🏠</div>', iconSize:[26,26], iconAnchor:[13,13]})
+  }).addTo(map);
+  homeCircle = L.circle(latlng, {radius: homeRadius, color:'#ffb84d', weight:1.5, fillColor:'#ffb84d', fillOpacity:0.1}).addTo(map);
+  document.getElementById('homeStatus').textContent = 'active';
+  document.getElementById('homeStatus').className = 'st set';
+  insideHome.clear();
+  requestNotifPermission();
+}
+
+// check a given user's distance to home and fire alert on entry (not on self)
+function checkHomeGeofence(key, name, lat, lng){
+  if(!homeLatLng) return;
+  const dist = haversine(homeLatLng.lat, homeLatLng.lng, lat, lng);
+  const wasInside = insideHome.has(key);
+  const isInside = dist <= homeRadius;
+  if(isInside && !wasInside){
+    insideHome.add(key);
+    logAlert(name, dist);
+  } else if(!isInside && wasInside){
+    insideHome.delete(key);
+  }
 }
 
 function makeIcon(colorHex, label, isSelf){
@@ -330,6 +479,7 @@ function startRealtimeSync(){
       rec.marker.setLatLng([u.lat, u.lng]);
       rec.data = {name: u.name||'Marcheur', dist};
       rec.lastSeen = Date.now();
+      checkHomeGeofence(key, u.name || 'Marcheur', u.lat, u.lng);
     });
     [...others.keys()].forEach(k=>{ if(!seen.has(k)) removeOtherMarker(k); });
     renderRoster();
@@ -414,11 +564,13 @@ function startDemoMode(){
     demoWalkers.push({marker, colorHex, name:names[i], angle, radius:r, speed:0.15+Math.random()*0.2, theta:Math.random()*Math.PI*2, base});
   }
   demoTimer = setInterval(()=>{
-    demoWalkers.forEach(w=>{
+    demoWalkers.forEach((w,i)=>{
       w.theta += 0.02*w.speed;
       const dLat = (w.radius*Math.cos(w.theta))/111320;
       const dLng = (w.radius*Math.sin(w.theta))/(111320*Math.cos(w.base.lat*Math.PI/180));
-      w.marker.setLatLng([w.base.lat+dLat, w.base.lng+dLng]);
+      const newLat = w.base.lat+dLat, newLng = w.base.lng+dLng;
+      w.marker.setLatLng([newLat, newLng]);
+      checkHomeGeofence('demo_'+i, w.name, newLat, newLng);
     });
     renderDemoRoster();
   }, 200);
@@ -458,6 +610,36 @@ document.getElementById('radiusSelect').addEventListener('change', e=>{
 });
 document.getElementById('recenterBtn').addEventListener('click', ()=>{
   if(selfLatLng) map.setView([selfLatLng.lat, selfLatLng.lng], 16);
+});
+
+// ---------- home panel wiring ----------
+const setHomeBtn = document.getElementById('setHomeBtn');
+setHomeBtn.addEventListener('click', ()=>{
+  if(placingHome){
+    // cancel placing mode
+    placingHome = false;
+    setHomeBtn.classList.remove('placing');
+    setHomeBtn.textContent = 'Placer ma maison ici';
+    return;
+  }
+  if(selfLatLng && !homeLatLng){
+    // first click: default to current position immediately, offer map-click to refine
+    setHome(selfLatLng);
+  }
+  placingHome = true;
+  setHomeBtn.classList.add('placing');
+  setHomeBtn.textContent = 'Clique sur la carte pour ajuster…';
+});
+map.on('click', (e)=>{
+  if(!placingHome) return;
+  setHome(e.latlng);
+  placingHome = false;
+  setHomeBtn.classList.remove('placing');
+  setHomeBtn.textContent = 'Placer ma maison ici';
+});
+document.getElementById('homeRadiusSelect').addEventListener('change', (e)=>{
+  homeRadius = parseInt(e.target.value,10);
+  if(homeLatLng) setHome(homeLatLng);
 });
 document.getElementById('stopBtn').addEventListener('click', ()=>{
   stopGeolocation();
