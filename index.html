@@ -3,358 +3,368 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Assistant Email — propulsé par Gemini</title>
+<title>Envoyer une lettre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
   :root{
-    --ink:#1b1f23;
-    --paper:#f6f4ee;
-    --panel:#ffffff;
-    --line:#e2ded2;
-    --accent:#2f5d50;
-    --accent-soft:#e7f0ec;
-    --warn:#a3492f;
-    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
-    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --navy: #16233f;
+    --navy-deep: #0e1729;
+    --parchment: #efe7d6;
+    --parchment-dark: #e2d8c0;
+    --seal: #9c2b34;
+    --seal-dark: #7c2129;
+    --gold: #b8912f;
+    --ink: #1b1a17;
+    --ink-soft: #56503f;
   }
-  *{box-sizing:border-box;}
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
   body{
-    margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--navy);
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(184,145,47,0.08), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(184,145,47,0.06), transparent 45%);
     min-height:100vh;
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 40px 16px;
   }
-  header{
-    padding:28px 32px 18px;
-    border-bottom:1px solid var(--line);
-  }
-  header .eyebrow{
-    font-family:var(--mono);
+
+  .page-label{
+    position:fixed;
+    top:24px; left:50%; transform:translateX(-50%);
+    font-family:'IBM Plex Mono', monospace;
     font-size:11px;
-    letter-spacing:.14em;
+    letter-spacing:0.25em;
     text-transform:uppercase;
-    color:var(--accent);
+    color: rgba(239,231,214,0.55);
   }
-  header h1{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:28px;
-    margin:6px 0 4px;
-  }
-  header p{
-    margin:0;
-    color:#5a5548;
-    font-size:14px;
-    max-width:640px;
-  }
-  .layout{
-    display:grid;
-    grid-template-columns: 340px 1fr;
-    gap:0;
-    min-height:calc(100vh - 110px);
-  }
-  .sidebar{
-    border-right:1px solid var(--line);
-    padding:24px;
-    background:var(--panel);
-  }
-  .sidebar label{
-    display:block;
-    font-size:12px;
-    font-family:var(--mono);
-    text-transform:uppercase;
-    letter-spacing:.06em;
-    color:#7a7565;
-    margin:18px 0 6px;
-  }
-  .sidebar label:first-of-type{margin-top:0;}
-  .sidebar input, .sidebar select, .sidebar textarea{
+
+  .envelope{
+    position:relative;
     width:100%;
-    padding:9px 10px;
-    border:1px solid var(--line);
-    border-radius:6px;
-    font-size:13.5px;
-    font-family:inherit;
-    background:#fdfcf9;
-    color:var(--ink);
+    max-width: 620px;
+    background: var(--parchment);
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.06);
+    border-radius: 3px;
+    padding: 56px 48px 44px;
+    background-image:
+      repeating-linear-gradient(135deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 4px);
   }
-  .sidebar textarea{resize:vertical;min-height:70px;}
-  .hint{
-    font-size:12px;
-    color:#8a8574;
-    margin-top:6px;
-    line-height:1.4;
+
+  .envelope::before{
+    content:"";
+    position:absolute; inset:14px;
+    border: 1px solid rgba(27,26,23,0.15);
+    pointer-events:none;
   }
+
+  .stamp{
+    position:absolute;
+    top: 28px; right: 32px;
+    width: 74px; height: 90px;
+    border: 2px dashed rgba(27,26,23,0.35);
+    padding: 6px;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--parchment-dark);
+  }
+  .stamp-inner{
+    width:100%; height:100%;
+    background: var(--seal);
+    background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18), transparent 60%);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--parchment);
+    font-family:'Fraunces', serif;
+    font-size: 26px;
+  }
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+  }
+
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-size: 34px;
+    line-height:1.1;
+    margin: 0 0 6px;
+    max-width: 420px;
+  }
+
+  .sub{
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: 0 0 34px;
+    max-width: 440px;
+    line-height:1.5;
+  }
+
+  form{ display:flex; flex-direction:column; gap: 18px; }
+
+  .row{ display:flex; gap:16px; }
+  .row .field{ flex:1; }
+
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+
+  .field input,
+  .field textarea{
+    width:100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px solid rgba(27,26,23,0.3);
+    padding: 8px 2px 10px;
+    font-family:'Inter', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .field textarea{ resize: vertical; min-height: 96px; font-family:'Inter',sans-serif; }
+  .field input:focus,
+  .field textarea:focus{ border-bottom-color: var(--seal); }
+  .field input::placeholder,
+  .field textarea::placeholder{ color: rgba(27,26,23,0.32); }
+
+  .actions{
+    margin-top: 12px;
+    display:flex;
+    align-items:center;
+    gap: 18px;
+  }
+
+  button.send{
+    position:relative;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--parchment);
+    background: var(--seal);
+    border: none;
+    padding: 14px 26px;
+    cursor:pointer;
+    border-radius: 2px;
+    transition: transform 0.15s ease, background 0.2s ease;
+  }
+  button.send:hover{ background: var(--seal-dark); }
+  button.send:active{ transform: scale(0.97); }
+  button.send:disabled{ opacity:0.55; cursor: progress; }
+
   .status{
-    margin-top:16px;
-    padding:10px 12px;
-    border-radius:6px;
-    font-size:12.5px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    min-height: 16px;
+  }
+  .status.ok{ color: #3a6b3f; }
+  .status.err{ color: var(--seal); }
+
+  .postmark{
+    position:absolute;
+    top: 26px; right: 118px;
+    width: 92px; height: 92px;
+    border-radius:50%;
+    border: 2px solid rgba(27,26,23,0.55);
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color: rgba(27,26,23,0.6);
+    opacity:0;
+    transform: scale(1.4) rotate(-8deg);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events:none;
+  }
+  .postmark.show{
+    opacity:0.85;
+    transform: scale(1) rotate(-8deg);
+  }
+  .postmark::before{
+    content:"";
+    position:absolute; inset:6px;
+    border-radius:50%;
+    border: 1px solid rgba(27,26,23,0.55);
+  }
+
+  .config-toggle{
+    margin-top: 36px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing:0.08em;
+    color: var(--ink-soft);
+    background:none;
+    border:none;
+    text-decoration: underline;
+    cursor:pointer;
+    padding:0;
+  }
+
+  .config{
+    margin-top: 16px;
+    padding: 18px;
+    background: rgba(255,255,255,0.35);
+    border: 1px solid rgba(27,26,23,0.15);
+    font-size: 13px;
+    line-height:1.6;
+    color: var(--ink-soft);
     display:none;
   }
-  .status.show{display:block;}
-  .status.ok{background:var(--accent-soft);color:var(--accent);}
-  .status.err{background:#f6e6df;color:var(--warn);}
-
-  main{padding:28px 32px;}
-  .grid{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:20px;
-  }
-  .card{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:18px;
-    display:flex;
-    flex-direction:column;
-  }
-  .card h2{
-    font-family:var(--serif);
-    font-size:16px;
-    margin:0 0 4px;
-  }
-  .card .sub{
+  .config.open{ display:block; }
+  .config code{
+    background: rgba(27,26,23,0.08);
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-family:'IBM Plex Mono', monospace;
     font-size:12px;
-    color:#8a8574;
-    margin-bottom:12px;
   }
-  .card textarea{
-    flex:1;
-    min-height:320px;
-    border:1px solid var(--line);
-    border-radius:6px;
-    padding:12px;
-    font-size:13.5px;
-    line-height:1.55;
-    font-family:inherit;
-    resize:vertical;
-    background:#fdfcf9;
-  }
-  .card textarea:focus{outline:2px solid var(--accent); outline-offset:1px;}
-  .actions{
-    margin-top:14px;
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-  }
-  button{
-    font-family:inherit;
-    font-size:13px;
-    padding:10px 16px;
-    border-radius:6px;
-    border:1px solid var(--accent);
-    background:var(--accent);
-    color:#fff;
-    cursor:pointer;
-  }
-  button.secondary{
-    background:transparent;
-    color:var(--accent);
-  }
-  button:disabled{
-    opacity:.5;
-    cursor:not-allowed;
-  }
-  button:hover:not(:disabled){filter:brightness(1.06);}
-  .note{
-    margin-top:22px;
-    padding:14px 16px;
-    background:var(--accent-soft);
-    border-radius:8px;
-    font-size:12.5px;
-    line-height:1.6;
-    color:#2f4a41;
-  }
-  .note strong{color:var(--accent);}
-  @media (max-width: 880px){
-    .layout{grid-template-columns:1fr;}
-    .sidebar{border-right:none;border-bottom:1px solid var(--line);}
-    .grid{grid-template-columns:1fr;}
+  .config ol{ padding-left: 18px; margin: 10px 0 0; }
+  .config li{ margin-bottom: 6px; }
+
+  @media (max-width: 520px){
+    .envelope{ padding: 70px 24px 32px; }
+    .row{ flex-direction:column; gap:18px; }
+    .stamp{ top:20px; right:20px; width:60px; height:74px; }
+    .postmark{ display:none; }
+    h1{ font-size:26px; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="eyebrow">Prototype</div>
-  <h1>Assistant Email — Gemini</h1>
-  <p>Collez un email reçu, laissez Gemini rédiger une réponse, ajustez-la, puis ouvrez-la dans votre messagerie pour l'envoyer.</p>
-</header>
+<div class="page-label">Bureau de poste — envoi électronique</div>
 
-<div class="layout">
-  <aside class="sidebar">
-    <label for="apiKey">Clé API Gemini</label>
-    <input id="apiKey" type="password" placeholder="AIza...">
-    <div class="hint">Votre clé reste dans votre navigateur : elle n'est envoyée qu'à l'API Google, jamais stockée ailleurs. Obtenez-en une sur <em>aistudio.google.com/app/apikey</em>.</div>
+<div class="envelope">
+  <div class="stamp"><div class="stamp-inner">✉</div></div>
+  <div class="postmark" id="postmark">Expédié<br>le<br><span id="postmarkDate"></span></div>
 
-    <label for="model">Modèle</label>
-    <select id="model">
-      <option value="gemini-2.5-flash">gemini-2.5-flash (rapide)</option>
-      <option value="gemini-2.5-pro">gemini-2.5-pro (qualité)</option>
-    </select>
+  <p class="eyebrow">Nouveau message</p>
+  <h1>Rédigez votre lettre</h1>
+  <p class="sub">Remplissez l'adresse du destinataire et votre message. La lettre part directement depuis ce navigateur, sans serveur intermédiaire.</p>
 
-    <label for="tone">Ton de la réponse</label>
-    <select id="tone">
-      <option value="professionnel et cordial">Professionnel et cordial</option>
-      <option value="formel">Formel</option>
-      <option value="amical et décontracté">Amical et décontracté</option>
-      <option value="bref et direct">Bref et direct</option>
-    </select>
+  <form id="mailForm">
+    <div class="row">
+      <div class="field">
+        <label for="fromName">Votre nom</label>
+        <input id="fromName" name="fromName" type="text" placeholder="Ex. Awa Koné" required>
+      </div>
+      <div class="field">
+        <label for="fromEmail">Votre email</label>
+        <input id="fromEmail" name="fromEmail" type="email" placeholder="vous@exemple.com" required>
+      </div>
+    </div>
 
-    <label for="signature">Signature</label>
-    <textarea id="signature" placeholder="Cordialement,
-Votre nom">Cordialement,
-[Votre nom]</textarea>
+    <div class="field">
+      <label for="toEmail">Adresse du destinataire</label>
+      <input id="toEmail" name="toEmail" type="email" placeholder="destinataire@exemple.com" required>
+    </div>
 
-    <label for="instructions">Instructions additionnelles (optionnel)</label>
-    <textarea id="instructions" placeholder="Ex : proposer un rendez-vous jeudi après-midi, rester concis, ne pas confirmer le prix..."></textarea>
+    <div class="field">
+      <label for="subject">Objet</label>
+      <input id="subject" name="subject" type="text" placeholder="Objet du message" required>
+    </div>
 
-    <div id="status" class="status"></div>
-  </aside>
-
-  <main>
-    <div class="grid">
-      <section class="card">
-        <h2>Email reçu</h2>
-        <div class="sub">Collez ici le message auquel répondre</div>
-        <textarea id="incomingEmail" placeholder="Objet : ...
-
-Bonjour,
-
-..."></textarea>
-      </section>
-
-      <section class="card">
-        <h2>Réponse générée</h2>
-        <div class="sub">Modifiable avant envoi</div>
-        <textarea id="draftReply" placeholder="La réponse générée par Gemini apparaîtra ici..."></textarea>
-      </section>
+    <div class="field">
+      <label for="message">Message</label>
+      <textarea id="message" name="message" placeholder="Écrivez votre message ici…" required></textarea>
     </div>
 
     <div class="actions">
-      <button id="generateBtn">Générer la réponse</button>
-      <button id="regenerateBtn" class="secondary" disabled>Régénérer</button>
-      <button id="openMailBtn" class="secondary" disabled>Ouvrir dans ma messagerie</button>
-      <button id="copyBtn" class="secondary" disabled>Copier</button>
+      <button class="send" type="submit" id="sendBtn">Envoyer la lettre</button>
+      <span class="status" id="status"></span>
     </div>
+  </form>
 
-    <div class="note">
-      <strong>Limite importante :</strong> une page web ne peut pas envoyer d'emails toute seule pour des raisons de sécurité — elle ne peut pas se connecter directement à un serveur SMTP depuis le navigateur. "Ouvrir dans ma messagerie" pré-remplit un brouillon (via <code>mailto:</code>) que vous envoyez vous-même en un clic. Pour un envoi 100&nbsp;% automatique (sans action humaine), il faut un petit backend (Node.js/Python) qui utilise l'API Gmail ou un service SMTP — je peux vous le construire séparément si besoin.
-    </div>
-  </main>
+  <button class="config-toggle" id="configToggle">Configuration du service d'envoi (à faire une seule fois)</button>
+  <div class="config" id="configPanel">
+    Ce site utilise <strong>EmailJS</strong>, un service gratuit qui envoie de vrais emails directement depuis le navigateur, sans backend.
+    <ol>
+      <li>Créez un compte gratuit sur <code>emailjs.com</code>.</li>
+      <li>Ajoutez un "Email Service" (ex. Gmail) — vous obtenez un <code>SERVICE_ID</code>.</li>
+      <li>Créez un "Email Template". Dans le champ <code>To Email</code> du template, mettez <code>{{to_email}}</code> pour que le destinataire soit dynamique. Utilisez aussi <code>{{from_name}}</code>, <code>{{from_email}}</code>, <code>{{subject}}</code>, <code>{{message}}</code> dans le corps — vous obtenez un <code>TEMPLATE_ID</code>.</li>
+      <li>Dans "Account" → "General", copiez votre <code>PUBLIC_KEY</code>.</li>
+      <li>Ouvrez le fichier <code>index.html</code> et remplacez les trois valeurs en haut du script (<code>PUBLIC_KEY</code>, <code>SERVICE_ID</code>, <code>TEMPLATE_ID</code>) par les vôtres.</li>
+    </ol>
+    Le plan gratuit d'EmailJS autorise 200 emails/mois, largement suffisant pour un petit formulaire de contact.
+  </div>
 </div>
 
 <script>
-const $ = id => document.getElementById(id);
-const statusEl = $('status');
+  // ====== À CONFIGURER ======
+  const PUBLIC_KEY  = "YOUR_PUBLIC_KEY";
+  const SERVICE_ID  = "YOUR_SERVICE_ID";
+  const TEMPLATE_ID = "YOUR_TEMPLATE_ID";
+  // ===========================
 
-function showStatus(msg, ok=true){
-  statusEl.textContent = msg;
-  statusEl.className = 'status show ' + (ok ? 'ok' : 'err');
-}
+  emailjs.init({ publicKey: PUBLIC_KEY });
 
-function setLoading(loading){
-  $('generateBtn').disabled = loading;
-  $('generateBtn').textContent = loading ? 'Génération…' : 'Générer la réponse';
-}
+  const form = document.getElementById('mailForm');
+  const btn = document.getElementById('sendBtn');
+  const status = document.getElementById('status');
+  const postmark = document.getElementById('postmark');
+  const postmarkDate = document.getElementById('postmarkDate');
 
-async function callGemini(prompt){
-  const apiKey = $('apiKey').value.trim();
-  const model = $('model').value;
-  if(!apiKey){
-    throw new Error("Merci de renseigner votre clé API Gemini.");
-  }
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const configToggle = document.getElementById('configToggle');
+  const configPanel = document.getElementById('configPanel');
+  configToggle.addEventListener('click', () => configPanel.classList.toggle('open'));
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }]
-    })
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+
+    if (PUBLIC_KEY === "YOUR_PUBLIC_KEY") {
+      status.textContent = "Configurez d'abord le service d'envoi (voir le lien ci-dessous).";
+      status.className = "status err";
+      configPanel.classList.add('open');
+      return;
+    }
+
+    const params = {
+      from_name: document.getElementById('fromName').value,
+      from_email: document.getElementById('fromEmail').value,
+      to_email: document.getElementById('toEmail').value,
+      subject: document.getElementById('subject').value,
+      message: document.getElementById('message').value,
+    };
+
+    btn.disabled = true;
+    status.textContent = "Envoi en cours…";
+    status.className = "status";
+    postmark.classList.remove('show');
+
+    emailjs.send(SERVICE_ID, TEMPLATE_ID, params).then(function(){
+      status.textContent = "Lettre envoyée avec succès.";
+      status.className = "status ok";
+      const d = new Date();
+      postmarkDate.textContent = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+      postmark.classList.add('show');
+      form.reset();
+    }).catch(function(err){
+      status.textContent = "Échec de l'envoi. Vérifiez la configuration.";
+      status.className = "status err";
+      console.error(err);
+    }).finally(function(){
+      btn.disabled = false;
+    });
   });
-
-  if(!response.ok){
-    const errText = await response.text();
-    throw new Error(`Erreur API (${response.status}) : ${errText.slice(0,200)}`);
-  }
-
-  const data = await response.json();
-  const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text).join("") ;
-  if(!text){
-    throw new Error("Réponse vide reçue de l'API.");
-  }
-  return text.trim();
-}
-
-function buildPrompt(){
-  const incoming = $('incomingEmail').value.trim();
-  const tone = $('tone').value;
-  const signature = $('signature').value.trim();
-  const instructions = $('instructions').value.trim();
-
-  if(!incoming){
-    throw new Error("Collez d'abord l'email reçu.");
-  }
-
-  return `Tu es un assistant qui rédige des réponses email en français.
-
-Voici l'email reçu :
-"""
-${incoming}
-"""
-
-Rédige une réponse à cet email avec un ton ${tone}.
-${instructions ? "Instructions spécifiques : " + instructions : ""}
-
-Règles :
-- Ne mets pas d'objet (Objet : ...), commence directement par la formule d'appel.
-- Termine par cette signature exacte, sans la modifier :
-${signature}
-- Reste naturel, ne mentionne jamais que tu es une IA.
-- Sois concis et va à l'essentiel, sauf si le contexte demande plus de détail.`;
-}
-
-async function generateReply(){
-  try{
-    setLoading(true);
-    showStatus("Génération en cours…", true);
-    const prompt = buildPrompt();
-    const reply = await callGemini(prompt);
-    $('draftReply').value = reply;
-    $('regenerateBtn').disabled = false;
-    $('openMailBtn').disabled = false;
-    $('copyBtn').disabled = false;
-    showStatus("Réponse générée avec succès.", true);
-  }catch(err){
-    showStatus(err.message, false);
-  }finally{
-    setLoading(false);
-  }
-}
-
-$('generateBtn').addEventListener('click', generateReply);
-$('regenerateBtn').addEventListener('click', generateReply);
-
-$('openMailBtn').addEventListener('click', () => {
-  const body = $('draftReply').value;
-  const incoming = $('incomingEmail').value;
-  const subjectMatch = incoming.match(/^Objet\s*:\s*(.+)$/im);
-  const subject = subjectMatch ? "Re: " + subjectMatch[1] : "Re: votre message";
-  const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  window.location.href = mailto;
-});
-
-$('copyBtn').addEventListener('click', async () => {
-  try{
-    await navigator.clipboard.writeText($('draftReply').value);
-    showStatus("Réponse copiée dans le presse-papiers.", true);
-  }catch(err){
-    showStatus("Impossible de copier automatiquement.", false);
-  }
-});
 </script>
 
 </body>
