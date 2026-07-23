@@ -2,656 +2,360 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LIVEWALK — Secteur OpenStreetMap</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistant Email — propulsé par Gemini</title>
 <style>
   :root{
-    --bg:#070c14; --panel:#0e1726; --panel-line:#1c2940;
-    --amber:#ffb84d; --teal:#2dd4bf; --red:#ef5350; --self:#5ec9ff;
-    --text:#e7ecf5; --muted:#6d7d9c;
+    --ink:#1b1f23;
+    --paper:#f6f4ee;
+    --panel:#ffffff;
+    --line:#e2ded2;
+    --accent:#2f5d50;
+    --accent-soft:#e7f0ec;
+    --warn:#a3492f;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;height:100%;width:100%;overflow:hidden;background:var(--bg);
-    color:var(--text);font-family:'Inter',sans-serif;}
-  #map{position:fixed;inset:0;filter:saturate(0.75) brightness(0.85) contrast(1.05);}
-  .hud{position:fixed;pointer-events:none;z-index:500;}
-  .hud .interactive{pointer-events:auto;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    min-height:100vh;
+  }
+  header{
+    padding:28px 32px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  header .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  header h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:28px;
+    margin:6px 0 4px;
+  }
+  header p{
+    margin:0;
+    color:#5a5548;
+    font-size:14px;
+    max-width:640px;
+  }
+  .layout{
+    display:grid;
+    grid-template-columns: 340px 1fr;
+    gap:0;
+    min-height:calc(100vh - 110px);
+  }
+  .sidebar{
+    border-right:1px solid var(--line);
+    padding:24px;
+    background:var(--panel);
+  }
+  .sidebar label{
+    display:block;
+    font-size:12px;
+    font-family:var(--mono);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:#7a7565;
+    margin:18px 0 6px;
+  }
+  .sidebar label:first-of-type{margin-top:0;}
+  .sidebar input, .sidebar select, .sidebar textarea{
+    width:100%;
+    padding:9px 10px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    font-size:13.5px;
+    font-family:inherit;
+    background:#fdfcf9;
+    color:var(--ink);
+  }
+  .sidebar textarea{resize:vertical;min-height:70px;}
+  .hint{
+    font-size:12px;
+    color:#8a8574;
+    margin-top:6px;
+    line-height:1.4;
+  }
+  .status{
+    margin-top:16px;
+    padding:10px 12px;
+    border-radius:6px;
+    font-size:12.5px;
+    display:none;
+  }
+  .status.show{display:block;}
+  .status.ok{background:var(--accent-soft);color:var(--accent);}
+  .status.err{background:#f6e6df;color:var(--warn);}
 
-  /* ---- consent / onboarding screen ---- */
-  #gate{position:fixed;inset:0;z-index:1000;background:radial-gradient(ellipse at center, #0e1726 0%, #070c14 70%);
-    display:flex;align-items:center;justify-content:center;padding:24px;}
-  #gateCard{max-width:420px;width:100%;background:rgba(14,23,38,.92);border:1px solid var(--panel-line);
-    border-radius:14px;padding:30px 28px;backdrop-filter:blur(8px);}
-  #gateCard .eyebrow{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;
-    color:var(--teal);margin-bottom:10px;}
-  #gateCard h2{font-family:'Space Grotesk',sans-serif;font-size:22px;margin:0 0 12px;line-height:1.25;}
-  #gateCard p{font-size:13px;line-height:1.6;color:var(--muted);margin:0 0 14px;}
-  #gateCard input[type=text]{width:100%;background:#0b1220;border:1px solid var(--panel-line);
-    border-radius:7px;padding:10px 12px;color:var(--text);font-family:'Inter',sans-serif;
-    font-size:13px;margin-bottom:14px;}
-  #gateCard input[type=text]:focus{outline:none;border-color:var(--amber);}
-  .consent-row{display:flex;gap:9px;align-items:flex-start;margin-bottom:18px;}
-  .consent-row input{margin-top:3px;}
-  .consent-row span{font-size:11.5px;color:var(--muted);line-height:1.5;}
-  #activateBtn{width:100%;background:var(--amber);color:#1a1206;border:none;border-radius:8px;
-    padding:13px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;
-    letter-spacing:.03em;cursor:pointer;transition:.15s;}
-  #activateBtn:hover{filter:brightness(1.08);}
-  #activateBtn:disabled{opacity:.4;cursor:not-allowed;}
-  #gateStatus{margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);min-height:16px;}
-  #demoLink{display:block;text-align:center;margin-top:12px;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;}
-
-  /* ---- top bar ---- */
-  #topbar{top:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;
-    padding:0 22px;background:linear-gradient(180deg, rgba(7,12,20,.9), rgba(7,12,20,0));}
-  #brand{display:flex;align-items:center;gap:10px;}
-  #brand .dot{width:9px;height:9px;border-radius:50%;background:var(--self);box-shadow:0 0 10px var(--self);
-    animation:pulse 1.6s ease-in-out infinite;}
-  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
-  #brand h1{font-family:'Space Grotesk',sans-serif;font-size:16px;letter-spacing:.14em;font-weight:700;margin:0;
-    text-shadow:0 1px 6px #000;}
-  #brand .sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-left:2px;}
-  #status{display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);}
-  #status .badge{padding:4px 9px;border:1px solid var(--panel-line);border-radius:3px;letter-spacing:.06em;
-    background:rgba(7,12,20,.7);}
-  .badge.ok{color:var(--teal);} .badge.warn{color:var(--amber);} .badge.err{color:var(--red);}
-
-  /* ---- left: roster ---- */
-  #roster{top:80px;left:18px;width:246px;background:rgba(14,23,38,.9);border:1px solid var(--panel-line);
-    border-radius:10px;backdrop-filter:blur(6px);overflow:hidden;}
-  #roster .head{padding:11px 14px;border-bottom:1px solid var(--panel-line);font-family:'Space Grotesk',sans-serif;
-    font-size:11px;letter-spacing:.1em;color:var(--muted);display:flex;justify-content:space-between;}
-  #roster .head span.n{color:var(--teal);}
-  #rosterList{max-height:280px;overflow-y:auto;}
-  .empty-row{padding:16px 14px;font-size:11.5px;color:var(--muted);line-height:1.5;}
-  .walker-row{padding:9px 14px;border-bottom:1px solid rgba(28,41,64,.6);display:flex;align-items:center;gap:9px;}
-  .walker-row .swatch{width:8px;height:8px;border-radius:50%;flex:none;}
-  .walker-row .info{flex:1;min-width:0;}
-  .walker-row .name{font-weight:600;font-size:12px;}
-  .walker-row .meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
-
-  /* ---- self card ---- */
-  #selfCard{top:80px;right:18px;width:220px;background:rgba(14,23,38,.9);border:1px solid var(--panel-line);
-    border-radius:10px;backdrop-filter:blur(6px);padding:14px;}
-  #selfCard .head{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.1em;color:var(--muted);margin-bottom:8px;}
-  #selfCard .row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;font-family:'JetBrains Mono',monospace;}
-  #selfCard .row span:last-child{color:var(--self);}
-  #selfCard .acc{margin-top:8px;height:5px;border-radius:3px;background:var(--panel-line);overflow:hidden;}
-  #selfCard .acc div{height:100%;background:var(--teal);width:60%;}
-
-  /* ---- controls ---- */
-  #controls{bottom:56px;left:18px;width:246px;background:rgba(14,23,38,.9);border:1px solid var(--panel-line);
-    border-radius:10px;backdrop-filter:blur(6px);padding:14px;}
-  #controls .head{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.1em;color:var(--muted);margin-bottom:10px;}
-  .ctrl-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .ctrl-row label{font-size:11px;color:var(--muted);}
-  select#radiusSelect{pointer-events:auto;background:#0b1220;border:1px solid var(--panel-line);color:var(--text);
-    font-size:11px;border-radius:6px;padding:5px 7px;font-family:'JetBrains Mono',monospace;}
-  button.action{pointer-events:auto;cursor:pointer;background:transparent;border:1px solid var(--panel-line);
-    color:var(--text);font-size:11px;padding:8px 10px;border-radius:6px;width:100%;transition:.15s;}
-  button.action:hover{border-color:var(--red);color:var(--red);}
-  button.recenter{pointer-events:auto;cursor:pointer;background:rgba(14,23,38,.9);border:1px solid var(--panel-line);
-    color:var(--self);font-size:11px;padding:8px 10px;border-radius:6px;width:100%;margin-top:8px;}
-
-  /* ---- note ---- */
-  #note{bottom:56px;right:18px;width:220px;background:rgba(14,23,38,.8);border:1px solid var(--panel-line);
-    border-radius:10px;padding:12px 14px;font-size:10.5px;line-height:1.5;color:var(--muted);}
-  #note b{color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:10.5px;letter-spacing:.05em;}
-
-  /* ---- bottom bar ---- */
-  #bottombar{bottom:0;left:0;right:0;height:40px;background:rgba(7,12,20,.9);border-top:1px solid var(--panel-line);
-    display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);}
-
-  /* ---- leaflet marker styling ---- */
-  .lw-marker{width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 10px rgba(0,0,0,.6);
-    display:flex;align-items:center;justify-content:center;position:relative;}
-  .lw-marker.self{background:var(--self);}
-  .lw-marker .pulse{position:absolute;inset:-8px;border-radius:50%;border:2px solid currentColor;opacity:.6;
-    animation:markerpulse 1.8s ease-out infinite;}
-  @keyframes markerpulse{0%{transform:scale(0.6);opacity:.7;}100%{transform:scale(1.9);opacity:0;}}
-  .lw-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:#fff;
-    text-shadow:0 1px 4px #000,0 0 3px #000;white-space:nowrap;margin-top:4px;text-align:center;}
-
-  .leaflet-control-attribution{background:rgba(7,12,20,.7)!important;color:var(--muted)!important;
-    font-size:9px!important;}
-  .leaflet-control-attribution a{color:var(--teal)!important;}
-
-  ::-webkit-scrollbar{width:5px;}
-  ::-webkit-scrollbar-thumb{background:var(--panel-line);border-radius:3px;}
-
-  /* ---- home geofence panel ---- */
-  #homePanel{top:80px;left:282px;width:246px;background:rgba(14,23,38,.9);border:1px solid var(--panel-line);
-    border-radius:10px;backdrop-filter:blur(6px);padding:14px;}
-  #homePanel .head{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.1em;color:var(--muted);
-    margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
-  #homePanel .head .st{font-family:'JetBrains Mono',monospace;font-size:9.5px;padding:2px 6px;border-radius:3px;
-    border:1px solid var(--panel-line);}
-  #homePanel .head .st.set{color:var(--teal);border-color:var(--teal);}
-  #homePanel .head .st.unset{color:var(--muted);}
-  button.home-btn{pointer-events:auto;cursor:pointer;background:rgba(255,184,77,.08);border:1px solid var(--amber);
-    color:var(--amber);font-size:11px;padding:8px 10px;border-radius:6px;width:100%;transition:.15s;font-weight:600;}
-  button.home-btn:hover{background:rgba(255,184,77,.18);}
-  button.home-btn.placing{background:var(--amber);color:#1a1206;}
-  #alertsList{max-height:130px;overflow-y:auto;margin-top:10px;}
-  .alert-row{padding:7px 0;border-top:1px solid rgba(28,41,64,.6);font-size:10.5px;line-height:1.4;}
-  .alert-row .t{font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:9.5px;}
-  .alert-row .m{color:var(--red);font-weight:600;}
-  #alertsEmpty{color:var(--muted);font-size:10.5px;padding:8px 0 0;}
-
-  .lw-home-marker{width:26px;height:26px;border-radius:6px;background:var(--amber);border:2px solid #1a1206;
-    box-shadow:0 0 12px rgba(255,184,77,.8);display:flex;align-items:center;justify-content:center;font-size:14px;}
-
-  /* full-screen intrusion flash */
-  #alertFlash{position:fixed;inset:0;z-index:2000;pointer-events:none;background:rgba(239,83,80,0);
-    transition:background .3s;}
-  #alertFlash.on{animation:flashpulse 0.9s ease-in-out 3;}
-  @keyframes flashpulse{0%,100%{background:rgba(239,83,80,0);}50%{background:rgba(239,83,80,0.22);}}
-  #alertToast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);z-index:2001;
-    background:rgba(239,83,80,.95);color:#fff;padding:12px 20px;border-radius:9px;font-family:'Space Grotesk',sans-serif;
-    font-weight:700;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transition:.3s;pointer-events:none;
-    display:flex;align-items:center;gap:8px;}
-  #alertToast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  main{padding:28px 32px;}
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:20px;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+  }
+  .card h2{
+    font-family:var(--serif);
+    font-size:16px;
+    margin:0 0 4px;
+  }
+  .card .sub{
+    font-size:12px;
+    color:#8a8574;
+    margin-bottom:12px;
+  }
+  .card textarea{
+    flex:1;
+    min-height:320px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:12px;
+    font-size:13.5px;
+    line-height:1.55;
+    font-family:inherit;
+    resize:vertical;
+    background:#fdfcf9;
+  }
+  .card textarea:focus{outline:2px solid var(--accent); outline-offset:1px;}
+  .actions{
+    margin-top:14px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  button{
+    font-family:inherit;
+    font-size:13px;
+    padding:10px 16px;
+    border-radius:6px;
+    border:1px solid var(--accent);
+    background:var(--accent);
+    color:#fff;
+    cursor:pointer;
+  }
+  button.secondary{
+    background:transparent;
+    color:var(--accent);
+  }
+  button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+  }
+  button:hover:not(:disabled){filter:brightness(1.06);}
+  .note{
+    margin-top:22px;
+    padding:14px 16px;
+    background:var(--accent-soft);
+    border-radius:8px;
+    font-size:12.5px;
+    line-height:1.6;
+    color:#2f4a41;
+  }
+  .note strong{color:var(--accent);}
+  @media (max-width: 880px){
+    .layout{grid-template-columns:1fr;}
+    .sidebar{border-right:none;border-bottom:1px solid var(--line);}
+    .grid{grid-template-columns:1fr;}
+  }
 </style>
 </head>
 <body>
 
-<div id="map"></div>
+<header>
+  <div class="eyebrow">Prototype</div>
+  <h1>Assistant Email — Gemini</h1>
+  <p>Collez un email reçu, laissez Gemini rédiger une réponse, ajustez-la, puis ouvrez-la dans votre messagerie pour l'envoyer.</p>
+</header>
 
-<!-- CONSENT / ACTIVATION SCREEN -->
-<div id="gate">
-  <div id="gateCard">
-    <div class="eyebrow">LIVEWALK · CARTE RÉELLE (OpenStreetMap)</div>
-    <h2>Activer ta position en direct</h2>
-    <p>Ton téléphone utilise le GPS pour connaître ta position précise. Une fois activée, ta position est envoyée en direct et affichée sur une vraie carte (rues, bâtiments) — visible par les autres utilisateurs connectés, comme toi tu vois les leurs.</p>
-    <input type="text" id="nameInput" placeholder="Ton prénom (affiché aux autres)" maxlength="18">
-    <div class="consent-row">
-      <input type="checkbox" id="consentBox">
-      <span>Je comprends que ma position sera partagée en direct avec les autres utilisateurs connectés tant que cette page reste ouverte, et supprimée dès que je la ferme.</span>
+<div class="layout">
+  <aside class="sidebar">
+    <label for="apiKey">Clé API Gemini</label>
+    <input id="apiKey" type="password" placeholder="AIza...">
+    <div class="hint">Votre clé reste dans votre navigateur : elle n'est envoyée qu'à l'API Google, jamais stockée ailleurs. Obtenez-en une sur <em>aistudio.google.com/app/apikey</em>.</div>
+
+    <label for="model">Modèle</label>
+    <select id="model">
+      <option value="gemini-2.5-flash">gemini-2.5-flash (rapide)</option>
+      <option value="gemini-2.5-pro">gemini-2.5-pro (qualité)</option>
+    </select>
+
+    <label for="tone">Ton de la réponse</label>
+    <select id="tone">
+      <option value="professionnel et cordial">Professionnel et cordial</option>
+      <option value="formel">Formel</option>
+      <option value="amical et décontracté">Amical et décontracté</option>
+      <option value="bref et direct">Bref et direct</option>
+    </select>
+
+    <label for="signature">Signature</label>
+    <textarea id="signature" placeholder="Cordialement,
+Votre nom">Cordialement,
+[Votre nom]</textarea>
+
+    <label for="instructions">Instructions additionnelles (optionnel)</label>
+    <textarea id="instructions" placeholder="Ex : proposer un rendez-vous jeudi après-midi, rester concis, ne pas confirmer le prix..."></textarea>
+
+    <div id="status" class="status"></div>
+  </aside>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2>Email reçu</h2>
+        <div class="sub">Collez ici le message auquel répondre</div>
+        <textarea id="incomingEmail" placeholder="Objet : ...
+
+Bonjour,
+
+..."></textarea>
+      </section>
+
+      <section class="card">
+        <h2>Réponse générée</h2>
+        <div class="sub">Modifiable avant envoi</div>
+        <textarea id="draftReply" placeholder="La réponse générée par Gemini apparaîtra ici..."></textarea>
+      </section>
     </div>
-    <button id="activateBtn" disabled>Activer ma position</button>
-    <div id="gateStatus"></div>
-    <div id="demoLink">Pas de GPS sous la main ? Lancer en mode démonstration</div>
-  </div>
+
+    <div class="actions">
+      <button id="generateBtn">Générer la réponse</button>
+      <button id="regenerateBtn" class="secondary" disabled>Régénérer</button>
+      <button id="openMailBtn" class="secondary" disabled>Ouvrir dans ma messagerie</button>
+      <button id="copyBtn" class="secondary" disabled>Copier</button>
+    </div>
+
+    <div class="note">
+      <strong>Limite importante :</strong> une page web ne peut pas envoyer d'emails toute seule pour des raisons de sécurité — elle ne peut pas se connecter directement à un serveur SMTP depuis le navigateur. "Ouvrir dans ma messagerie" pré-remplit un brouillon (via <code>mailto:</code>) que vous envoyez vous-même en un clic. Pour un envoi 100&nbsp;% automatique (sans action humaine), il faut un petit backend (Node.js/Python) qui utilise l'API Gmail ou un service SMTP — je peux vous le construire séparément si besoin.
+    </div>
+  </main>
 </div>
 
-<!-- HUD -->
-<div class="hud" id="topbar">
-  <div id="brand"><div class="dot"></div><h1>LIVEWALK</h1><span class="sub">/ CARTE&nbsp;RÉELLE</span></div>
-  <div id="status">
-    <span class="badge" id="gpsBadge">GPS —</span>
-    <span class="badge" id="netBadge">RÉSEAU —</span>
-    <span id="clock">00:00:00</span>
-  </div>
-</div>
+<script>
+const $ = id => document.getElementById(id);
+const statusEl = $('status');
 
-<div class="hud interactive" id="roster">
-  <div class="head">DANS TON SECTEUR <span class="n" id="rosterCount">0</span></div>
-  <div id="rosterList"><div class="empty-row">En attente de la position…</div></div>
-</div>
+function showStatus(msg, ok=true){
+  statusEl.textContent = msg;
+  statusEl.className = 'status show ' + (ok ? 'ok' : 'err');
+}
 
-<div class="hud interactive" id="selfCard">
-  <div class="head">TA POSITION</div>
-  <div class="row"><span>Latitude</span><span id="selfLat">—</span></div>
-  <div class="row"><span>Longitude</span><span id="selfLng">—</span></div>
-  <div class="row"><span>Précision</span><span id="selfAcc">—</span></div>
-  <div class="acc"><div id="accBar"></div></div>
-</div>
+function setLoading(loading){
+  $('generateBtn').disabled = loading;
+  $('generateBtn').textContent = loading ? 'Génération…' : 'Générer la réponse';
+}
 
-<div class="hud interactive" id="homePanel">
-  <div class="head">ZONE MAISON <span class="st unset" id="homeStatus">non définie</span></div>
-  <button class="home-btn" id="setHomeBtn">Placer ma maison ici</button>
-  <div class="ctrl-row" style="margin-top:10px;">
-    <label>Rayon d'alerte</label>
-    <select id="homeRadiusSelect">
-      <option value="30">30 m</option>
-      <option value="50" selected>50 m</option>
-      <option value="100">100 m</option>
-      <option value="200">200 m</option>
-    </select>
-  </div>
-  <div id="alertsList"><div id="alertsEmpty">Aucune alerte pour l'instant.</div></div>
-</div>
+async function callGemini(prompt){
+  const apiKey = $('apiKey').value.trim();
+  const model = $('model').value;
+  if(!apiKey){
+    throw new Error("Merci de renseigner votre clé API Gemini.");
+  }
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-<div class="hud interactive" id="controls">
-  <div class="head">CONTRÔLES</div>
-  <div class="ctrl-row">
-    <label>Rayon du secteur</label>
-    <select id="radiusSelect">
-      <option value="300">300 m</option>
-      <option value="1000" selected>1 km</option>
-      <option value="3000">3 km</option>
-      <option value="10000">10 km</option>
-    </select>
-  </div>
-  <button class="recenter" id="recenterBtn">Recentrer sur moi</button>
-  <button class="action" id="stopBtn" style="margin-top:8px;">Arrêter le partage</button>
-</div>
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }]
+    })
+  });
 
-<div class="hud" id="note">
-  <b>À PROPOS</b><br>
-  Fond de carte réel OpenStreetMap (rues, bâtiments) — gratuit, sans clé API. Ta position vient du GPS de ton appareil.
-</div>
+  if(!response.ok){
+    const errText = await response.text();
+    throw new Error(`Erreur API (${response.status}) : ${errText.slice(0,200)}`);
+  }
 
-<div class="hud" id="bottombar">© contributeurs OpenStreetMap · glisse pour te déplacer · molette pour zoomer</div>
+  const data = await response.json();
+  const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text).join("") ;
+  if(!text){
+    throw new Error("Réponse vide reçue de l'API.");
+  }
+  return text.trim();
+}
 
-<div id="alertFlash"></div>
-<div id="alertToast">⚠️ <span id="alertToastText"></span></div>
+function buildPrompt(){
+  const incoming = $('incomingEmail').value.trim();
+  const tone = $('tone').value;
+  const signature = $('signature').value.trim();
+  const instructions = $('instructions').value.trim();
 
-<script type="module">
-/* ============================================================
-   LIVEWALK — real GPS + OpenStreetMap/Leaflet + Firebase sync
-   ============================================================ */
+  if(!incoming){
+    throw new Error("Collez d'abord l'email reçu.");
+  }
 
-const robotFirebaseConfig = {
-  apiKey: 'AIzaSyAocBTsHd-A9OJ7RAagxwxtZd0pdW6TX3I',
-  authDomain: 'data-gbre.firebaseapp.com',
-  databaseURL: 'https://data-gbre-default-rtdb.firebaseio.com',
-  projectId: 'data-gbre',
-  storageBucket: 'data-gbre.firebasestorage.app',
-  messagingSenderId: '293732235454',
-  appId: '1:293732235454:web:c0b0f4a7b6c9b5d12f46ef',
-  measurementId: 'G-XD01FS1SPG',
-};
+  return `Tu es un assistant qui rédige des réponses email en français.
 
-const ROOM = 'livewalk_users';
-let firebaseOK = false;
-let db=null, dbRef=null, dbOnValue=null, dbSet=null, dbOnDisconnect=null, dbRemove=null, dbServerTimestamp=null;
+Voici l'email reçu :
+"""
+${incoming}
+"""
 
-async function initFirebase(){
+Rédige une réponse à cet email avec un ton ${tone}.
+${instructions ? "Instructions spécifiques : " + instructions : ""}
+
+Règles :
+- Ne mets pas d'objet (Objet : ...), commence directement par la formule d'appel.
+- Termine par cette signature exacte, sans la modifier :
+${signature}
+- Reste naturel, ne mentionne jamais que tu es une IA.
+- Sois concis et va à l'essentiel, sauf si le contexte demande plus de détail.`;
+}
+
+async function generateReply(){
   try{
-    const appMod = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
-    const dbMod  = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
-    const app = appMod.initializeApp(robotFirebaseConfig);
-    db = dbMod.getDatabase(app);
-    dbRef=dbMod.ref; dbOnValue=dbMod.onValue; dbSet=dbMod.set;
-    dbOnDisconnect=dbMod.onDisconnect; dbRemove=dbMod.remove; dbServerTimestamp=dbMod.serverTimestamp;
-    firebaseOK = true;
-    setNetBadge('ok','RÉSEAU OK');
+    setLoading(true);
+    showStatus("Génération en cours…", true);
+    const prompt = buildPrompt();
+    const reply = await callGemini(prompt);
+    $('draftReply').value = reply;
+    $('regenerateBtn').disabled = false;
+    $('openMailBtn').disabled = false;
+    $('copyBtn').disabled = false;
+    showStatus("Réponse générée avec succès.", true);
   }catch(err){
-    console.warn('Firebase indisponible dans cet aperçu :', err);
-    firebaseOK = false;
-    setNetBadge('warn','HORS-LIGNE (démo)');
+    showStatus(err.message, false);
+  }finally{
+    setLoading(false);
   }
 }
-function setNetBadge(kind,text){const el=document.getElementById('netBadge');el.className='badge '+kind;el.textContent=text;}
-function setGpsBadge(kind,text){const el=document.getElementById('gpsBadge');el.className='badge '+kind;el.textContent=text;}
 
-const uid = 'u_' + Math.random().toString(36).slice(2,10);
-let myName = 'Toi';
+$('generateBtn').addEventListener('click', generateReply);
+$('regenerateBtn').addEventListener('click', generateReply);
 
-function haversine(lat1,lng1,lat2,lng2){
-  const R=6371000, dLat=(lat2-lat1)*Math.PI/180, dLng=(lng2-lng1)*Math.PI/180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
-  return 2*R*Math.asin(Math.sqrt(a));
-}
+$('openMailBtn').addEventListener('click', () => {
+  const body = $('draftReply').value;
+  const incoming = $('incomingEmail').value;
+  const subjectMatch = incoming.match(/^Objet\s*:\s*(.+)$/im);
+  const subject = subjectMatch ? "Re: " + subjectMatch[1] : "Re: votre message";
+  const mailto = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailto;
+});
 
-// ---------- Leaflet map ----------
-const map = L.map('map', {zoomControl:false, attributionControl:true}).setView([5.35,-4.0],13);
-L.control.zoom({position:'bottomright'}).addTo(map);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution: '&copy; OpenStreetMap'
-}).addTo(map);
-
-let sectorRadius = 1000;
-let sectorCircle = null;
-function drawSectorCircle(latlng){
-  if(sectorCircle) map.removeLayer(sectorCircle);
-  sectorCircle = L.circle(latlng, {
-    radius: sectorRadius, color:'#2dd4bf', weight:1, fillColor:'#2dd4bf', fillOpacity:0.06, dashArray:'4,6'
-  }).addTo(map);
-}
-
-// ---------- home geofence ----------
-let homeLatLng = null;
-let homeRadius = 50;
-let homeMarker = null, homeCircle = null;
-let placingHome = false;
-const insideHome = new Set(); // keys currently inside the fence, to fire alert only on entry
-let audioCtx = null;
-
-function beep(){
+$('copyBtn').addEventListener('click', async () => {
   try{
-    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-    o.type = 'square'; o.frequency.value = 880;
-    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime+0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.28);
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start(); o.stop(audioCtx.currentTime+0.3);
-    setTimeout(()=>{
-      const o2=audioCtx.createOscillator(), g2=audioCtx.createGain();
-      o2.type='square'; o2.frequency.value=660;
-      g2.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-      g2.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime+0.02);
-      g2.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+0.28);
-      o2.connect(g2); g2.connect(audioCtx.destination);
-      o2.start(); o2.stop(audioCtx.currentTime+0.3);
-    }, 260);
-  }catch(e){ console.warn('audio indisponible', e); }
-}
-
-function requestNotifPermission(){
-  if('Notification' in window && Notification.permission === 'default'){
-    Notification.requestPermission();
+    await navigator.clipboard.writeText($('draftReply').value);
+    showStatus("Réponse copiée dans le presse-papiers.", true);
+  }catch(err){
+    showStatus("Impossible de copier automatiquement.", false);
   }
-}
-
-const alertLog = [];
-function logAlert(name, dist){
-  const time = new Date().toTimeString().slice(0,8);
-  alertLog.unshift({name, dist, time});
-  if(alertLog.length > 25) alertLog.pop();
-  renderAlerts();
-
-  // visual flash
-  const flash = document.getElementById('alertFlash');
-  flash.classList.remove('on'); void flash.offsetWidth; flash.classList.add('on');
-
-  // toast
-  const toast = document.getElementById('alertToast');
-  document.getElementById('alertToastText').textContent = `${name} approche de ta maison (${Math.round(dist)} m)`;
-  toast.classList.add('show');
-  setTimeout(()=> toast.classList.remove('show'), 4000);
-
-  // sound
-  beep();
-
-  // browser notification
-  if('Notification' in window && Notification.permission === 'granted'){
-    try{ new Notification('LIVEWALK — Alerte maison', {body: `${name} est entré dans la zone (${Math.round(dist)} m)`}); }
-    catch(e){}
-  }
-}
-function renderAlerts(){
-  const list = document.getElementById('alertsList');
-  if(alertLog.length===0){ list.innerHTML = '<div id="alertsEmpty">Aucune alerte pour l\'instant.</div>'; return; }
-  list.innerHTML = alertLog.map(a=>`
-    <div class="alert-row"><span class="t">${a.time}</span> — <span class="m">${a.name}</span> à ${Math.round(a.dist)} m de la maison</div>
-  `).join('');
-}
-
-function setHome(latlng){
-  homeLatLng = latlng;
-  if(homeMarker) map.removeLayer(homeMarker);
-  if(homeCircle) map.removeLayer(homeCircle);
-  homeMarker = L.marker(latlng, {
-    icon: L.divIcon({className:'', html:'<div class="lw-home-marker">🏠</div>', iconSize:[26,26], iconAnchor:[13,13]})
-  }).addTo(map);
-  homeCircle = L.circle(latlng, {radius: homeRadius, color:'#ffb84d', weight:1.5, fillColor:'#ffb84d', fillOpacity:0.1}).addTo(map);
-  document.getElementById('homeStatus').textContent = 'active';
-  document.getElementById('homeStatus').className = 'st set';
-  insideHome.clear();
-  requestNotifPermission();
-}
-
-// check a given user's distance to home and fire alert on entry (not on self)
-function checkHomeGeofence(key, name, lat, lng){
-  if(!homeLatLng) return;
-  const dist = haversine(homeLatLng.lat, homeLatLng.lng, lat, lng);
-  const wasInside = insideHome.has(key);
-  const isInside = dist <= homeRadius;
-  if(isInside && !wasInside){
-    insideHome.add(key);
-    logAlert(name, dist);
-  } else if(!isInside && wasInside){
-    insideHome.delete(key);
-  }
-}
-
-function makeIcon(colorHex, label, isSelf){
-  return L.divIcon({
-    className:'', html:`
-      <div style="display:flex;flex-direction:column;align-items:center;">
-        <div class="lw-marker${isSelf?' self':''}" style="background:${isSelf?'':colorHex};color:${colorHex};">
-          <div class="pulse"></div>
-        </div>
-        <div class="lw-label">${label}</div>
-      </div>`,
-    iconSize:[60,44], iconAnchor:[30,20]
-  });
-}
-
-let selfMarker = null;
-let selfLatLng = null;
-
-// other users: uid -> {marker, data, lastSeen, color}
-const others = new Map();
-const palette = ['#ffb84d','#f472b6','#8b7cf6','#4ade80','#f59e0b','#60a5fa'];
-let colorIdx = 0;
-
-function ensureOtherMarker(key, name){
-  if(others.has(key)){
-    const rec = others.get(key);
-    rec.marker.setIcon(makeIcon(rec.colorHex, name, false));
-    return rec;
-  }
-  const colorHex = palette[colorIdx % palette.length]; colorIdx++;
-  const marker = L.marker([0,0], {icon: makeIcon(colorHex,name,false)}).addTo(map);
-  const rec = {marker, colorHex, data:null, lastSeen:Date.now()};
-  others.set(key, rec);
-  return rec;
-}
-function removeOtherMarker(key){
-  const rec = others.get(key);
-  if(rec){ map.removeLayer(rec.marker); others.delete(key); }
-}
-
-// ---------- roster ----------
-function renderRoster(){
-  const list = document.getElementById('rosterList');
-  const arr = [...others.values()].filter(r=>r.data).sort((a,b)=>a.data.dist-b.data.dist);
-  document.getElementById('rosterCount').textContent = arr.length;
-  if(arr.length===0){
-    list.innerHTML = '<div class="empty-row">Personne d\'autre dans ton secteur pour l\'instant.</div>';
-    return;
-  }
-  list.innerHTML = arr.map(r=>`
-    <div class="walker-row">
-      <div class="swatch" style="background:${r.colorHex};box-shadow:0 0 6px ${r.colorHex};"></div>
-      <div class="info">
-        <div class="name">${r.data.name}</div>
-        <div class="meta">${Math.round(r.data.dist)} m · vu il y a ${Math.round((Date.now()-r.lastSeen)/1000)}s</div>
-      </div>
-    </div>`).join('');
-}
-
-// ---------- Firebase sync ----------
-let unsubscribe = null;
-function startRealtimeSync(){
-  if(!firebaseOK) return;
-  const usersRef = dbRef(db, ROOM);
-  unsubscribe = dbOnValue(usersRef, snap=>{
-    const val = snap.val() || {};
-    const seen = new Set();
-    Object.entries(val).forEach(([key,u])=>{
-      if(key===uid) return;
-      if(typeof u.lat!=='number' || typeof u.lng!=='number') return;
-      const dist = selfLatLng ? haversine(selfLatLng.lat, selfLatLng.lng, u.lat, u.lng) : 0;
-      if(dist > sectorRadius) return;
-      seen.add(key);
-      const rec = ensureOtherMarker(key, u.name || 'Marcheur');
-      rec.marker.setLatLng([u.lat, u.lng]);
-      rec.data = {name: u.name||'Marcheur', dist};
-      rec.lastSeen = Date.now();
-      checkHomeGeofence(key, u.name || 'Marcheur', u.lat, u.lng);
-    });
-    [...others.keys()].forEach(k=>{ if(!seen.has(k)) removeOtherMarker(k); });
-    renderRoster();
-  });
-  dbOnDisconnect(dbRef(db, ROOM+'/'+uid)).remove();
-}
-function pushSelf(lat,lng,accuracy){
-  if(!firebaseOK) return;
-  dbSet(dbRef(db, ROOM+'/'+uid), {name:myName, lat, lng, accuracy, ts: dbServerTimestamp()}).catch(e=>console.warn(e));
-}
-
-// ---------- geolocation ----------
-let watchId=null, demoMode=false, demoWalkers=[], demoTimer=null;
-let hasCentered=false;
-
-function startGeolocation(){
-  if(!('geolocation' in navigator)){
-    setGpsBadge('err','GPS INDISPONIBLE');
-    document.getElementById('gateStatus').textContent = "La géolocalisation n'est pas disponible sur cet appareil/navigateur.";
-    return;
-  }
-  setGpsBadge('warn','GPS EN RECHERCHE…');
-  watchId = navigator.geolocation.watchPosition(pos=>{
-    const {latitude, longitude, accuracy} = pos.coords;
-    selfLatLng = {lat:latitude, lng:longitude};
-
-    if(!selfMarker){
-      selfMarker = L.marker([latitude,longitude], {icon: makeIcon('','Toi',true), zIndexOffset:1000}).addTo(map);
-      hideGate();
-      startRealtimeSync();
-    } else {
-      selfMarker.setLatLng([latitude,longitude]);
-    }
-    drawSectorCircle([latitude,longitude]);
-    if(!hasCentered){ map.setView([latitude,longitude], 16); hasCentered=true; }
-
-    setGpsBadge(accuracy<25?'ok':accuracy<70?'warn':'err', `GPS ±${Math.round(accuracy)}m`);
-    document.getElementById('selfLat').textContent = latitude.toFixed(5);
-    document.getElementById('selfLng').textContent = longitude.toFixed(5);
-    document.getElementById('selfAcc').textContent = Math.round(accuracy)+' m';
-    document.getElementById('accBar').style.width = Math.max(6,100-Math.min(accuracy,100))+'%';
-    pushSelf(latitude, longitude, accuracy);
-  }, err=>{
-    console.warn(err);
-    setGpsBadge('err','GPS REFUSÉ / ERREUR');
-    document.getElementById('gateStatus').textContent =
-      err.code===1 ? "Localisation refusée. Autorise l'accès dans les réglages du navigateur pour continuer." :
-      "Impossible d'obtenir ta position (" + err.message + ").";
-  }, {enableHighAccuracy:true, maximumAge:2000, timeout:15000});
-}
-function stopGeolocation(){
-  if(watchId!==null) navigator.geolocation.clearWatch(watchId);
-  if(firebaseOK){
-    try{ dbRemove(dbRef(db, ROOM+'/'+uid)); }catch(e){}
-    if(unsubscribe) unsubscribe();
-  }
-}
-
-// ---------- demo mode ----------
-function startDemoMode(){
-  demoMode = true;
-  const base = {lat:5.30966, lng:-4.01266}; // arbitrary reference point, not disclosed
-  selfLatLng = base;
-  hideGate();
-  setGpsBadge('warn','MODE DÉMO');
-  setNetBadge('warn','SIMULATION LOCALE');
-  selfMarker = L.marker([base.lat, base.lng], {icon: makeIcon('','Toi',true), zIndexOffset:1000}).addTo(map);
-  drawSectorCircle([base.lat, base.lng]);
-  map.setView([base.lat, base.lng], 16);
-  document.getElementById('selfLat').textContent = base.lat.toFixed(5);
-  document.getElementById('selfLng').textContent = base.lng.toFixed(5);
-  document.getElementById('selfAcc').textContent = 'simulée';
-  document.getElementById('accBar').style.width = '70%';
-
-  const names = ['Aya','Koffi','Fatou','Ismael','Nadège'];
-  for(let i=0;i<5;i++){
-    const angle = Math.random()*Math.PI*2, r = Math.random()*sectorRadius*0.7;
-    const dLat = (r*Math.cos(angle))/111320;
-    const dLng = (r*Math.sin(angle))/(111320*Math.cos(base.lat*Math.PI/180));
-    const colorHex = palette[colorIdx % palette.length]; colorIdx++;
-    const marker = L.marker([base.lat+dLat, base.lng+dLng], {icon: makeIcon(colorHex, names[i], false)}).addTo(map);
-    demoWalkers.push({marker, colorHex, name:names[i], angle, radius:r, speed:0.15+Math.random()*0.2, theta:Math.random()*Math.PI*2, base});
-  }
-  demoTimer = setInterval(()=>{
-    demoWalkers.forEach((w,i)=>{
-      w.theta += 0.02*w.speed;
-      const dLat = (w.radius*Math.cos(w.theta))/111320;
-      const dLng = (w.radius*Math.sin(w.theta))/(111320*Math.cos(w.base.lat*Math.PI/180));
-      const newLat = w.base.lat+dLat, newLng = w.base.lng+dLng;
-      w.marker.setLatLng([newLat, newLng]);
-      checkHomeGeofence('demo_'+i, w.name, newLat, newLng);
-    });
-    renderDemoRoster();
-  }, 200);
-}
-function renderDemoRoster(){
-  const list = document.getElementById('rosterList');
-  document.getElementById('rosterCount').textContent = demoWalkers.length;
-  list.innerHTML = demoWalkers.map(w=>{
-    const ll = w.marker.getLatLng();
-    const dist = haversine(selfLatLng.lat, selfLatLng.lng, ll.lat, ll.lng);
-    return `<div class="walker-row">
-      <div class="swatch" style="background:${w.colorHex};box-shadow:0 0 6px ${w.colorHex};"></div>
-      <div class="info"><div class="name">${w.name}</div>
-      <div class="meta">${Math.round(dist)} m · démo</div></div></div>`;
-  }).join('');
-}
-
-// ---------- gate wiring ----------
-const nameInput=document.getElementById('nameInput'), consentBox=document.getElementById('consentBox'), activateBtn=document.getElementById('activateBtn');
-function refreshActivate(){ activateBtn.disabled = !(consentBox.checked && nameInput.value.trim().length>0); }
-nameInput.addEventListener('input', refreshActivate);
-consentBox.addEventListener('change', refreshActivate);
-activateBtn.addEventListener('click', ()=>{
-  myName = nameInput.value.trim() || 'Toi';
-  document.getElementById('gateStatus').textContent = 'Recherche du signal GPS…';
-  startGeolocation();
 });
-document.getElementById('demoLink').addEventListener('click', ()=>{
-  myName = nameInput.value.trim() || 'Toi';
-  startDemoMode();
-});
-function hideGate(){ document.getElementById('gate').style.display='none'; }
-
-document.getElementById('radiusSelect').addEventListener('change', e=>{
-  sectorRadius = parseInt(e.target.value,10);
-  if(selfLatLng) drawSectorCircle([selfLatLng.lat, selfLatLng.lng]);
-});
-document.getElementById('recenterBtn').addEventListener('click', ()=>{
-  if(selfLatLng) map.setView([selfLatLng.lat, selfLatLng.lng], 16);
-});
-
-// ---------- home panel wiring ----------
-const setHomeBtn = document.getElementById('setHomeBtn');
-setHomeBtn.addEventListener('click', ()=>{
-  if(placingHome){
-    // cancel placing mode
-    placingHome = false;
-    setHomeBtn.classList.remove('placing');
-    setHomeBtn.textContent = 'Placer ma maison ici';
-    return;
-  }
-  if(selfLatLng && !homeLatLng){
-    // first click: default to current position immediately, offer map-click to refine
-    setHome(selfLatLng);
-  }
-  placingHome = true;
-  setHomeBtn.classList.add('placing');
-  setHomeBtn.textContent = 'Clique sur la carte pour ajuster…';
-});
-map.on('click', (e)=>{
-  if(!placingHome) return;
-  setHome(e.latlng);
-  placingHome = false;
-  setHomeBtn.classList.remove('placing');
-  setHomeBtn.textContent = 'Placer ma maison ici';
-});
-document.getElementById('homeRadiusSelect').addEventListener('change', (e)=>{
-  homeRadius = parseInt(e.target.value,10);
-  if(homeLatLng) setHome(homeLatLng);
-});
-document.getElementById('stopBtn').addEventListener('click', ()=>{
-  stopGeolocation();
-  if(demoTimer) clearInterval(demoTimer);
-  document.getElementById('gate').style.display='flex';
-  document.getElementById('gateStatus').textContent = 'Partage arrêté.';
-});
-
-setInterval(()=>{ document.getElementById('clock').textContent = new Date().toTimeString().slice(0,8); },1000);
-
-setNetBadge('warn','RÉSEAU —');
-initFirebase();
 </script>
+
 </body>
 </html>
