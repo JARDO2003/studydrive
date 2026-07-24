@@ -1,371 +1,947 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Envoyer une lettre</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<style>
-  :root{
-    --navy: #16233f;
-    --navy-deep: #0e1729;
-    --parchment: #efe7d6;
-    --parchment-dark: #e2d8c0;
-    --seal: #9c2b34;
-    --seal-dark: #7c2129;
-    --gold: #b8912f;
-    --ink: #1b1a17;
-    --ink-soft: #56503f;
-  }
-  *{ box-sizing: border-box; }
-  html,body{ margin:0; padding:0; }
-  body{
-    background: var(--navy);
-    background-image:
-      radial-gradient(circle at 15% 20%, rgba(184,145,47,0.08), transparent 40%),
-      radial-gradient(circle at 85% 80%, rgba(184,145,47,0.06), transparent 45%);
-    min-height:100vh;
-    font-family: 'Inter', sans-serif;
-    color: var(--ink);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding: 40px 16px;
-  }
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import {
+  Building2,
+  Stamp,
+  KeyRound,
+  Sparkles,
+  Loader2,
+  Inbox,
+  CheckCircle2,
+  Circle,
+  Eye,
+  EyeOff,
+  RotateCcw,
+  ScrollText,
+  Landmark,
+  AlertTriangle,
+  ThumbsUp,
+  ThumbsDown,
+  Trash2,
+  ChevronRight,
+} from "lucide-react";
 
-  .page-label{
-    position:fixed;
-    top:24px; left:50%; transform:translateX(-50%);
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
-    letter-spacing:0.25em;
-    text-transform:uppercase;
-    color: rgba(239,231,214,0.55);
-  }
+/* ────────────────────────────────────────────────────────────
+   TOKENS
+   Ink   : panneau d'identité (dossier d'entreprise)
+   Ledger: papier de grand-livre (cartes de tâches)
+   Gold  : capital / valeurs monétaires
+   ──────────────────────────────────────────────────────────── */
+const T = {
+  ink: "#12151b",
+  inkSoft: "#1c212a",
+  inkLine: "#2a313d",
+  ledger: "#eef3e9",
+  ledgerLine: "#c7d5bd",
+  ledgerLine2: "#b3c4a7",
+  gold: "#c69a3e",
+  goldSoft: "#e7c877",
+  rust: "#a6462f",
+  ink900: "#0b0d11",
+  text: "#f3f1e9",
+  muted: "#9aa290",
+  mutedDark: "#5c6459",
+};
 
-  .envelope{
-    position:relative;
-    width:100%;
-    max-width: 620px;
-    background: var(--parchment);
-    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.06);
-    border-radius: 3px;
-    padding: 56px 48px 44px;
-    background-image:
-      repeating-linear-gradient(135deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 4px);
-  }
+const DEFAULT_COMPANY = {
+  nom: "COMPTOIR GENERAL DE COTE D'IVOIRE",
+  sigle: "CGCI SARL",
+  capital: 280000000,
+  secteur: "Commerce général — achat/revente de marchandises",
+  siege: "Zone Industrielle de Koumassi, Abidjan, Côte d'Ivoire",
+  rccm: "CI-ABJ-2019-B-14032",
+  regimeFiscal: "Régime du Réel Normal d'Imposition",
+  tauxTva: 18,
+  dg: "M. Bernard Yao Kouassi",
+  secretaire: "Mme Chantal Aya Koffi",
+  comptable: "Vous",
+};
 
-  .envelope::before{
-    content:"";
-    position:absolute; inset:14px;
-    border: 1px solid rgba(27,26,23,0.15);
-    pointer-events:none;
-  }
+const MODEL = "gemini-2.0-flash";
 
-  .stamp{
-    position:absolute;
-    top: 28px; right: 32px;
-    width: 74px; height: 90px;
-    border: 2px dashed rgba(27,26,23,0.35);
-    padding: 6px;
-    display:flex; align-items:center; justify-content:center;
-    background: var(--parchment-dark);
-  }
-  .stamp-inner{
-    width:100%; height:100%;
-    background: var(--seal);
-    background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18), transparent 60%);
-    display:flex; align-items:center; justify-content:center;
-    color: var(--parchment);
-    font-family:'Fraunces', serif;
-    font-size: 26px;
-  }
+/* ── Utilitaires ── */
+function fcfa(n) {
+  if (n === null || n === undefined || isNaN(n)) return "—";
+  return new Intl.NumberFormat("fr-FR").format(Math.round(n)) + " FCFA";
+}
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+function stripFences(s) {
+  return s
+    .replace(/```json/gi, "")
+    .replace(/```/g, "")
+    .trim();
+}
 
-  .eyebrow{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
-    letter-spacing:0.2em;
-    text-transform:uppercase;
-    color: var(--ink-soft);
-    margin: 0 0 10px;
-  }
+const TASK_SCHEMA = {
+  type: "object",
+  properties: {
+    titre: { type: "string" },
+    emetteur: { type: "string", enum: ["Directeur Général", "Secrétaire"] },
+    message: { type: "string" },
+    type_operation: { type: "string" },
+    journal: { type: "string", enum: ["AC", "VE", "BQ", "CA", "OD"] },
+    piece_reference: { type: "string" },
+    date_operation: { type: "string" },
+    tiers: { type: "string" },
+    montant_ht: { type: "number" },
+    taux_tva: { type: "number" },
+    montant_tva: { type: "number" },
+    montant_ttc: { type: "number" },
+    difficulte: { type: "string", enum: ["Débutant", "Intermédiaire", "Avancé"] },
+    ecriture_correcte: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          compte: { type: "string" },
+          libelle: { type: "string" },
+          debit: { type: "number" },
+          credit: { type: "number" },
+        },
+        required: ["compte", "libelle", "debit", "credit"],
+      },
+    },
+  },
+  required: [
+    "titre",
+    "emetteur",
+    "message",
+    "type_operation",
+    "journal",
+    "piece_reference",
+    "date_operation",
+    "tiers",
+    "montant_ht",
+    "taux_tva",
+    "montant_tva",
+    "montant_ttc",
+    "difficulte",
+    "ecriture_correcte",
+  ],
+};
 
-  h1{
-    font-family:'Fraunces', serif;
-    font-weight:500;
-    font-size: 34px;
-    line-height:1.1;
-    margin: 0 0 6px;
-    max-width: 420px;
-  }
+function buildPrompt(company, history) {
+  const recents = history
+    .slice(-6)
+    .map((t) => `- ${t.date_operation} · ${t.type_operation} · ${t.tiers} · ${fcfa(t.montant_ttc)}`)
+    .join("\n") || "Aucune tâche précédente.";
 
-  .sub{
-    font-size: 14px;
-    color: var(--ink-soft);
-    margin: 0 0 34px;
-    max-width: 440px;
-    line-height:1.5;
-  }
+  return `Tu es le générateur de scénarios pour un laboratoire de test d'un logiciel de comptabilité SYSCOHADA (OHADA), utilisé pour vérifier la fiabilité du logiciel "COMEO AI".
 
-  form{ display:flex; flex-direction:column; gap: 18px; }
+ENTREPRISE FICTIVE (pour le test uniquement) :
+- Nom : ${company.nom} (${company.sigle})
+- Capital social : ${fcfa(company.capital)}
+- Secteur : ${company.secteur}
+- Siège : ${company.siege}
+- Régime fiscal : ${company.regimeFiscal}
+- Taux de TVA en vigueur : ${company.tauxTva}%
+- Directeur Général : ${company.dg}
+- Secrétaire : ${company.secretaire}
+- Comptable (l'utilisateur qui va traiter la tâche) : ${company.comptable}
 
-  .row{ display:flex; gap:16px; }
-  .row .field{ flex:1; }
+DERNIÈRES TÂCHES DÉJÀ ENVOYÉES (pour varier et garder une cohérence de dossier, ne pas répéter à l'identique) :
+${recents}
 
-  .field label{
-    display:block;
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 10.5px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    margin-bottom: 6px;
-  }
+CONSIGNE :
+Génère UNE seule nouvelle tâche comptable réaliste pour un commerce général (achat/revente de marchandises) conforme au plan comptable SYSCOHADA révisé (OHADA 2023). Le type d'opération doit varier (achat marchandises, vente marchandises, règlement fournisseur, encaissement client, versement banque/caisse, paiement de salaire, charges sociales CNPS, achat de petit matériel, frais bancaires, remboursement d'emprunt, etc.). Le message doit être écrit comme une VRAIE note interne envoyée au comptable par le Directeur Général ou la Secrétaire (ton professionnel, naturel, avec le contexte de l'opération), sans révéler les comptes comptables à utiliser.
 
-  .field input,
-  .field textarea{
-    width:100%;
-    background: transparent;
-    border: none;
-    border-bottom: 1.5px solid rgba(27,26,23,0.3);
-    padding: 8px 2px 10px;
-    font-family:'Inter', sans-serif;
-    font-size: 15px;
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.2s ease;
-  }
-  .field textarea{ resize: vertical; min-height: 96px; font-family:'Inter',sans-serif; }
-  .field input:focus,
-  .field textarea:focus{ border-bottom-color: var(--seal); }
-  .field input::placeholder,
-  .field textarea::placeholder{ color: rgba(27,26,23,0.32); }
+L'écriture comptable correcte attendue ("ecriture_correcte") doit :
+- utiliser les bons numéros et intitulés de comptes SYSCOHADA révisé,
+- être parfaitement équilibrée (somme des débits = somme des crédits),
+- inclure la TVA quand elle s'applique (compte 4452 TVA récupérable pour les achats, 4432 TVA facturée pour les ventes),
+- correspondre exactement aux montants ht/tva/ttc fournis.
 
-  .actions{
-    margin-top: 12px;
-    display:flex;
-    align-items:center;
-    gap: 18px;
-  }
+Réponds UNIQUEMENT avec un objet JSON conforme au schéma fourni, sans texte autour, sans balises markdown.`;
+}
 
-  button.send{
-    position:relative;
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 12.5px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--parchment);
-    background: var(--seal);
-    border: none;
-    padding: 14px 26px;
-    cursor:pointer;
-    border-radius: 2px;
-    transition: transform 0.15s ease, background 0.2s ease;
-  }
-  button.send:hover{ background: var(--seal-dark); }
-  button.send:active{ transform: scale(0.97); }
-  button.send:disabled{ opacity:0.55; cursor: progress; }
+/* ────────────────────────────────────────────────────────────
+   APP
+   ──────────────────────────────────────────────────────────── */
+export default function Labo() {
+  const [company, setCompany] = useState(DEFAULT_COMPANY);
+  const [editingCompany, setEditingCompany] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [showKey, setShowKey] = useState(false);
+  const [tasks, setTasks] = useState([]);
+  const [activeId, setActiveId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [loadErr, setLoadErr] = useState("");
+  const [ready, setReady] = useState(false);
+  const [showCorrection, setShowCorrection] = useState({});
+  const loadedOnce = useRef(false);
 
-  .status{
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: var(--ink-soft);
-    min-height: 16px;
-  }
-  .status.ok{ color: #3a6b3f; }
-  .status.err{ color: var(--seal); }
+  /* Chargement initial depuis le stockage persistant */
+  useEffect(() => {
+    (async () => {
+      try {
+        const c = await window.storage.get("lab-company", false);
+        if (c?.value) setCompany(JSON.parse(c.value));
+      } catch (e) {
+        /* pas de config sauvegardée — on garde les valeurs par défaut */
+      }
+      try {
+        const t = await window.storage.get("lab-tasks", false);
+        if (t?.value) {
+          const parsed = JSON.parse(t.value);
+          setTasks(parsed);
+          if (parsed.length) setActiveId(parsed[parsed.length - 1].id);
+        }
+      } catch (e) {
+        /* aucune tâche encore */
+      }
+      setReady(true);
+      loadedOnce.current = true;
+    })();
+  }, []);
 
-  .postmark{
-    position:absolute;
-    top: 26px; right: 118px;
-    width: 92px; height: 92px;
-    border-radius:50%;
-    border: 2px solid rgba(27,26,23,0.55);
-    display:flex; align-items:center; justify-content:center;
-    text-align:center;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:9px;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    color: rgba(27,26,23,0.6);
-    opacity:0;
-    transform: scale(1.4) rotate(-8deg);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    pointer-events:none;
-  }
-  .postmark.show{
-    opacity:0.85;
-    transform: scale(1) rotate(-8deg);
-  }
-  .postmark::before{
-    content:"";
-    position:absolute; inset:6px;
-    border-radius:50%;
-    border: 1px solid rgba(27,26,23,0.55);
-  }
+  /* Sauvegarde tâches à chaque changement (après le chargement initial) */
+  useEffect(() => {
+    if (!loadedOnce.current) return;
+    (async () => {
+      try {
+        await window.storage.set("lab-tasks", JSON.stringify(tasks), false);
+      } catch (e) {
+        console.error("Sauvegarde tâches impossible", e);
+      }
+    })();
+  }, [tasks]);
 
-  .config-toggle{
-    margin-top: 36px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing:0.08em;
-    color: var(--ink-soft);
-    background:none;
-    border:none;
-    text-decoration: underline;
-    cursor:pointer;
-    padding:0;
+  async function saveCompany(next) {
+    setCompany(next);
+    try {
+      await window.storage.set("lab-company", JSON.stringify(next), false);
+    } catch (e) {
+      console.error("Sauvegarde entreprise impossible", e);
+    }
   }
 
-  .config{
-    margin-top: 16px;
-    padding: 18px;
-    background: rgba(255,255,255,0.35);
-    border: 1px solid rgba(27,26,23,0.15);
-    font-size: 13px;
-    line-height:1.6;
-    color: var(--ink-soft);
-    display:none;
-  }
-  .config.open{ display:block; }
-  .config code{
-    background: rgba(27,26,23,0.08);
-    padding: 1px 5px;
-    border-radius: 2px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
-  }
-  .config ol{ padding-left: 18px; margin: 10px 0 0; }
-  .config li{ margin-bottom: 6px; }
-
-  @media (max-width: 520px){
-    .envelope{ padding: 70px 24px 32px; }
-    .row{ flex-direction:column; gap:18px; }
-    .stamp{ top:20px; right:20px; width:60px; height:74px; }
-    .postmark{ display:none; }
-    h1{ font-size:26px; }
-  }
-</style>
-</head>
-<body>
-
-<div class="page-label">Bureau de poste — envoi électronique</div>
-
-<div class="envelope">
-  <div class="stamp"><div class="stamp-inner">✉</div></div>
-  <div class="postmark" id="postmark">Expédié<br>le<br><span id="postmarkDate"></span></div>
-
-  <p class="eyebrow">Nouveau message</p>
-  <h1>Rédigez votre lettre</h1>
-  <p class="sub">Remplissez l'adresse du destinataire et votre message. La lettre part directement depuis ce navigateur, sans serveur intermédiaire.</p>
-
-  <form id="mailForm">
-    <div class="row">
-      <div class="field">
-        <label for="fromName">Votre nom</label>
-        <input id="fromName" name="fromName" type="text" placeholder="Ex. Awa Koné" required>
-      </div>
-      <div class="field">
-        <label for="fromEmail">Votre email</label>
-        <input id="fromEmail" name="fromEmail" type="email" placeholder="vous@exemple.com" required>
-      </div>
-    </div>
-
-    <div class="field">
-      <label for="toEmail">Adresse du destinataire</label>
-      <input id="toEmail" name="toEmail" type="email" placeholder="destinataire@exemple.com" required>
-    </div>
-
-    <div class="field">
-      <label for="subject">Objet</label>
-      <input id="subject" name="subject" type="text" placeholder="Objet du message" required>
-    </div>
-
-    <div class="field">
-      <label for="message">Message</label>
-      <textarea id="message" name="message" placeholder="Écrivez votre message ici…" required></textarea>
-    </div>
-
-    <div class="actions">
-      <button class="send" type="submit" id="sendBtn">Envoyer la lettre</button>
-      <span class="status" id="status"></span>
-    </div>
-  </form>
-
-  <button class="config-toggle" id="configToggle">Configuration du service d'envoi (à faire une seule fois)</button>
-  <div class="config" id="configPanel">
-    Ce site utilise <strong>EmailJS</strong>, un service gratuit qui envoie de vrais emails directement depuis le navigateur, sans backend.
-    <ol>
-      <li>Créez un compte gratuit sur <code>emailjs.com</code>.</li>
-      <li>Ajoutez un "Email Service" (ex. Gmail) — vous obtenez un <code>SERVICE_ID</code>.</li>
-      <li>Créez un "Email Template". Dans le champ <code>To Email</code> du template, mettez <code>{{to_email}}</code> pour que le destinataire soit dynamique. Utilisez aussi <code>{{from_name}}</code>, <code>{{from_email}}</code>, <code>{{subject}}</code>, <code>{{message}}</code> dans le corps — vous obtenez un <code>TEMPLATE_ID</code>.</li>
-      <li>Dans "Account" → "General", copiez votre <code>PUBLIC_KEY</code>.</li>
-      <li>Ouvrez le fichier <code>index.html</code> et remplacez les trois valeurs en haut du script (<code>PUBLIC_KEY</code>, <code>SERVICE_ID</code>, <code>TEMPLATE_ID</code>) par les vôtres.</li>
-    </ol>
-    Le plan gratuit d'EmailJS autorise 200 emails/mois, largement suffisant pour un petit formulaire de contact.
-  </div>
-</div>
-
-<script>
-  // ====== À CONFIGURER ======
-  const PUBLIC_KEY  = "Ke45KTn5KIlrEvDCU";
-  const SERVICE_ID  = "service_fsgnfrc";
-  const TEMPLATE_ID = "template_ck2ux1g";
-  // ===========================
-
-  emailjs.init({ publicKey: PUBLIC_KEY });
-
-  const form = document.getElementById('mailForm');
-  const btn = document.getElementById('sendBtn');
-  const status = document.getElementById('status');
-  const postmark = document.getElementById('postmark');
-  const postmarkDate = document.getElementById('postmarkDate');
-
-  const configToggle = document.getElementById('configToggle');
-  const configPanel = document.getElementById('configPanel');
-  configToggle.addEventListener('click', () => configPanel.classList.toggle('open'));
-
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-
-    if (PUBLIC_KEY === "YOUR_PUBLIC_KEY") {
-      status.textContent = "Configurez d'abord le service d'envoi (voir le lien ci-dessous).";
-      status.className = "status err";
-      configPanel.classList.add('open');
+  const generateTask = useCallback(async () => {
+    if (!apiKey.trim()) {
+      setLoadErr("Renseigne d'abord ta clé API Gemini ci-dessus.");
       return;
     }
+    setLoading(true);
+    setLoadErr("");
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${encodeURIComponent(
+          apiKey.trim()
+        )}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: buildPrompt(company, tasks) }] }],
+            generationConfig: {
+              temperature: 0.9,
+              responseMimeType: "application/json",
+              responseSchema: TASK_SCHEMA,
+            },
+          }),
+        }
+      );
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Gemini a répondu ${res.status} : ${errText.slice(0, 200)}`);
+      }
+      const data = await res.json();
+      const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!raw) throw new Error("Réponse vide ou bloquée par Gemini.");
+      const parsed = JSON.parse(stripFences(raw));
+      const task = {
+        id: uid(),
+        createdAt: new Date().toISOString(),
+        status: "a_faire", // a_faire | traite
+        evaluation: null, // 'conforme' | 'ecart' | null
+        note: "",
+        ...parsed,
+      };
+      setTasks((prev) => [...prev, task]);
+      setActiveId(task.id);
+      setShowCorrection((prev) => ({ ...prev, [task.id]: false }));
+    } catch (e) {
+      setLoadErr(e.message || "Erreur lors de la génération.");
+    } finally {
+      setLoading(false);
+    }
+  }, [apiKey, company, tasks]);
 
-    const params = {
-      from_name: document.getElementById('fromName').value,
-      from_email: document.getElementById('fromEmail').value,
-      to_email: document.getElementById('toEmail').value,
-      subject: document.getElementById('subject').value,
-      message: document.getElementById('message').value,
-    };
+  function markStatus(id, status) {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
+  }
+  function markEvaluation(id, evaluation) {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, evaluation } : t)));
+  }
+  function setNote(id, note) {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, note } : t)));
+  }
+  function deleteTask(id) {
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+    if (activeId === id) setActiveId(null);
+  }
+  async function resetLab() {
+    if (!window.confirm("Réinitialiser tout le laboratoire (entreprise + historique des tâches) ?")) return;
+    setTasks([]);
+    setActiveId(null);
+    await saveCompany(DEFAULT_COMPANY);
+    try {
+      await window.storage.set("lab-tasks", JSON.stringify([]), false);
+    } catch (e) {}
+  }
 
-    btn.disabled = true;
-    status.textContent = "Envoi en cours…";
-    status.className = "status";
-    postmark.classList.remove('show');
+  const active = tasks.find((t) => t.id === activeId) || null;
+  const done = tasks.filter((t) => t.status === "traite");
+  const conforme = done.filter((t) => t.evaluation === "conforme").length;
+  const ecart = done.filter((t) => t.evaluation === "ecart").length;
+  const fiabilite = done.length ? Math.round((conforme / done.length) * 100) : null;
 
-    emailjs.send(SERVICE_ID, TEMPLATE_ID, params).then(function(){
-      status.textContent = "Lettre envoyée avec succès.";
-      status.className = "status ok";
-      const d = new Date();
-      postmarkDate.textContent = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
-      postmark.classList.add('show');
-      form.reset();
-    }).catch(function(err){
-      status.textContent = "Échec de l'envoi. Vérifiez la configuration.";
-      status.className = "status err";
-      console.error(err);
-    }).finally(function(){
-      btn.disabled = false;
-    });
-  });
-</script>
+  return (
+    <div
+      style={{
+        fontFamily: "'IBM Plex Sans', sans-serif",
+        background: T.ink900,
+        minHeight: "100vh",
+        color: T.text,
+      }}
+    >
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+        .lab-scroll::-webkit-scrollbar{width:8px}
+        .lab-scroll::-webkit-scrollbar-thumb{background:${T.inkLine};border-radius:4px}
+        .lab-btn{transition:transform .12s ease, box-shadow .12s ease, background .12s ease}
+        .lab-btn:active{transform:translateY(1px)}
+        .lab-focus:focus-visible{outline:2px solid ${T.gold};outline-offset:2px}
+        .task-card{transition:background .12s ease, border-color .12s ease}
+        @media (prefers-reduced-motion: reduce){ .lab-btn,.task-card{transition:none} }
+      `}</style>
 
-</body>
-</html>
+      {/* ── DOSSIER D'ENTREPRISE ── */}
+      <header
+        style={{
+          background: `linear-gradient(180deg, ${T.ink} 0%, ${T.inkSoft} 100%)`,
+          borderBottom: `1px solid ${T.inkLine}`,
+          padding: "22px 28px",
+        }}
+      >
+        <div style={{ maxWidth: 1240, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+              <div
+                style={{
+                  width: 46,
+                  height: 46,
+                  borderRadius: 10,
+                  background: `linear-gradient(135deg, ${T.gold}, ${T.rust})`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  boxShadow: "0 4px 14px rgba(198,154,62,0.25)",
+                }}
+              >
+                <Building2 size={24} color={T.ink900} />
+              </div>
+              <div>
+                <div style={{ fontSize: 10, letterSpacing: "0.18em", color: T.muted, fontWeight: 600, textTransform: "uppercase" }}>
+                  Dossier d'entreprise — Laboratoire de test COMEO AI
+                </div>
+                <div
+                  style={{
+                    fontFamily: "'Fraunces', serif",
+                    fontSize: 26,
+                    fontWeight: 600,
+                    lineHeight: 1.15,
+                    marginTop: 3,
+                  }}
+                >
+                  {company.nom}
+                </div>
+                <div style={{ fontSize: 13, color: T.muted, marginTop: 2 }}>
+                  {company.sigle} · {company.siege}
+                </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                border: `1.5px dashed ${T.gold}`,
+                borderRadius: 999,
+                padding: "7px 16px",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                transform: "rotate(-3deg)",
+                color: T.goldSoft,
+                fontSize: 11,
+                letterSpacing: "0.12em",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                whiteSpace: "nowrap",
+              }}
+            >
+              <Stamp size={15} /> Entreprise fictive · Simulation
+            </div>
+          </div>
+
+          {/* Fiche signalétique */}
+          <div
+            style={{
+              marginTop: 18,
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+              gap: 1,
+              background: T.inkLine,
+              border: `1px solid ${T.inkLine}`,
+              borderRadius: 10,
+              overflow: "hidden",
+            }}
+          >
+            {[
+              ["Capital social", fcfa(company.capital), T.gold],
+              ["Secteur", company.secteur],
+              ["RCCM", company.rccm],
+              ["Régime fiscal", company.regimeFiscal],
+              ["TVA", `${company.tauxTva}%`],
+            ].map(([label, val, color]) => (
+              <div key={label} style={{ background: T.ink, padding: "10px 14px" }}>
+                <div style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", color: T.mutedDark }}>{label}</div>
+                <div
+                  style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 13,
+                    marginTop: 3,
+                    color: color || T.text,
+                    fontWeight: 600,
+                  }}
+                >
+                  {val}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Rôles */}
+          <div style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+            {[
+              ["Directeur Général", company.dg],
+              ["Secrétaire", company.secretaire],
+              ["Comptable", company.comptable],
+            ].map(([role, name], i) => (
+              <div
+                key={role}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  background: i === 2 ? `${T.gold}1a` : T.inkSoft,
+                  border: `1px solid ${i === 2 ? T.gold : T.inkLine}`,
+                  borderRadius: 999,
+                  padding: "6px 12px 6px 6px",
+                }}
+              >
+                <div
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: "50%",
+                    background: i === 2 ? T.gold : T.inkLine,
+                    color: i === 2 ? T.ink900 : T.text,
+                    fontSize: 10,
+                    fontWeight: 700,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {name.split(" ").map((w) => w[0]).slice(0, 2).join("")}
+                </div>
+                <div>
+                  <div style={{ fontSize: 9, color: T.mutedDark, textTransform: "uppercase", letterSpacing: "0.08em" }}>{role}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600 }}>{name}</div>
+                </div>
+              </div>
+            ))}
+            <button
+              className="lab-btn lab-focus"
+              onClick={() => setEditingCompany((v) => !v)}
+              style={{
+                marginLeft: "auto",
+                background: "transparent",
+                border: `1px solid ${T.inkLine}`,
+                color: T.muted,
+                borderRadius: 999,
+                padding: "7px 14px",
+                fontSize: 12,
+                cursor: "pointer",
+              }}
+            >
+              {editingCompany ? "Fermer l'édition" : "Modifier le dossier"}
+            </button>
+          </div>
+
+          {editingCompany && (
+            <CompanyEditor company={company} onSave={(c) => { saveCompany(c); setEditingCompany(false); }} />
+          )}
+        </div>
+      </header>
+
+      {/* ── CORPS ── */}
+      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "22px 28px 60px", display: "grid", gridTemplateColumns: "300px 1fr", gap: 20 }}>
+        {/* Colonne gauche : contrôle + historique */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
+          {/* Clé API */}
+          <div style={{ background: T.inkSoft, border: `1px solid ${T.inkLine}`, borderRadius: 12, padding: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: T.muted, fontWeight: 700 }}>
+              <KeyRound size={13} /> Clé API Gemini
+            </div>
+            <div style={{ position: "relative", marginTop: 10 }}>
+              <input
+                className="lab-focus"
+                type={showKey ? "text" : "password"}
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="Colle ta clé ici (session uniquement)"
+                style={{
+                  width: "100%",
+                  background: T.ink,
+                  border: `1px solid ${T.inkLine}`,
+                  borderRadius: 8,
+                  padding: "9px 34px 9px 10px",
+                  color: T.text,
+                  fontSize: 12,
+                  fontFamily: "'IBM Plex Mono', monospace",
+                }}
+              />
+              <button
+                onClick={() => setShowKey((v) => !v)}
+                style={{ position: "absolute", right: 8, top: 8, background: "none", border: "none", color: T.muted, cursor: "pointer" }}
+                aria-label="Afficher/masquer la clé"
+              >
+                {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+            <p style={{ fontSize: 10.5, color: T.mutedDark, marginTop: 8, lineHeight: 1.5 }}>
+              Jamais enregistrée ni écrite dans le code — reste uniquement dans cette page tant qu'elle est ouverte.
+            </p>
+          </div>
+
+          {/* Générer */}
+          <button
+            className="lab-btn lab-focus"
+            onClick={generateTask}
+            disabled={loading}
+            style={{
+              background: `linear-gradient(135deg, ${T.gold}, ${T.rust})`,
+              border: "none",
+              borderRadius: 10,
+              padding: "13px 16px",
+              color: T.ink900,
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: loading ? "not-allowed" : "pointer",
+              opacity: loading ? 0.7 : 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              boxShadow: "0 6px 18px rgba(198,154,62,0.22)",
+            }}
+          >
+            {loading ? <Loader2 size={16} className="lab-spin" style={{ animation: "spin 0.9s linear infinite" }} /> : <Sparkles size={16} />}
+            {loading ? "Génération en cours…" : "Nouvelle tâche du DG / Secrétaire"}
+          </button>
+          <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+
+          {loadErr && (
+            <div style={{ background: "#3a1f18", border: `1px solid ${T.rust}`, borderRadius: 8, padding: 10, fontSize: 12, display: "flex", gap: 8 }}>
+              <AlertTriangle size={15} color={T.rust} style={{ flexShrink: 0, marginTop: 1 }} />
+              <span style={{ color: "#f0c9bd" }}>{loadErr}</span>
+            </div>
+          )}
+
+          {/* Stats fiabilité */}
+          <div style={{ background: T.inkSoft, border: `1px solid ${T.inkLine}`, borderRadius: 12, padding: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: T.muted, fontWeight: 700 }}>
+              <Landmark size={13} /> Fiabilité mesurée
+            </div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 10 }}>
+              <span style={{ fontFamily: "'Fraunces', serif", fontSize: 32, fontWeight: 600, color: fiabilite === null ? T.muted : fiabilite >= 80 ? "#8fbf7f" : fiabilite >= 50 ? T.gold : T.rust }}>
+                {fiabilite === null ? "—" : `${fiabilite}%`}
+              </span>
+              <span style={{ fontSize: 11, color: T.mutedDark }}>de tâches conformes</span>
+            </div>
+            <div style={{ display: "flex", gap: 14, marginTop: 10, fontSize: 11.5, color: T.muted }}>
+              <span>{tasks.length} générées</span>
+              <span>{done.length} traitées</span>
+              <span style={{ color: "#8fbf7f" }}>{conforme} conformes</span>
+              <span style={{ color: "#e08a72" }}>{ecart} écarts</span>
+            </div>
+          </div>
+
+          {/* Historique */}
+          <div style={{ background: T.inkSoft, border: `1px solid ${T.inkLine}`, borderRadius: 12, padding: 12, flex: 1, minHeight: 200 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: T.muted, fontWeight: 700, padding: "4px 6px 10px" }}>
+              <Inbox size={13} /> Boîte de tâches ({tasks.length})
+            </div>
+            <div className="lab-scroll" style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 520, overflowY: "auto" }}>
+              {!ready && <div style={{ fontSize: 12, color: T.mutedDark, padding: 8 }}>Chargement…</div>}
+              {ready && tasks.length === 0 && (
+                <div style={{ fontSize: 12, color: T.mutedDark, padding: 8, lineHeight: 1.6 }}>
+                  Aucune tâche pour l'instant. Clique sur « Nouvelle tâche » pour recevoir ta première note de service.
+                </div>
+              )}
+              {[...tasks].reverse().map((t) => (
+                <button
+                  key={t.id}
+                  className="task-card lab-focus"
+                  onClick={() => setActiveId(t.id)}
+                  style={{
+                    textAlign: "left",
+                    background: activeId === t.id ? `${T.gold}14` : "transparent",
+                    border: `1px solid ${activeId === t.id ? T.gold : "transparent"}`,
+                    borderRadius: 8,
+                    padding: "8px 10px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 8,
+                  }}
+                >
+                  {t.status === "traite" ? (
+                    t.evaluation === "conforme" ? (
+                      <CheckCircle2 size={15} color="#8fbf7f" style={{ marginTop: 2, flexShrink: 0 }} />
+                    ) : t.evaluation === "ecart" ? (
+                      <AlertTriangle size={15} color="#e08a72" style={{ marginTop: 2, flexShrink: 0 }} />
+                    ) : (
+                      <CheckCircle2 size={15} color={T.muted} style={{ marginTop: 2, flexShrink: 0 }} />
+                    )
+                  ) : (
+                    <Circle size={15} color={T.mutedDark} style={{ marginTop: 2, flexShrink: 0 }} />
+                  )}
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.titre}</div>
+                    <div style={{ fontSize: 10.5, color: T.mutedDark, marginTop: 1 }}>
+                      {t.journal} · {t.date_operation} · {fcfa(t.montant_ttc)}
+                    </div>
+                  </div>
+                  <ChevronRight size={14} color={T.mutedDark} style={{ flexShrink: 0, marginTop: 3 }} />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            className="lab-btn lab-focus"
+            onClick={resetLab}
+            style={{
+              background: "transparent",
+              border: `1px solid ${T.inkLine}`,
+              borderRadius: 8,
+              padding: "9px 12px",
+              color: T.mutedDark,
+              fontSize: 11.5,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              justifyContent: "center",
+            }}
+          >
+            <RotateCcw size={13} /> Réinitialiser le laboratoire
+          </button>
+        </div>
+
+        {/* Colonne droite : tâche active */}
+        <div style={{ minWidth: 0 }}>
+          {!active && (
+            <div
+              style={{
+                height: "100%",
+                minHeight: 400,
+                border: `1.5px dashed ${T.inkLine}`,
+                borderRadius: 14,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                color: T.mutedDark,
+                textAlign: "center",
+                padding: 40,
+              }}
+            >
+              <ScrollText size={30} />
+              <div style={{ fontSize: 14, maxWidth: 340, lineHeight: 1.6 }}>
+                Sélectionne une tâche dans la boîte, ou génère-en une nouvelle pour recevoir ta prochaine note de service.
+              </div>
+            </div>
+          )}
+
+          {active && (
+            <TaskPanel
+              key={active.id}
+              task={active}
+              onMarkDone={() => markStatus(active.id, "traite")}
+              onReopen={() => markStatus(active.id, "a_faire")}
+              onEvaluate={(v) => markEvaluation(active.id, v)}
+              onNote={(v) => setNote(active.id, v)}
+              onDelete={() => deleteTask(active.id)}
+              showCorrection={!!showCorrection[active.id]}
+              toggleCorrection={() => setShowCorrection((p) => ({ ...p, [active.id]: !p[active.id] }))}
+            />
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   PANNEAU DE TÂCHE
+   ──────────────────────────────────────────────────────────── */
+function TaskPanel({ task, onMarkDone, onReopen, onEvaluate, onNote, showCorrection, toggleCorrection, onDelete }) {
+  const totalDebit = (task.ecriture_correcte || []).reduce((s, l) => s + (Number(l.debit) || 0), 0);
+  const totalCredit = (task.ecriture_correcte || []).reduce((s, l) => s + (Number(l.credit) || 0), 0);
+  const balanced = Math.abs(totalDebit - totalCredit) < 1;
+
+  const diffColor = { Débutant: "#8fbf7f", Intermédiaire: T.gold, Avancé: T.rust }[task.difficulte] || T.muted;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* Note de service */}
+      <div style={{ background: T.inkSoft, border: `1px solid ${T.inkLine}`, borderRadius: 14, padding: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, flexWrap: "wrap" }}>
+          <div>
+            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", color: T.muted, fontWeight: 700 }}>
+              Note interne — {task.emetteur}
+            </div>
+            <div style={{ fontFamily: "'Fraunces', serif", fontSize: 21, fontWeight: 600, marginTop: 4 }}>{task.titre}</div>
+          </div>
+          <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
+            <span style={{ fontSize: 10.5, padding: "4px 9px", borderRadius: 999, background: `${diffColor}22`, color: diffColor, fontWeight: 700 }}>
+              {task.difficulte}
+            </span>
+            <span style={{ fontSize: 10.5, padding: "4px 9px", borderRadius: 999, background: T.ink, color: T.muted, fontFamily: "'IBM Plex Mono', monospace" }}>
+              Journal {task.journal}
+            </span>
+          </div>
+        </div>
+
+        <p style={{ marginTop: 14, fontSize: 14.5, lineHeight: 1.75, color: "#e7e4d8", fontFamily: "'Fraunces', serif", fontStyle: "italic" }}>
+          « {task.message} »
+        </p>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px,1fr))", gap: 1, background: T.inkLine, borderRadius: 8, overflow: "hidden", marginTop: 16 }}>
+          {[
+            ["Type d'opération", task.type_operation],
+            ["Tiers", task.tiers],
+            ["Pièce", task.piece_reference],
+            ["Date", task.date_operation],
+            ["Montant HT", fcfa(task.montant_ht)],
+            [`TVA (${task.taux_tva}%)`, fcfa(task.montant_tva)],
+            ["Montant TTC", fcfa(task.montant_ttc)],
+          ].map(([label, val]) => (
+            <div key={label} style={{ background: T.inkSoft, padding: "8px 10px" }}>
+              <div style={{ fontSize: 8.5, textTransform: "uppercase", letterSpacing: "0.08em", color: T.mutedDark }}>{label}</div>
+              <div style={{ fontSize: 12, marginTop: 2, fontFamily: "'IBM Plex Mono', monospace" }}>{val}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
+          {task.status === "a_faire" ? (
+            <button className="lab-btn lab-focus" onClick={onMarkDone} style={btnPrimary}>
+              <CheckCircle2 size={15} /> Marquer comme traité dans COMEO AI
+            </button>
+          ) : (
+            <button className="lab-btn lab-focus" onClick={onReopen} style={btnGhost}>
+              Réouvrir la tâche
+            </button>
+          )}
+          <button className="lab-btn lab-focus" onClick={onDelete} style={{ ...btnGhost, color: T.rust, marginLeft: "auto" }}>
+            <Trash2 size={13} /> Supprimer
+          </button>
+        </div>
+      </div>
+
+      {/* Évaluation — visible une fois la tâche traitée */}
+      {task.status === "traite" && (
+        <div style={{ background: T.inkSoft, border: `1px solid ${T.inkLine}`, borderRadius: 14, padding: 18 }}>
+          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: T.muted, fontWeight: 700, marginBottom: 10 }}>
+            Résultat produit par COMEO AI — conforme à la correction ?
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button
+              className="lab-btn lab-focus"
+              onClick={() => onEvaluate("conforme")}
+              style={{
+                ...btnGhost,
+                borderColor: task.evaluation === "conforme" ? "#8fbf7f" : T.inkLine,
+                background: task.evaluation === "conforme" ? "#8fbf7f22" : "transparent",
+                color: task.evaluation === "conforme" ? "#8fbf7f" : T.muted,
+              }}
+            >
+              <ThumbsUp size={14} /> Conforme
+            </button>
+            <button
+              className="lab-btn lab-focus"
+              onClick={() => onEvaluate("ecart")}
+              style={{
+                ...btnGhost,
+                borderColor: task.evaluation === "ecart" ? T.rust : T.inkLine,
+                background: task.evaluation === "ecart" ? `${T.rust}22` : "transparent",
+                color: task.evaluation === "ecart" ? "#e08a72" : T.muted,
+              }}
+            >
+              <ThumbsDown size={14} /> Écart détecté
+            </button>
+          </div>
+          <textarea
+            className="lab-focus"
+            value={task.note}
+            onChange={(e) => onNote(e.target.value)}
+            placeholder="Note libre : ce que COMEO AI a proposé, l'écart observé, un compte erroné, une TVA mal calculée…"
+            style={{
+              width: "100%",
+              marginTop: 12,
+              background: T.ink,
+              border: `1px solid ${T.inkLine}`,
+              borderRadius: 8,
+              padding: 10,
+              color: T.text,
+              fontSize: 12.5,
+              minHeight: 70,
+              resize: "vertical",
+              fontFamily: "'IBM Plex Sans', sans-serif",
+            }}
+          />
+        </div>
+      )}
+
+      {/* Correction — écriture attendue, style grand-livre */}
+      <div style={{ background: T.ledger, borderRadius: 14, overflow: "hidden", border: `1px solid ${T.ledgerLine2}` }}>
+        <button
+          className="lab-focus"
+          onClick={toggleCorrection}
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "14px 18px",
+            background: T.ledgerLine,
+            border: "none",
+            cursor: "pointer",
+            color: T.ink900,
+          }}
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 12.5, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            {showCorrection ? <Eye size={15} /> : <EyeOff size={15} />} Écriture correcte attendue
+          </span>
+          <span style={{ fontSize: 11, color: "#4a5240" }}>{showCorrection ? "Masquer" : "Révéler la correction"}</span>
+        </button>
+
+        {showCorrection && (
+          <div style={{ padding: "6px 4px 14px" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "'IBM Plex Mono', monospace", fontSize: 12.5, color: "#232a1c" }}>
+              <thead>
+                <tr style={{ borderBottom: `1.5px solid ${T.ledgerLine2}` }}>
+                  {["Compte", "Libellé", "Débit", "Crédit"].map((h, i) => (
+                    <th key={h} style={{ textAlign: i >= 2 ? "right" : "left", padding: "8px 14px", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#5c6a4c" }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {(task.ecriture_correcte || []).map((l, i) => (
+                  <tr key={i} style={{ borderBottom: `1px solid ${T.ledgerLine}` }}>
+                    <td style={{ padding: "8px 14px", fontWeight: 600 }}>{l.compte}</td>
+                    <td style={{ padding: "8px 14px", fontFamily: "'IBM Plex Sans', sans-serif" }}>{l.libelle}</td>
+                    <td style={{ padding: "8px 14px", textAlign: "right" }}>{l.debit ? fcfa(l.debit) : ""}</td>
+                    <td style={{ padding: "8px 14px", textAlign: "right" }}>{l.credit ? fcfa(l.credit) : ""}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr style={{ borderTop: `1.5px solid ${T.ledgerLine2}` }}>
+                  <td colSpan={2} style={{ padding: "8px 14px", fontSize: 10.5, color: balanced ? "#4a7a3d" : T.rust, fontFamily: "'IBM Plex Sans', sans-serif", fontWeight: 600 }}>
+                    {balanced ? "✓ Écriture équilibrée" : "⚠ Écriture déséquilibrée — vérifier le prompt/la réponse IA"}
+                  </td>
+                  <td style={{ padding: "8px 14px", textAlign: "right", fontWeight: 700 }}>{fcfa(totalDebit)}</td>
+                  <td style={{ padding: "8px 14px", textAlign: "right", fontWeight: 700 }}>{fcfa(totalCredit)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const btnPrimary = {
+  background: T.gold,
+  border: "none",
+  borderRadius: 8,
+  padding: "10px 16px",
+  color: T.ink900,
+  fontWeight: 700,
+  fontSize: 12.5,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  gap: 7,
+};
+const btnGhost = {
+  background: "transparent",
+  border: `1px solid ${T.inkLine}`,
+  borderRadius: 8,
+  padding: "10px 16px",
+  color: T.muted,
+  fontWeight: 600,
+  fontSize: 12.5,
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  gap: 7,
+};
+
+/* ────────────────────────────────────────────────────────────
+   ÉDITEUR DU DOSSIER D'ENTREPRISE
+   ──────────────────────────────────────────────────────────── */
+function CompanyEditor({ company, onSave }) {
+  const [form, setForm] = useState(company);
+  const field = (key, label, type = "text") => (
+    <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <span style={{ fontSize: 9.5, textTransform: "uppercase", letterSpacing: "0.08em", color: T.mutedDark }}>{label}</span>
+      <input
+        className="lab-focus"
+        type={type}
+        value={form[key]}
+        onChange={(e) => setForm({ ...form, [key]: type === "number" ? Number(e.target.value) : e.target.value })}
+        style={{ background: T.ink, border: `1px solid ${T.inkLine}`, borderRadius: 6, padding: "7px 9px", color: T.text, fontSize: 12.5 }}
+      />
+    </label>
+  );
+  return (
+    <div style={{ marginTop: 16, background: T.ink, border: `1px solid ${T.inkLine}`, borderRadius: 10, padding: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px,1fr))", gap: 12 }}>
+        {field("nom", "Nom de l'entreprise")}
+        {field("sigle", "Sigle")}
+        {field("capital", "Capital social (FCFA)", "number")}
+        {field("secteur", "Secteur d'activité")}
+        {field("siege", "Siège social")}
+        {field("rccm", "RCCM")}
+        {field("regimeFiscal", "Régime fiscal")}
+        {field("tauxTva", "Taux TVA (%)", "number")}
+        {field("dg", "Directeur Général")}
+        {field("secretaire", "Secrétaire")}
+      </div>
+      <button className="lab-btn lab-focus" onClick={() => onSave(form)} style={{ ...btnPrimary, marginTop: 14 }}>
+        Enregistrer le dossier
+      </button>
+    </div>
+  );
+}
