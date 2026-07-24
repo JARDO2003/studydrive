@@ -1,47 +1,149 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import {
-  Building2,
-  Stamp,
-  KeyRound,
-  Sparkles,
-  Loader2,
-  Inbox,
-  CheckCircle2,
-  Circle,
-  Eye,
-  EyeOff,
-  RotateCcw,
-  ScrollText,
-  Landmark,
-  AlertTriangle,
-  ThumbsUp,
-  ThumbsDown,
-  Trash2,
-  ChevronRight,
-} from "lucide-react";
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratoire de test — COMEO AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#12151b; --ink-soft:#1c212a; --ink-line:#2a313d; --ink-900:#0b0d11;
+  --ledger:#eef3e9; --ledger-line:#c7d5bd; --ledger-line2:#b3c4a7;
+  --gold:#c69a3e; --gold-soft:#e7c877; --rust:#a6462f;
+  --text:#f3f1e9; --muted:#9aa290; --muted-dark:#5c6459;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink-900);color:var(--text);font-family:'IBM Plex Sans',sans-serif;}
+.mono{font-family:'IBM Plex Mono',monospace}
+.serif{font-family:'Fraunces',serif}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-thumb{background:var(--ink-line);border-radius:4px}
+button{font-family:inherit;cursor:pointer}
+input,textarea{font-family:inherit}
+.btn{transition:transform .12s ease, box-shadow .12s ease, background .12s ease}
+.btn:active{transform:translateY(1px)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.task-card{transition:background .12s ease, border-color .12s ease}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin .9s linear infinite}
+@media (prefers-reduced-motion: reduce){ .btn,.task-card,.spin{transition:none;animation:none} }
 
+.header{background:linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);border-bottom:1px solid var(--ink-line);padding:22px 28px}
+.header-inner{max-width:1240px;margin:0 auto}
+.top-row{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.brand{display:flex;gap:16px;align-items:flex-start}
+.brand-icon{width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg, var(--gold), var(--rust));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(198,154,62,0.25)}
+.eyebrow{font-size:10px;letter-spacing:.18em;color:var(--muted);font-weight:600;text-transform:uppercase}
+.company-name{font-size:26px;font-weight:600;line-height:1.15;margin-top:3px}
+.company-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.stamp{border:1.5px dashed var(--gold);border-radius:999px;padding:7px 16px;display:flex;align-items:center;gap:8px;transform:rotate(-3deg);color:var(--gold-soft);font-size:11px;letter-spacing:.12em;font-weight:700;text-transform:uppercase;white-space:nowrap}
+.fiche{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--ink-line);border:1px solid var(--ink-line);border-radius:10px;overflow:hidden}
+.fiche-cell{background:var(--ink);padding:10px 14px}
+.fiche-label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted-dark)}
+.fiche-val{font-size:13px;margin-top:3px;font-weight:600}
+.roles{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.role-chip{display:flex;align-items:center;gap:8px;background:var(--ink-soft);border:1px solid var(--ink-line);border-radius:999px;padding:6px 12px 6px 6px}
+.role-chip.me{background:rgba(198,154,62,.1);border-color:var(--gold)}
+.role-avatar{width:22px;height:22px;border-radius:50%;background:var(--ink-line);color:var(--text);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.role-chip.me .role-avatar{background:var(--gold);color:var(--ink-900)}
+.role-label{font-size:9px;color:var(--muted-dark);text-transform:uppercase;letter-spacing:.08em}
+.role-name{font-size:12px;font-weight:600}
+.ghost-btn{background:transparent;border:1px solid var(--ink-line);color:var(--muted);border-radius:999px;padding:7px 14px;font-size:12px}
+.edit-box{margin-top:16px;background:var(--ink);border:1px solid var(--ink-line);border-radius:10px;padding:16px}
+.edit-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.field label{display:flex;flex-direction:column;gap:4px}
+.field span{font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted-dark)}
+.field input{background:var(--ink);border:1px solid var(--ink-line);border-radius:6px;padding:7px 9px;color:var(--text);font-size:12.5px}
+
+.main{max-width:1240px;margin:0 auto;padding:22px 28px 60px;display:grid;grid-template-columns:300px 1fr;gap:20px}
+@media (max-width:820px){ .main{grid-template-columns:1fr} }
+.panel{background:var(--ink-soft);border:1px solid var(--ink-line);border-radius:12px;padding:16px}
+.panel-title{display:flex;align-items:center;gap:8px;font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
+.key-input-wrap{position:relative;margin-top:10px}
+.key-input-wrap input{width:100%;background:var(--ink);border:1px solid var(--ink-line);border-radius:8px;padding:9px 34px 9px 10px;color:var(--text);font-size:12px}
+.key-eye{position:absolute;right:8px;top:8px;background:none;border:none;color:var(--muted);padding:2px}
+.key-hint{font-size:10.5px;color:var(--muted-dark);margin-top:8px;line-height:1.5}
+.gen-btn{background:linear-gradient(135deg, var(--gold), var(--rust));border:none;border-radius:10px;padding:13px 16px;color:var(--ink-900);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 18px rgba(198,154,62,0.22);width:100%}
+.gen-btn:disabled{opacity:.7;cursor:not-allowed}
+.err-box{background:#3a1f18;border:1px solid var(--rust);border-radius:8px;padding:10px;font-size:12px;display:flex;gap:8px;color:#f0c9bd}
+.stat-num{font-family:'Fraunces',serif;font-size:32px;font-weight:600}
+.stat-row{display:flex;gap:14px;margin-top:10px;font-size:11.5px;color:var(--muted);flex-wrap:wrap}
+.inbox-list{display:flex;flex-direction:column;gap:6px;max-height:520px;overflow-y:auto}
+.inbox-empty{font-size:12px;color:var(--muted-dark);padding:8px;line-height:1.6}
+.task-card{width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:8px;padding:8px 10px;display:flex;align-items:flex-start;gap:8px}
+.task-card.active{background:rgba(198,154,62,.08);border-color:var(--gold)}
+.task-card-title{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-card-sub{font-size:10.5px;color:var(--muted-dark);margin-top:1px}
+.reset-btn{background:transparent;border:1px solid var(--ink-line);border-radius:8px;padding:9px 12px;color:var(--muted-dark);font-size:11.5px;display:flex;align-items:center;gap:6px;justify-content:center;width:100%}
+
+.empty-state{height:100%;min-height:400px;border:1.5px dashed var(--ink-line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--muted-dark);text-align:center;padding:40px}
+
+.task-panel{display:flex;flex-direction:column;gap:16px}
+.memo{background:var(--ink-soft);border:1px solid var(--ink-line);border-radius:14px;padding:20px}
+.memo-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.memo-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}
+.memo-title{font-size:21px;font-weight:600;margin-top:4px}
+.badge{font-size:10.5px;padding:4px 9px;border-radius:999px;font-weight:700}
+.memo-text{margin-top:14px;font-size:14.5px;line-height:1.75;color:#e7e4d8;font-style:italic}
+.memo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--ink-line);border-radius:8px;overflow:hidden;margin-top:16px}
+.memo-cell{background:var(--ink-soft);padding:8px 10px}
+.memo-cell-label{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted-dark)}
+.memo-cell-val{font-size:12px;margin-top:2px}
+.memo-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;align-items:center}
+.btn-primary{background:var(--gold);border:none;border-radius:8px;padding:10px 16px;color:var(--ink-900);font-weight:700;font-size:12.5px;display:flex;align-items:center;gap:7px}
+.btn-ghost{background:transparent;border:1px solid var(--ink-line);border-radius:8px;padding:10px 16px;color:var(--muted);font-weight:600;font-size:12.5px;display:flex;align-items:center;gap:7px}
+.btn-danger{color:var(--rust)}
+.eval-box{background:var(--ink-soft);border:1px solid var(--ink-line);border-radius:14px;padding:18px}
+.eval-title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:10px}
+.eval-btns{display:flex;gap:10px}
+.eval-btn.on-good{border-color:#8fbf7f;background:rgba(143,191,127,.13);color:#8fbf7f}
+.eval-btn.on-bad{border-color:var(--rust);background:rgba(166,70,47,.13);color:#e08a72}
+.eval-note{width:100%;margin-top:12px;background:var(--ink);border:1px solid var(--ink-line);border-radius:8px;padding:10px;color:var(--text);font-size:12.5px;min-height:70px;resize:vertical}
+
+.ledger{background:var(--ledger);border-radius:14px;overflow:hidden;border:1px solid var(--ledger-line2)}
+.ledger-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--ledger-line);border:none;color:var(--ink-900)}
+.ledger-toggle-label{display:flex;align-items:center;gap:8px;font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em}
+.ledger-toggle-hint{font-size:11px;color:#4a5240}
+.ledger-body{padding:6px 4px 14px}
+table.ledger-table{width:100%;border-collapse:collapse;font-size:12.5px;color:#232a1c}
+.ledger-table th{text-align:left;padding:8px 14px;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#5c6a4c;border-bottom:1.5px solid var(--ledger-line2)}
+.ledger-table th.num{text-align:right}
+.ledger-table td{padding:8px 14px;border-bottom:1px solid var(--ledger-line)}
+.ledger-table td.num{text-align:right}
+.ledger-table tfoot td{border-top:1.5px solid var(--ledger-line2);border-bottom:none;font-weight:700}
+.balance-note{font-size:10.5px;font-family:'IBM Plex Sans',sans-serif;font-weight:600}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
 /* ────────────────────────────────────────────────────────────
-   TOKENS
-   Ink   : panneau d'identité (dossier d'entreprise)
-   Ledger: papier de grand-livre (cartes de tâches)
-   Gold  : capital / valeurs monétaires
+   STOCKAGE (persistant dans Claude, mémoire simple sinon)
    ──────────────────────────────────────────────────────────── */
-const T = {
-  ink: "#12151b",
-  inkSoft: "#1c212a",
-  inkLine: "#2a313d",
-  ledger: "#eef3e9",
-  ledgerLine: "#c7d5bd",
-  ledgerLine2: "#b3c4a7",
-  gold: "#c69a3e",
-  goldSoft: "#e7c877",
-  rust: "#a6462f",
-  ink900: "#0b0d11",
-  text: "#f3f1e9",
-  muted: "#9aa290",
-  mutedDark: "#5c6459",
+const memoryStore = {};
+const storage = {
+  async get(key) {
+    if (window.storage) {
+      try {
+        const r = await window.storage.get(key, false);
+        return r && r.value ? JSON.parse(r.value) : null;
+      } catch (e) { return null; }
+    }
+    return memoryStore[key] || null;
+  },
+  async set(key, value) {
+    if (window.storage) {
+      try { await window.storage.set(key, JSON.stringify(value), false); } catch (e) {}
+    }
+    memoryStore[key] = value;
+  },
 };
 
+/* ────────────────────────────────────────────────────────────
+   DONNÉES
+   ──────────────────────────────────────────────────────────── */
 const DEFAULT_COMPANY = {
   nom: "COMPTOIR GENERAL DE COTE D'IVOIRE",
   sigle: "CGCI SARL",
@@ -55,23 +157,34 @@ const DEFAULT_COMPANY = {
   secretaire: "Mme Chantal Aya Koffi",
   comptable: "Vous",
 };
-
 const MODEL = "gemini-2.0-flash";
 
-/* ── Utilitaires ── */
+const state = {
+  company: { ...DEFAULT_COMPANY },
+  editingCompany: false,
+  apiKey: "",
+  showKey: false,
+  tasks: [],
+  activeId: null,
+  loading: false,
+  loadErr: "",
+  ready: false,
+  showCorrection: {},
+};
+
+/* ────────────────────────────────────────────────────────────
+   UTILITAIRES
+   ──────────────────────────────────────────────────────────── */
 function fcfa(n) {
   if (n === null || n === undefined || isNaN(n)) return "—";
   return new Intl.NumberFormat("fr-FR").format(Math.round(n)) + " FCFA";
 }
-function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
-function stripFences(s) {
-  return s
-    .replace(/```json/gi, "")
-    .replace(/```/g, "")
-    .trim();
-}
+function initials(name) { return String(name).split(" ").map((w) => w[0]).slice(0, 2).join(""); }
+function stripFences(s) { return s.replace(/```json/gi, "").replace(/```/g, "").trim(); }
 
 const TASK_SCHEMA = {
   type: "object",
@@ -103,30 +216,11 @@ const TASK_SCHEMA = {
       },
     },
   },
-  required: [
-    "titre",
-    "emetteur",
-    "message",
-    "type_operation",
-    "journal",
-    "piece_reference",
-    "date_operation",
-    "tiers",
-    "montant_ht",
-    "taux_tva",
-    "montant_tva",
-    "montant_ttc",
-    "difficulte",
-    "ecriture_correcte",
-  ],
+  required: ["titre","emetteur","message","type_operation","journal","piece_reference","date_operation","tiers","montant_ht","taux_tva","montant_tva","montant_ttc","difficulte","ecriture_correcte"],
 };
 
 function buildPrompt(company, history) {
-  const recents = history
-    .slice(-6)
-    .map((t) => `- ${t.date_operation} · ${t.type_operation} · ${t.tiers} · ${fcfa(t.montant_ttc)}`)
-    .join("\n") || "Aucune tâche précédente.";
-
+  const recents = history.slice(-6).map((t) => `- ${t.date_operation} · ${t.type_operation} · ${t.tiers} · ${fcfa(t.montant_ttc)}`).join("\n") || "Aucune tâche précédente.";
   return `Tu es le générateur de scénarios pour un laboratoire de test d'un logiciel de comptabilité SYSCOHADA (OHADA), utilisé pour vérifier la fiabilité du logiciel "COMEO AI".
 
 ENTREPRISE FICTIVE (pour le test uniquement) :
@@ -156,792 +250,332 @@ Réponds UNIQUEMENT avec un objet JSON conforme au schéma fourni, sans texte au
 }
 
 /* ────────────────────────────────────────────────────────────
-   APP
+   ICÔNES (SVG minimalistes)
    ──────────────────────────────────────────────────────────── */
-export default function Labo() {
-  const [company, setCompany] = useState(DEFAULT_COMPANY);
-  const [editingCompany, setEditingCompany] = useState(false);
-  const [apiKey, setApiKey] = useState("");
-  const [showKey, setShowKey] = useState(false);
-  const [tasks, setTasks] = useState([]);
-  const [activeId, setActiveId] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [loadErr, setLoadErr] = useState("");
-  const [ready, setReady] = useState(false);
-  const [showCorrection, setShowCorrection] = useState({});
-  const loadedOnce = useRef(false);
+const ic = {
+  building: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18"/><path d="M9 21v-4h6v4M9 8h.01M15 8h.01M9 12h.01M15 12h.01"/></svg>`,
+  stamp: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 013 3v4h2l2 6H5l2-6h2V5a3 3 0 013-3z"/><path d="M5 22h14M7 17h10"/></svg>`,
+  key: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M10.5 12.5L20 3M20 3v5M20 3h-5"/></svg>`,
+  eye: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  eyeOff: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.9 17.9A10.6 10.6 0 0112 19c-7 0-11-7-11-7a18.6 18.6 0 015.1-5.6M9.9 4.2A10.4 10.4 0 0112 4c7 0 11 7 11 7a18.7 18.7 0 01-2.2 3.1M14.1 14.1a3 3 0 10-4.2-4.2"/><path d="M1 1l22 22"/></svg>`,
+  sparkles: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>`,
+  loader: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>`,
+  alert: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L1 21h22z"/><path d="M12 9v5M12 17h.01"/></svg>`,
+  landmark: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22h18M4 22V11M20 22V11M2 11l10-6 10 6M6 11v6M12 11v6M18 11v6"/></svg>`,
+  inbox: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.4 5h13.2L22 12v6a2 2 0 01-2 2H4a2 2 0 01-2-2v-6z"/></svg>`,
+  check: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>`,
+  circle: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>`,
+  chevron: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>`,
+  reset: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.7 2.7L3 8"/><path d="M3 3v5h5"/></svg>`,
+  scroll: `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8a2 2 0 002-2V7l-5-5H8a2 2 0 00-2 2v15a2 2 0 002 2z"/><path d="M8 12h8M8 16h5"/></svg>`,
+  trash: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>`,
+  thumbUp: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v11M2 10h4v11H2zM7 10l4-8 1.5 1L11 10h8a2 2 0 012 2.3l-1.6 8A2 2 0 0117.4 22H7"/></svg>`,
+  thumbDown: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V3M22 14h-4V3h4zM17 14l-4 8-1.5-1 1.5-7H5a2 2 0 01-2-2.3l1.6-8A2 2 0 016.6 2H17"/></svg>`,
+};
 
-  /* Chargement initial depuis le stockage persistant */
-  useEffect(() => {
-    (async () => {
-      try {
-        const c = await window.storage.get("lab-company", false);
-        if (c?.value) setCompany(JSON.parse(c.value));
-      } catch (e) {
-        /* pas de config sauvegardée — on garde les valeurs par défaut */
-      }
-      try {
-        const t = await window.storage.get("lab-tasks", false);
-        if (t?.value) {
-          const parsed = JSON.parse(t.value);
-          setTasks(parsed);
-          if (parsed.length) setActiveId(parsed[parsed.length - 1].id);
-        }
-      } catch (e) {
-        /* aucune tâche encore */
-      }
-      setReady(true);
-      loadedOnce.current = true;
-    })();
-  }, []);
+/* ────────────────────────────────────────────────────────────
+   CHARGEMENT INITIAL
+   ──────────────────────────────────────────────────────────── */
+(async function init() {
+  const c = await storage.get("lab-company");
+  if (c) state.company = c;
+  const t = await storage.get("lab-tasks");
+  if (t) { state.tasks = t; if (t.length) state.activeId = t[t.length - 1].id; }
+  state.ready = true;
+  render();
+})();
 
-  /* Sauvegarde tâches à chaque changement (après le chargement initial) */
-  useEffect(() => {
-    if (!loadedOnce.current) return;
-    (async () => {
-      try {
-        await window.storage.set("lab-tasks", JSON.stringify(tasks), false);
-      } catch (e) {
-        console.error("Sauvegarde tâches impossible", e);
-      }
-    })();
-  }, [tasks]);
+async function saveCompany(next) {
+  state.company = next;
+  await storage.set("lab-company", next);
+}
+async function saveTasks() { await storage.set("lab-tasks", state.tasks); }
 
-  async function saveCompany(next) {
-    setCompany(next);
-    try {
-      await window.storage.set("lab-company", JSON.stringify(next), false);
-    } catch (e) {
-      console.error("Sauvegarde entreprise impossible", e);
-    }
+/* ────────────────────────────────────────────────────────────
+   ACTIONS
+   ──────────────────────────────────────────────────────────── */
+async function generateTask() {
+  if (!state.apiKey.trim()) { state.loadErr = "Renseigne d'abord ta clé API Gemini ci-dessus."; render(); return; }
+  state.loading = true; state.loadErr = ""; render();
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${encodeURIComponent(state.apiKey.trim())}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: buildPrompt(state.company, state.tasks) }] }],
+        generationConfig: { temperature: 0.9, responseMimeType: "application/json", responseSchema: TASK_SCHEMA },
+      }),
+    });
+    if (!res.ok) { const errText = await res.text(); throw new Error(`Gemini a répondu ${res.status} : ${errText.slice(0, 200)}`); }
+    const data = await res.json();
+    const raw = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0].text;
+    if (!raw) throw new Error("Réponse vide ou bloquée par Gemini.");
+    const parsed = JSON.parse(stripFences(raw));
+    const task = { id: uid(), createdAt: new Date().toISOString(), status: "a_faire", evaluation: null, note: "", ...parsed };
+    state.tasks.push(task);
+    state.activeId = task.id;
+    state.showCorrection[task.id] = false;
+    await saveTasks();
+  } catch (e) {
+    state.loadErr = e.message || "Erreur lors de la génération.";
+  } finally {
+    state.loading = false; render();
   }
+}
+function markStatus(id, status) { const t = state.tasks.find((x) => x.id === id); if (t) t.status = status; saveTasks(); render(); }
+function markEvaluation(id, v) { const t = state.tasks.find((x) => x.id === id); if (t) t.evaluation = v; saveTasks(); render(); }
+function setNote(id, v) { const t = state.tasks.find((x) => x.id === id); if (t) t.note = v; saveTasks(); }
+function deleteTask(id) { state.tasks = state.tasks.filter((x) => x.id !== id); if (state.activeId === id) state.activeId = null; saveTasks(); render(); }
+async function resetLab() {
+  if (!confirm("Réinitialiser tout le laboratoire (entreprise + historique des tâches) ?")) return;
+  state.tasks = []; state.activeId = null;
+  await saveCompany({ ...DEFAULT_COMPANY });
+  await saveTasks();
+  render();
+}
+function setActive(id) { state.activeId = id; render(); }
+function toggleCorrection(id) { state.showCorrection[id] = !state.showCorrection[id]; render(); }
+function toggleEditCompany() { state.editingCompany = !state.editingCompany; render(); }
+function toggleShowKey() { state.showKey = !state.showKey; render(); }
+function onApiKeyInput(v) { state.apiKey = v; }
 
-  const generateTask = useCallback(async () => {
-    if (!apiKey.trim()) {
-      setLoadErr("Renseigne d'abord ta clé API Gemini ci-dessus.");
-      return;
-    }
-    setLoading(true);
-    setLoadErr("");
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${encodeURIComponent(
-          apiKey.trim()
-        )}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: buildPrompt(company, tasks) }] }],
-            generationConfig: {
-              temperature: 0.9,
-              responseMimeType: "application/json",
-              responseSchema: TASK_SCHEMA,
-            },
-          }),
-        }
-      );
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(`Gemini a répondu ${res.status} : ${errText.slice(0, 200)}`);
-      }
-      const data = await res.json();
-      const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!raw) throw new Error("Réponse vide ou bloquée par Gemini.");
-      const parsed = JSON.parse(stripFences(raw));
-      const task = {
-        id: uid(),
-        createdAt: new Date().toISOString(),
-        status: "a_faire", // a_faire | traite
-        evaluation: null, // 'conforme' | 'ecart' | null
-        note: "",
-        ...parsed,
-      };
-      setTasks((prev) => [...prev, task]);
-      setActiveId(task.id);
-      setShowCorrection((prev) => ({ ...prev, [task.id]: false }));
-    } catch (e) {
-      setLoadErr(e.message || "Erreur lors de la génération.");
-    } finally {
-      setLoading(false);
-    }
-  }, [apiKey, company, tasks]);
-
-  function markStatus(id, status) {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)));
-  }
-  function markEvaluation(id, evaluation) {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, evaluation } : t)));
-  }
-  function setNote(id, note) {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, note } : t)));
-  }
-  function deleteTask(id) {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
-    if (activeId === id) setActiveId(null);
-  }
-  async function resetLab() {
-    if (!window.confirm("Réinitialiser tout le laboratoire (entreprise + historique des tâches) ?")) return;
-    setTasks([]);
-    setActiveId(null);
-    await saveCompany(DEFAULT_COMPANY);
-    try {
-      await window.storage.set("lab-tasks", JSON.stringify([]), false);
-    } catch (e) {}
-  }
-
-  const active = tasks.find((t) => t.id === activeId) || null;
-  const done = tasks.filter((t) => t.status === "traite");
+/* ────────────────────────────────────────────────────────────
+   RENDU
+   ──────────────────────────────────────────────────────────── */
+function render() {
+  const app = document.getElementById("app");
+  const c = state.company;
+  const active = state.tasks.find((t) => t.id === state.activeId) || null;
+  const done = state.tasks.filter((t) => t.status === "traite");
   const conforme = done.filter((t) => t.evaluation === "conforme").length;
   const ecart = done.filter((t) => t.evaluation === "ecart").length;
   const fiabilite = done.length ? Math.round((conforme / done.length) * 100) : null;
+  const fiabColor = fiabilite === null ? "var(--muted)" : fiabilite >= 80 ? "#8fbf7f" : fiabilite >= 50 ? "var(--gold)" : "var(--rust)";
 
-  return (
-    <div
-      style={{
-        fontFamily: "'IBM Plex Sans', sans-serif",
-        background: T.ink900,
-        minHeight: "100vh",
-        color: T.text,
-      }}
-    >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
-        .lab-scroll::-webkit-scrollbar{width:8px}
-        .lab-scroll::-webkit-scrollbar-thumb{background:${T.inkLine};border-radius:4px}
-        .lab-btn{transition:transform .12s ease, box-shadow .12s ease, background .12s ease}
-        .lab-btn:active{transform:translateY(1px)}
-        .lab-focus:focus-visible{outline:2px solid ${T.gold};outline-offset:2px}
-        .task-card{transition:background .12s ease, border-color .12s ease}
-        @media (prefers-reduced-motion: reduce){ .lab-btn,.task-card{transition:none} }
-      `}</style>
-
-      {/* ── DOSSIER D'ENTREPRISE ── */}
-      <header
-        style={{
-          background: `linear-gradient(180deg, ${T.ink} 0%, ${T.inkSoft} 100%)`,
-          borderBottom: `1px solid ${T.inkLine}`,
-          padding: "22px 28px",
-        }}
-      >
-        <div style={{ maxWidth: 1240, margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-              <div
-                style={{
-                  width: 46,
-                  height: 46,
-                  borderRadius: 10,
-                  background: `linear-gradient(135deg, ${T.gold}, ${T.rust})`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexShrink: 0,
-                  boxShadow: "0 4px 14px rgba(198,154,62,0.25)",
-                }}
-              >
-                <Building2 size={24} color={T.ink900} />
-              </div>
-              <div>
-                <div style={{ fontSize: 10, letterSpacing: "0.18em", color: T.muted, fontWeight: 600, textTransform: "uppercase" }}>
-                  Dossier d'entreprise — Laboratoire de test COMEO AI
-                </div>
-                <div
-                  style={{
-                    fontFamily: "'Fraunces', serif",
-                    fontSize: 26,
-                    fontWeight: 600,
-                    lineHeight: 1.15,
-                    marginTop: 3,
-                  }}
-                >
-                  {company.nom}
-                </div>
-                <div style={{ fontSize: 13, color: T.muted, marginTop: 2 }}>
-                  {company.sigle} · {company.siege}
-                </div>
-              </div>
-            </div>
-
-            <div
-              style={{
-                border: `1.5px dashed ${T.gold}`,
-                borderRadius: 999,
-                padding: "7px 16px",
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                transform: "rotate(-3deg)",
-                color: T.goldSoft,
-                fontSize: 11,
-                letterSpacing: "0.12em",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                whiteSpace: "nowrap",
-              }}
-            >
-              <Stamp size={15} /> Entreprise fictive · Simulation
-            </div>
-          </div>
-
-          {/* Fiche signalétique */}
-          <div
-            style={{
-              marginTop: 18,
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-              gap: 1,
-              background: T.inkLine,
-              border: `1px solid ${T.inkLine}`,
-              borderRadius: 10,
-              overflow: "hidden",
-            }}
-          >
-            {[
-              ["Capital social", fcfa(company.capital), T.gold],
-              ["Secteur", company.secteur],
-              ["RCCM", company.rccm],
-              ["Régime fiscal", company.regimeFiscal],
-              ["TVA", `${company.tauxTva}%`],
-            ].map(([label, val, color]) => (
-              <div key={label} style={{ background: T.ink, padding: "10px 14px" }}>
-                <div style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.1em", color: T.mutedDark }}>{label}</div>
-                <div
-                  style={{
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: 13,
-                    marginTop: 3,
-                    color: color || T.text,
-                    fontWeight: 600,
-                  }}
-                >
-                  {val}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Rôles */}
-          <div style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-            {[
-              ["Directeur Général", company.dg],
-              ["Secrétaire", company.secretaire],
-              ["Comptable", company.comptable],
-            ].map(([role, name], i) => (
-              <div
-                key={role}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  background: i === 2 ? `${T.gold}1a` : T.inkSoft,
-                  border: `1px solid ${i === 2 ? T.gold : T.inkLine}`,
-                  borderRadius: 999,
-                  padding: "6px 12px 6px 6px",
-                }}
-              >
-                <div
-                  style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: "50%",
-                    background: i === 2 ? T.gold : T.inkLine,
-                    color: i === 2 ? T.ink900 : T.text,
-                    fontSize: 10,
-                    fontWeight: 700,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  {name.split(" ").map((w) => w[0]).slice(0, 2).join("")}
-                </div>
-                <div>
-                  <div style={{ fontSize: 9, color: T.mutedDark, textTransform: "uppercase", letterSpacing: "0.08em" }}>{role}</div>
-                  <div style={{ fontSize: 12, fontWeight: 600 }}>{name}</div>
-                </div>
-              </div>
-            ))}
-            <button
-              className="lab-btn lab-focus"
-              onClick={() => setEditingCompany((v) => !v)}
-              style={{
-                marginLeft: "auto",
-                background: "transparent",
-                border: `1px solid ${T.inkLine}`,
-                color: T.muted,
-                borderRadius: 999,
-                padding: "7px 14px",
-                fontSize: 12,
-                cursor: "pointer",
-              }}
-            >
-              {editingCompany ? "Fermer l'édition" : "Modifier le dossier"}
-            </button>
-          </div>
-
-          {editingCompany && (
-            <CompanyEditor company={company} onSave={(c) => { saveCompany(c); setEditingCompany(false); }} />
-          )}
-        </div>
-      </header>
-
-      {/* ── CORPS ── */}
-      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "22px 28px 60px", display: "grid", gridTemplateColumns: "300px 1fr", gap: 20 }}>
-        {/* Colonne gauche : contrôle + historique */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
-          {/* Clé API */}
-          <div style={{ background: T.inkSoft, border: `1px solid ${T.inkLine}`, borderRadius: 12, padding: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: T.muted, fontWeight: 700 }}>
-              <KeyRound size={13} /> Clé API Gemini
-            </div>
-            <div style={{ position: "relative", marginTop: 10 }}>
-              <input
-                className="lab-focus"
-                type={showKey ? "text" : "password"}
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Colle ta clé ici (session uniquement)"
-                style={{
-                  width: "100%",
-                  background: T.ink,
-                  border: `1px solid ${T.inkLine}`,
-                  borderRadius: 8,
-                  padding: "9px 34px 9px 10px",
-                  color: T.text,
-                  fontSize: 12,
-                  fontFamily: "'IBM Plex Mono', monospace",
-                }}
-              />
-              <button
-                onClick={() => setShowKey((v) => !v)}
-                style={{ position: "absolute", right: 8, top: 8, background: "none", border: "none", color: T.muted, cursor: "pointer" }}
-                aria-label="Afficher/masquer la clé"
-              >
-                {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            <p style={{ fontSize: 10.5, color: T.mutedDark, marginTop: 8, lineHeight: 1.5 }}>
-              Jamais enregistrée ni écrite dans le code — reste uniquement dans cette page tant qu'elle est ouverte.
-            </p>
-          </div>
-
-          {/* Générer */}
-          <button
-            className="lab-btn lab-focus"
-            onClick={generateTask}
-            disabled={loading}
-            style={{
-              background: `linear-gradient(135deg, ${T.gold}, ${T.rust})`,
-              border: "none",
-              borderRadius: 10,
-              padding: "13px 16px",
-              color: T.ink900,
-              fontWeight: 700,
-              fontSize: 13,
-              cursor: loading ? "not-allowed" : "pointer",
-              opacity: loading ? 0.7 : 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              boxShadow: "0 6px 18px rgba(198,154,62,0.22)",
-            }}
-          >
-            {loading ? <Loader2 size={16} className="lab-spin" style={{ animation: "spin 0.9s linear infinite" }} /> : <Sparkles size={16} />}
-            {loading ? "Génération en cours…" : "Nouvelle tâche du DG / Secrétaire"}
-          </button>
-          <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-
-          {loadErr && (
-            <div style={{ background: "#3a1f18", border: `1px solid ${T.rust}`, borderRadius: 8, padding: 10, fontSize: 12, display: "flex", gap: 8 }}>
-              <AlertTriangle size={15} color={T.rust} style={{ flexShrink: 0, marginTop: 1 }} />
-              <span style={{ color: "#f0c9bd" }}>{loadErr}</span>
-            </div>
-          )}
-
-          {/* Stats fiabilité */}
-          <div style={{ background: T.inkSoft, border: `1px solid ${T.inkLine}`, borderRadius: 12, padding: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: T.muted, fontWeight: 700 }}>
-              <Landmark size={13} /> Fiabilité mesurée
-            </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 10 }}>
-              <span style={{ fontFamily: "'Fraunces', serif", fontSize: 32, fontWeight: 600, color: fiabilite === null ? T.muted : fiabilite >= 80 ? "#8fbf7f" : fiabilite >= 50 ? T.gold : T.rust }}>
-                {fiabilite === null ? "—" : `${fiabilite}%`}
-              </span>
-              <span style={{ fontSize: 11, color: T.mutedDark }}>de tâches conformes</span>
-            </div>
-            <div style={{ display: "flex", gap: 14, marginTop: 10, fontSize: 11.5, color: T.muted }}>
-              <span>{tasks.length} générées</span>
-              <span>{done.length} traitées</span>
-              <span style={{ color: "#8fbf7f" }}>{conforme} conformes</span>
-              <span style={{ color: "#e08a72" }}>{ecart} écarts</span>
-            </div>
-          </div>
-
-          {/* Historique */}
-          <div style={{ background: T.inkSoft, border: `1px solid ${T.inkLine}`, borderRadius: 12, padding: 12, flex: 1, minHeight: 200 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: T.muted, fontWeight: 700, padding: "4px 6px 10px" }}>
-              <Inbox size={13} /> Boîte de tâches ({tasks.length})
-            </div>
-            <div className="lab-scroll" style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 520, overflowY: "auto" }}>
-              {!ready && <div style={{ fontSize: 12, color: T.mutedDark, padding: 8 }}>Chargement…</div>}
-              {ready && tasks.length === 0 && (
-                <div style={{ fontSize: 12, color: T.mutedDark, padding: 8, lineHeight: 1.6 }}>
-                  Aucune tâche pour l'instant. Clique sur « Nouvelle tâche » pour recevoir ta première note de service.
-                </div>
-              )}
-              {[...tasks].reverse().map((t) => (
-                <button
-                  key={t.id}
-                  className="task-card lab-focus"
-                  onClick={() => setActiveId(t.id)}
-                  style={{
-                    textAlign: "left",
-                    background: activeId === t.id ? `${T.gold}14` : "transparent",
-                    border: `1px solid ${activeId === t.id ? T.gold : "transparent"}`,
-                    borderRadius: 8,
-                    padding: "8px 10px",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: 8,
-                  }}
-                >
-                  {t.status === "traite" ? (
-                    t.evaluation === "conforme" ? (
-                      <CheckCircle2 size={15} color="#8fbf7f" style={{ marginTop: 2, flexShrink: 0 }} />
-                    ) : t.evaluation === "ecart" ? (
-                      <AlertTriangle size={15} color="#e08a72" style={{ marginTop: 2, flexShrink: 0 }} />
-                    ) : (
-                      <CheckCircle2 size={15} color={T.muted} style={{ marginTop: 2, flexShrink: 0 }} />
-                    )
-                  ) : (
-                    <Circle size={15} color={T.mutedDark} style={{ marginTop: 2, flexShrink: 0 }} />
-                  )}
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.titre}</div>
-                    <div style={{ fontSize: 10.5, color: T.mutedDark, marginTop: 1 }}>
-                      {t.journal} · {t.date_operation} · {fcfa(t.montant_ttc)}
-                    </div>
-                  </div>
-                  <ChevronRight size={14} color={T.mutedDark} style={{ flexShrink: 0, marginTop: 3 }} />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <button
-            className="lab-btn lab-focus"
-            onClick={resetLab}
-            style={{
-              background: "transparent",
-              border: `1px solid ${T.inkLine}`,
-              borderRadius: 8,
-              padding: "9px 12px",
-              color: T.mutedDark,
-              fontSize: 11.5,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              justifyContent: "center",
-            }}
-          >
-            <RotateCcw size={13} /> Réinitialiser le laboratoire
-          </button>
-        </div>
-
-        {/* Colonne droite : tâche active */}
-        <div style={{ minWidth: 0 }}>
-          {!active && (
-            <div
-              style={{
-                height: "100%",
-                minHeight: 400,
-                border: `1.5px dashed ${T.inkLine}`,
-                borderRadius: 14,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 10,
-                color: T.mutedDark,
-                textAlign: "center",
-                padding: 40,
-              }}
-            >
-              <ScrollText size={30} />
-              <div style={{ fontSize: 14, maxWidth: 340, lineHeight: 1.6 }}>
-                Sélectionne une tâche dans la boîte, ou génère-en une nouvelle pour recevoir ta prochaine note de service.
-              </div>
-            </div>
-          )}
-
-          {active && (
-            <TaskPanel
-              key={active.id}
-              task={active}
-              onMarkDone={() => markStatus(active.id, "traite")}
-              onReopen={() => markStatus(active.id, "a_faire")}
-              onEvaluate={(v) => markEvaluation(active.id, v)}
-              onNote={(v) => setNote(active.id, v)}
-              onDelete={() => deleteTask(active.id)}
-              showCorrection={!!showCorrection[active.id]}
-              toggleCorrection={() => setShowCorrection((p) => ({ ...p, [active.id]: !p[active.id] }))}
-            />
-          )}
-        </div>
-      </main>
-    </div>
-  );
-}
-
-/* ────────────────────────────────────────────────────────────
-   PANNEAU DE TÂCHE
-   ──────────────────────────────────────────────────────────── */
-function TaskPanel({ task, onMarkDone, onReopen, onEvaluate, onNote, showCorrection, toggleCorrection, onDelete }) {
-  const totalDebit = (task.ecriture_correcte || []).reduce((s, l) => s + (Number(l.debit) || 0), 0);
-  const totalCredit = (task.ecriture_correcte || []).reduce((s, l) => s + (Number(l.credit) || 0), 0);
-  const balanced = Math.abs(totalDebit - totalCredit) < 1;
-
-  const diffColor = { Débutant: "#8fbf7f", Intermédiaire: T.gold, Avancé: T.rust }[task.difficulte] || T.muted;
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {/* Note de service */}
-      <div style={{ background: T.inkSoft, border: `1px solid ${T.inkLine}`, borderRadius: 14, padding: 20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, flexWrap: "wrap" }}>
+  app.innerHTML = `
+  <header class="header">
+    <div class="header-inner">
+      <div class="top-row">
+        <div class="brand">
+          <div class="brand-icon">${ic.building}</div>
           <div>
-            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", color: T.muted, fontWeight: 700 }}>
-              Note interne — {task.emetteur}
-            </div>
-            <div style={{ fontFamily: "'Fraunces', serif", fontSize: 21, fontWeight: 600, marginTop: 4 }}>{task.titre}</div>
-          </div>
-          <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
-            <span style={{ fontSize: 10.5, padding: "4px 9px", borderRadius: 999, background: `${diffColor}22`, color: diffColor, fontWeight: 700 }}>
-              {task.difficulte}
-            </span>
-            <span style={{ fontSize: 10.5, padding: "4px 9px", borderRadius: 999, background: T.ink, color: T.muted, fontFamily: "'IBM Plex Mono', monospace" }}>
-              Journal {task.journal}
-            </span>
+            <div class="eyebrow">Dossier d'entreprise — Laboratoire de test COMEO AI</div>
+            <div class="company-name serif">${esc(c.nom)}</div>
+            <div class="company-sub">${esc(c.sigle)} · ${esc(c.siege)}</div>
           </div>
         </div>
-
-        <p style={{ marginTop: 14, fontSize: 14.5, lineHeight: 1.75, color: "#e7e4d8", fontFamily: "'Fraunces', serif", fontStyle: "italic" }}>
-          « {task.message} »
-        </p>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px,1fr))", gap: 1, background: T.inkLine, borderRadius: 8, overflow: "hidden", marginTop: 16 }}>
-          {[
-            ["Type d'opération", task.type_operation],
-            ["Tiers", task.tiers],
-            ["Pièce", task.piece_reference],
-            ["Date", task.date_operation],
-            ["Montant HT", fcfa(task.montant_ht)],
-            [`TVA (${task.taux_tva}%)`, fcfa(task.montant_tva)],
-            ["Montant TTC", fcfa(task.montant_ttc)],
-          ].map(([label, val]) => (
-            <div key={label} style={{ background: T.inkSoft, padding: "8px 10px" }}>
-              <div style={{ fontSize: 8.5, textTransform: "uppercase", letterSpacing: "0.08em", color: T.mutedDark }}>{label}</div>
-              <div style={{ fontSize: 12, marginTop: 2, fontFamily: "'IBM Plex Mono', monospace" }}>{val}</div>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
-          {task.status === "a_faire" ? (
-            <button className="lab-btn lab-focus" onClick={onMarkDone} style={btnPrimary}>
-              <CheckCircle2 size={15} /> Marquer comme traité dans COMEO AI
-            </button>
-          ) : (
-            <button className="lab-btn lab-focus" onClick={onReopen} style={btnGhost}>
-              Réouvrir la tâche
-            </button>
-          )}
-          <button className="lab-btn lab-focus" onClick={onDelete} style={{ ...btnGhost, color: T.rust, marginLeft: "auto" }}>
-            <Trash2 size={13} /> Supprimer
-          </button>
-        </div>
+        <div class="stamp">${ic.stamp} Entreprise fictive · Simulation</div>
       </div>
 
-      {/* Évaluation — visible une fois la tâche traitée */}
-      {task.status === "traite" && (
-        <div style={{ background: T.inkSoft, border: `1px solid ${T.inkLine}`, borderRadius: 14, padding: 18 }}>
-          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: T.muted, fontWeight: 700, marginBottom: 10 }}>
-            Résultat produit par COMEO AI — conforme à la correction ?
-          </div>
-          <div style={{ display: "flex", gap: 10 }}>
-            <button
-              className="lab-btn lab-focus"
-              onClick={() => onEvaluate("conforme")}
-              style={{
-                ...btnGhost,
-                borderColor: task.evaluation === "conforme" ? "#8fbf7f" : T.inkLine,
-                background: task.evaluation === "conforme" ? "#8fbf7f22" : "transparent",
-                color: task.evaluation === "conforme" ? "#8fbf7f" : T.muted,
-              }}
-            >
-              <ThumbsUp size={14} /> Conforme
-            </button>
-            <button
-              className="lab-btn lab-focus"
-              onClick={() => onEvaluate("ecart")}
-              style={{
-                ...btnGhost,
-                borderColor: task.evaluation === "ecart" ? T.rust : T.inkLine,
-                background: task.evaluation === "ecart" ? `${T.rust}22` : "transparent",
-                color: task.evaluation === "ecart" ? "#e08a72" : T.muted,
-              }}
-            >
-              <ThumbsDown size={14} /> Écart détecté
-            </button>
-          </div>
-          <textarea
-            className="lab-focus"
-            value={task.note}
-            onChange={(e) => onNote(e.target.value)}
-            placeholder="Note libre : ce que COMEO AI a proposé, l'écart observé, un compte erroné, une TVA mal calculée…"
-            style={{
-              width: "100%",
-              marginTop: 12,
-              background: T.ink,
-              border: `1px solid ${T.inkLine}`,
-              borderRadius: 8,
-              padding: 10,
-              color: T.text,
-              fontSize: 12.5,
-              minHeight: 70,
-              resize: "vertical",
-              fontFamily: "'IBM Plex Sans', sans-serif",
-            }}
-          />
-        </div>
-      )}
-
-      {/* Correction — écriture attendue, style grand-livre */}
-      <div style={{ background: T.ledger, borderRadius: 14, overflow: "hidden", border: `1px solid ${T.ledgerLine2}` }}>
-        <button
-          className="lab-focus"
-          onClick={toggleCorrection}
-          style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "14px 18px",
-            background: T.ledgerLine,
-            border: "none",
-            cursor: "pointer",
-            color: T.ink900,
-          }}
-        >
-          <span style={{ display: "flex", alignItems: "center", gap: 8, fontWeight: 700, fontSize: 12.5, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-            {showCorrection ? <Eye size={15} /> : <EyeOff size={15} />} Écriture correcte attendue
-          </span>
-          <span style={{ fontSize: 11, color: "#4a5240" }}>{showCorrection ? "Masquer" : "Révéler la correction"}</span>
-        </button>
-
-        {showCorrection && (
-          <div style={{ padding: "6px 4px 14px" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "'IBM Plex Mono', monospace", fontSize: 12.5, color: "#232a1c" }}>
-              <thead>
-                <tr style={{ borderBottom: `1.5px solid ${T.ledgerLine2}` }}>
-                  {["Compte", "Libellé", "Débit", "Crédit"].map((h, i) => (
-                    <th key={h} style={{ textAlign: i >= 2 ? "right" : "left", padding: "8px 14px", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.08em", color: "#5c6a4c" }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {(task.ecriture_correcte || []).map((l, i) => (
-                  <tr key={i} style={{ borderBottom: `1px solid ${T.ledgerLine}` }}>
-                    <td style={{ padding: "8px 14px", fontWeight: 600 }}>{l.compte}</td>
-                    <td style={{ padding: "8px 14px", fontFamily: "'IBM Plex Sans', sans-serif" }}>{l.libelle}</td>
-                    <td style={{ padding: "8px 14px", textAlign: "right" }}>{l.debit ? fcfa(l.debit) : ""}</td>
-                    <td style={{ padding: "8px 14px", textAlign: "right" }}>{l.credit ? fcfa(l.credit) : ""}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr style={{ borderTop: `1.5px solid ${T.ledgerLine2}` }}>
-                  <td colSpan={2} style={{ padding: "8px 14px", fontSize: 10.5, color: balanced ? "#4a7a3d" : T.rust, fontFamily: "'IBM Plex Sans', sans-serif", fontWeight: 600 }}>
-                    {balanced ? "✓ Écriture équilibrée" : "⚠ Écriture déséquilibrée — vérifier le prompt/la réponse IA"}
-                  </td>
-                  <td style={{ padding: "8px 14px", textAlign: "right", fontWeight: 700 }}>{fcfa(totalDebit)}</td>
-                  <td style={{ padding: "8px 14px", textAlign: "right", fontWeight: 700 }}>{fcfa(totalCredit)}</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        )}
+      <div class="fiche">
+        ${ficheCell("Capital social", fcfa(c.capital), "var(--gold)")}
+        ${ficheCell("Secteur", esc(c.secteur))}
+        ${ficheCell("RCCM", esc(c.rccm))}
+        ${ficheCell("Régime fiscal", esc(c.regimeFiscal))}
+        ${ficheCell("TVA", c.tauxTva + "%")}
       </div>
+
+      <div class="roles">
+        ${roleChip("Directeur Général", c.dg, false)}
+        ${roleChip("Secrétaire", c.secretaire, false)}
+        ${roleChip("Comptable", c.comptable, true)}
+        <button class="ghost-btn btn" style="margin-left:auto" onclick="toggleEditCompany()">${state.editingCompany ? "Fermer l'édition" : "Modifier le dossier"}</button>
+      </div>
+
+      ${state.editingCompany ? companyEditor(c) : ""}
     </div>
-  );
-}
+  </header>
 
-const btnPrimary = {
-  background: T.gold,
-  border: "none",
-  borderRadius: 8,
-  padding: "10px 16px",
-  color: T.ink900,
-  fontWeight: 700,
-  fontSize: 12.5,
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  gap: 7,
-};
-const btnGhost = {
-  background: "transparent",
-  border: `1px solid ${T.inkLine}`,
-  borderRadius: 8,
-  padding: "10px 16px",
-  color: T.muted,
-  fontWeight: 600,
-  fontSize: 12.5,
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  gap: 7,
-};
-
-/* ────────────────────────────────────────────────────────────
-   ÉDITEUR DU DOSSIER D'ENTREPRISE
-   ──────────────────────────────────────────────────────────── */
-function CompanyEditor({ company, onSave }) {
-  const [form, setForm] = useState(company);
-  const field = (key, label, type = "text") => (
-    <label style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <span style={{ fontSize: 9.5, textTransform: "uppercase", letterSpacing: "0.08em", color: T.mutedDark }}>{label}</span>
-      <input
-        className="lab-focus"
-        type={type}
-        value={form[key]}
-        onChange={(e) => setForm({ ...form, [key]: type === "number" ? Number(e.target.value) : e.target.value })}
-        style={{ background: T.ink, border: `1px solid ${T.inkLine}`, borderRadius: 6, padding: "7px 9px", color: T.text, fontSize: 12.5 }}
-      />
-    </label>
-  );
-  return (
-    <div style={{ marginTop: 16, background: T.ink, border: `1px solid ${T.inkLine}`, borderRadius: 10, padding: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px,1fr))", gap: 12 }}>
-        {field("nom", "Nom de l'entreprise")}
-        {field("sigle", "Sigle")}
-        {field("capital", "Capital social (FCFA)", "number")}
-        {field("secteur", "Secteur d'activité")}
-        {field("siege", "Siège social")}
-        {field("rccm", "RCCM")}
-        {field("regimeFiscal", "Régime fiscal")}
-        {field("tauxTva", "Taux TVA (%)", "number")}
-        {field("dg", "Directeur Général")}
-        {field("secretaire", "Secrétaire")}
+  <main class="main">
+    <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+      <div class="panel">
+        <div class="panel-title">${ic.key} Clé API Gemini</div>
+        <div class="key-input-wrap">
+          <input id="apiKeyInput" type="${state.showKey ? "text" : "password"}" value="${esc(state.apiKey)}" placeholder="Colle ta clé ici (session uniquement)" oninput="onApiKeyInput(this.value)" class="mono">
+          <button class="key-eye" onclick="toggleShowKey()" aria-label="Afficher/masquer la clé">${state.showKey ? ic.eyeOff : ic.eye}</button>
+        </div>
+        <p class="key-hint">Jamais enregistrée ni écrite dans le code — reste uniquement dans cette page tant qu'elle est ouverte.</p>
       </div>
-      <button className="lab-btn lab-focus" onClick={() => onSave(form)} style={{ ...btnPrimary, marginTop: 14 }}>
-        Enregistrer le dossier
+
+      <button class="gen-btn btn" ${state.loading ? "disabled" : ""} onclick="generateTask()">
+        ${state.loading ? `<span class="spin">${ic.loader}</span>` : ic.sparkles}
+        ${state.loading ? "Génération en cours…" : "Nouvelle tâche du DG / Secrétaire"}
       </button>
+
+      ${state.loadErr ? `<div class="err-box">${ic.alert}<span>${esc(state.loadErr)}</span></div>` : ""}
+
+      <div class="panel">
+        <div class="panel-title">${ic.landmark} Fiabilité mesurée</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-top:10px">
+          <span class="stat-num" style="color:${fiabColor}">${fiabilite === null ? "—" : fiabilite + "%"}</span>
+          <span style="font-size:11px;color:var(--muted-dark)">de tâches conformes</span>
+        </div>
+        <div class="stat-row">
+          <span>${state.tasks.length} générées</span>
+          <span>${done.length} traitées</span>
+          <span style="color:#8fbf7f">${conforme} conformes</span>
+          <span style="color:#e08a72">${ecart} écarts</span>
+        </div>
+      </div>
+
+      <div class="panel" style="flex:1;min-height:200px">
+        <div class="panel-title" style="padding:4px 6px 10px">${ic.inbox} Boîte de tâches (${state.tasks.length})</div>
+        <div class="inbox-list">
+          ${!state.ready ? `<div class="inbox-empty">Chargement…</div>` : ""}
+          ${state.ready && state.tasks.length === 0 ? `<div class="inbox-empty">Aucune tâche pour l'instant. Clique sur « Nouvelle tâche » pour recevoir ta première note de service.</div>` : ""}
+          ${[...state.tasks].reverse().map(taskCard).join("")}
+        </div>
+      </div>
+
+      <button class="reset-btn btn" onclick="resetLab()">${ic.reset} Réinitialiser le laboratoire</button>
     </div>
-  );
+
+    <div style="min-width:0">
+      ${active ? taskPanel(active) : `<div class="empty-state">${ic.scroll}<div style="font-size:14px;max-width:340px;line-height:1.6">Sélectionne une tâche dans la boîte, ou génère-en une nouvelle pour recevoir ta prochaine note de service.</div></div>`}
+    </div>
+  </main>
+  `;
 }
+
+function ficheCell(label, val, color) {
+  return `<div class="fiche-cell"><div class="fiche-label">${esc(label)}</div><div class="fiche-val mono" style="${color ? `color:${color}` : ""}">${val}</div></div>`;
+}
+function roleChip(role, name, me) {
+  return `<div class="role-chip${me ? " me" : ""}">
+    <div class="role-avatar">${initials(name)}</div>
+    <div><div class="role-label">${esc(role)}</div><div class="role-name">${esc(name)}</div></div>
+  </div>`;
+}
+function companyEditor(c) {
+  const fields = [
+    ["nom", "Nom de l'entreprise", "text"], ["sigle", "Sigle", "text"], ["capital", "Capital social (FCFA)", "number"],
+    ["secteur", "Secteur d'activité", "text"], ["siege", "Siège social", "text"], ["rccm", "RCCM", "text"],
+    ["regimeFiscal", "Régime fiscal", "text"], ["tauxTva", "Taux TVA (%)", "number"], ["dg", "Directeur Général", "text"], ["secretaire", "Secrétaire", "text"],
+  ];
+  return `<div class="edit-box">
+    <div class="edit-grid">
+      ${fields.map(([key, label, type]) => `
+        <div class="field"><label><span>${esc(label)}</span>
+          <input data-field="${key}" type="${type}" value="${esc(c[key])}">
+        </label></div>`).join("")}
+    </div>
+    <button class="btn-primary btn" style="margin-top:14px" onclick="saveCompanyFromForm()">Enregistrer le dossier</button>
+  </div>`;
+}
+function saveCompanyFromForm() {
+  const next = { ...state.company };
+  document.querySelectorAll("[data-field]").forEach((el) => {
+    const key = el.getAttribute("data-field");
+    next[key] = el.type === "number" ? Number(el.value) : el.value;
+  });
+  saveCompany(next);
+  state.editingCompany = false;
+  render();
+}
+
+function taskCard(t) {
+  const active = t.id === state.activeId;
+  let statusIcon;
+  if (t.status === "traite") {
+    if (t.evaluation === "conforme") statusIcon = `<span style="color:#8fbf7f;margin-top:2px;flex-shrink:0">${ic.check}</span>`;
+    else if (t.evaluation === "ecart") statusIcon = `<span style="color:#e08a72;margin-top:2px;flex-shrink:0">${ic.alert}</span>`;
+    else statusIcon = `<span style="color:var(--muted);margin-top:2px;flex-shrink:0">${ic.check}</span>`;
+  } else {
+    statusIcon = `<span style="color:var(--muted-dark);margin-top:2px;flex-shrink:0">${ic.circle}</span>`;
+  }
+  return `<button class="task-card btn${active ? " active" : ""}" onclick="setActive('${t.id}')">
+    ${statusIcon}
+    <div style="min-width:0;flex:1">
+      <div class="task-card-title">${esc(t.titre)}</div>
+      <div class="task-card-sub">${esc(t.journal)} · ${esc(t.date_operation)} · ${fcfa(t.montant_ttc)}</div>
+    </div>
+    <span style="color:var(--muted-dark);flex-shrink:0;margin-top:3px">${ic.chevron}</span>
+  </button>`;
+}
+
+function taskPanel(t) {
+  const lines = t.ecriture_correcte || [];
+  const totalDebit = lines.reduce((s, l) => s + (Number(l.debit) || 0), 0);
+  const totalCredit = lines.reduce((s, l) => s + (Number(l.credit) || 0), 0);
+  const balanced = Math.abs(totalDebit - totalCredit) < 1;
+  const diffColor = { "Débutant": "#8fbf7f", "Intermédiaire": "var(--gold)", "Avancé": "var(--rust)" }[t.difficulte] || "var(--muted)";
+  const showCorr = !!state.showCorrection[t.id];
+
+  return `<div class="task-panel">
+    <div class="memo">
+      <div class="memo-top">
+        <div>
+          <div class="memo-eyebrow">Note interne — ${esc(t.emetteur)}</div>
+          <div class="memo-title serif">${esc(t.titre)}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+          <span class="badge" style="background:${diffColor}22;color:${diffColor}">${esc(t.difficulte)}</span>
+          <span class="badge mono" style="background:var(--ink);color:var(--muted)">Journal ${esc(t.journal)}</span>
+        </div>
+      </div>
+
+      <p class="memo-text serif">« ${esc(t.message)} »</p>
+
+      <div class="memo-grid">
+        ${memoCell("Type d'opération", esc(t.type_operation))}
+        ${memoCell("Tiers", esc(t.tiers))}
+        ${memoCell("Pièce", esc(t.piece_reference))}
+        ${memoCell("Date", esc(t.date_operation))}
+        ${memoCell("Montant HT", fcfa(t.montant_ht))}
+        ${memoCell(`TVA (${t.taux_tva}%)`, fcfa(t.montant_tva))}
+        ${memoCell("Montant TTC", fcfa(t.montant_ttc))}
+      </div>
+
+      <div class="memo-actions">
+        ${t.status === "a_faire"
+          ? `<button class="btn-primary btn" onclick="markStatus('${t.id}','traite')">${ic.check} Marquer comme traité dans COMEO AI</button>`
+          : `<button class="btn-ghost btn" onclick="markStatus('${t.id}','a_faire')">Réouvrir la tâche</button>`}
+        <button class="btn-ghost btn-danger btn" style="margin-left:auto" onclick="deleteTask('${t.id}')">${ic.trash} Supprimer</button>
+      </div>
+    </div>
+
+    ${t.status === "traite" ? `
+    <div class="eval-box">
+      <div class="eval-title">Résultat produit par COMEO AI — conforme à la correction ?</div>
+      <div class="eval-btns">
+        <button class="btn-ghost eval-btn btn${t.evaluation === "conforme" ? " on-good" : ""}" onclick="markEvaluation('${t.id}','conforme')">${ic.thumbUp} Conforme</button>
+        <button class="btn-ghost eval-btn btn${t.evaluation === "ecart" ? " on-bad" : ""}" onclick="markEvaluation('${t.id}','ecart')">${ic.thumbDown} Écart détecté</button>
+      </div>
+      <textarea class="eval-note" placeholder="Note libre : ce que COMEO AI a proposé, l'écart observé, un compte erroné, une TVA mal calculée…" oninput="setNote('${t.id}', this.value)">${esc(t.note)}</textarea>
+    </div>` : ""}
+
+    <div class="ledger">
+      <button class="ledger-toggle btn" onclick="toggleCorrection('${t.id}')">
+        <span class="ledger-toggle-label">${showCorr ? ic.eye : ic.eyeOff} Écriture correcte attendue</span>
+        <span class="ledger-toggle-hint">${showCorr ? "Masquer" : "Révéler la correction"}</span>
+      </button>
+      ${showCorr ? `
+      <div class="ledger-body">
+        <table class="ledger-table mono">
+          <thead><tr><th>Compte</th><th>Libellé</th><th class="num">Débit</th><th class="num">Crédit</th></tr></thead>
+          <tbody>
+            ${lines.map((l) => `<tr>
+              <td style="font-weight:600">${esc(l.compte)}</td>
+              <td style="font-family:'IBM Plex Sans',sans-serif">${esc(l.libelle)}</td>
+              <td class="num">${l.debit ? fcfa(l.debit) : ""}</td>
+              <td class="num">${l.credit ? fcfa(l.credit) : ""}</td>
+            </tr>`).join("")}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2" class="balance-note" style="color:${balanced ? "#4a7a3d" : "var(--rust)"}">${balanced ? "✓ Écriture équilibrée" : "⚠ Écriture déséquilibrée — vérifier le prompt/la réponse IA"}</td>
+              <td class="num">${fcfa(totalDebit)}</td>
+              <td class="num">${fcfa(totalCredit)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>` : ""}
+    </div>
+  </div>`;
+}
+function memoCell(label, val) {
+  return `<div class="memo-cell"><div class="memo-cell-label">${label}</div><div class="memo-cell-val mono">${val}</div></div>`;
+}
+</script>
+</body>
+</html>
