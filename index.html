@@ -163,6 +163,7 @@ const state = {
   company: { ...DEFAULT_COMPANY },
   editingCompany: false,
   apiKey: "",
+  editingKey: false,
   showKey: false,
   tasks: [],
   activeId: null,
@@ -398,11 +399,22 @@ function render() {
     <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
       <div class="panel">
         <div class="panel-title">${ic.key} Clé API Gemini</div>
-        <div class="key-input-wrap">
-          <input id="apiKeyInput" type="${state.showKey ? "text" : "password"}" value="${esc(state.apiKey)}" placeholder="Colle ta clé ici (session uniquement)" oninput="onApiKeyInput(this.value)" class="mono">
-          <button class="key-eye" onclick="toggleShowKey()" aria-label="Afficher/masquer la clé">${state.showKey ? ic.eyeOff : ic.eye}</button>
-        </div>
-        <p class="key-hint">Sauvegardée dans ton espace personnel (jamais écrite dans le code, jamais visible par quelqu'un d'autre qui ouvrirait ce fichier).</p>
+        ${state.apiKey && !state.editingKey ? `
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px">
+            <span style="display:flex;align-items:center;gap:7px;font-size:12px;color:#8fbf7f">
+              <span style="width:7px;height:7px;border-radius:50%;background:#8fbf7f;display:inline-block"></span>
+              Clé enregistrée
+            </span>
+            <button class="ghost-btn btn" style="padding:5px 12px" onclick="state.editingKey=true;render()">Changer</button>
+          </div>
+        ` : `
+          <div class="key-input-wrap">
+            <input id="apiKeyInput" type="${state.showKey ? "text" : "password"}" value="${esc(state.apiKey)}" placeholder="Colle ta clé ici" oninput="onApiKeyInput(this.value)" class="mono">
+            <button class="key-eye" onclick="toggleShowKey()" aria-label="Afficher/masquer la clé">${state.showKey ? ic.eyeOff : ic.eye}</button>
+          </div>
+          <p class="key-hint">Sauvegardée dans ton espace personnel (jamais écrite dans le code, jamais visible par quelqu'un d'autre qui ouvrirait ce fichier).</p>
+          ${state.apiKey ? `<button class="ghost-btn btn" style="margin-top:8px" onclick="state.editingKey=false;render()">Valider</button>` : ""}
+        `}
       </div>
 
       <button class="gen-btn btn" ${state.loading ? "disabled" : ""} onclick="generateTask()">
