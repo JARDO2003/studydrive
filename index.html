@@ -281,6 +281,8 @@ const ic = {
   if (c) state.company = c;
   const t = await storage.get("lab-tasks");
   if (t) { state.tasks = t; if (t.length) state.activeId = t[t.length - 1].id; }
+  const k = await storage.get("lab-apikey");
+  if (k) state.apiKey = k;
   state.ready = true;
   render();
 })();
@@ -343,7 +345,7 @@ function setActive(id) { state.activeId = id; render(); }
 function toggleCorrection(id) { state.showCorrection[id] = !state.showCorrection[id]; render(); }
 function toggleEditCompany() { state.editingCompany = !state.editingCompany; render(); }
 function toggleShowKey() { state.showKey = !state.showKey; render(); }
-function onApiKeyInput(v) { state.apiKey = v; }
+function onApiKeyInput(v) { state.apiKey = v; storage.set("lab-apikey", v); }
 
 /* ────────────────────────────────────────────────────────────
    RENDU
@@ -400,7 +402,7 @@ function render() {
           <input id="apiKeyInput" type="${state.showKey ? "text" : "password"}" value="${esc(state.apiKey)}" placeholder="Colle ta clé ici (session uniquement)" oninput="onApiKeyInput(this.value)" class="mono">
           <button class="key-eye" onclick="toggleShowKey()" aria-label="Afficher/masquer la clé">${state.showKey ? ic.eyeOff : ic.eye}</button>
         </div>
-        <p class="key-hint">Jamais enregistrée ni écrite dans le code — reste uniquement dans cette page tant qu'elle est ouverte.</p>
+        <p class="key-hint">Sauvegardée dans ton espace personnel (jamais écrite dans le code, jamais visible par quelqu'un d'autre qui ouvrirait ce fichier).</p>
       </div>
 
       <button class="gen-btn btn" ${state.loading ? "disabled" : ""} onclick="generateTask()">
