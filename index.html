@@ -157,7 +157,7 @@ const DEFAULT_COMPANY = {
   secretaire: "Mme Chantal Aya Koffi",
   comptable: "Vous",
 };
-const MODEL = "gemini-2.0-flash";
+const MODEL = "gemini-flash-latest"; // alias toujours à jour vers le dernier modèle Flash GA
 
 const state = {
   company: { ...DEFAULT_COMPANY },
@@ -306,7 +306,13 @@ async function generateTask() {
         generationConfig: { temperature: 0.9, responseMimeType: "application/json", responseSchema: TASK_SCHEMA },
       }),
     });
-    if (!res.ok) { const errText = await res.text(); throw new Error(`Gemini a répondu ${res.status} : ${errText.slice(0, 200)}`); }
+    if (!res.ok) {
+      const errText = await res.text();
+      if (res.status === 429) {
+        throw new Error("Quota Gemini atteint (429). Le niveau gratuit limite le nombre de requêtes par minute et par jour. Attends une minute avant de réessayer, ou vérifie ton quota sur https://ai.google.dev/gemini-api/docs/rate-limits.");
+      }
+      throw new Error(`Gemini a répondu ${res.status} : ${errText.slice(0, 200)}`);
+    }
     const data = await res.json();
     const raw = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0].text;
     if (!raw) throw new Error("Réponse vide ou bloquée par Gemini.");
